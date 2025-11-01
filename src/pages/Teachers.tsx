@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 
-const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
+const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX', 'Honorer'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
 
 export default function Teachers() {
@@ -153,7 +153,7 @@ export default function Teachers() {
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 gap-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -163,8 +163,8 @@ export default function Teachers() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                <Plus className="w-4 h-4 mr-2" />
+              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                <Plus className="w-4 h-4" />
                 Tambah
               </Button>
             </DialogTrigger>
@@ -177,6 +177,7 @@ export default function Teachers() {
                   <Label htmlFor="name">Nama Guru</Label>
                   <Input
                     id="name"
+                    placeholder="Masukkan nama lengkap guru"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
@@ -186,6 +187,7 @@ export default function Teachers() {
                   <Label htmlFor="nip">NIP</Label>
                   <Input
                     id="nip"
+                    placeholder="Masukkan NIP guru"
                     value={formData.nip}
                     onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
                     required
@@ -196,11 +198,11 @@ export default function Teachers() {
                   <Input
                     id="email"
                     type="email"
+                    placeholder="email@contoh.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
                     disabled={!!editingTeacher}
-                    placeholder="email@contoh.com"
                   />
                   {!editingTeacher && (
                     <p className="text-xs text-muted-foreground">
@@ -262,8 +264,8 @@ export default function Teachers() {
               <Users className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">Belum ada data guru</p>
               <p className="text-sm text-muted-foreground mb-4">Tambahkan guru pertama Anda</p>
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button onClick={() => setDialogOpen(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
                 Tambah Guru
               </Button>
             </CardContent>

@@ -80,7 +80,7 @@ export default function Dashboard() {
               <p className="text-sm opacity-90">{school?.name}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-white/10">
+          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-white/10 gap-0">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
@@ -136,12 +136,12 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
-            <CardTitle>Menu Utama</CardTitle>
+            <CardTitle>Akses Cepat</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               onClick={() => navigate("/teachers")}
-              className="h-auto py-6 justify-start gap-4"
+              className="h-auto py-6 justify-start gap-3"
               variant="outline"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function Dashboard() {
 
             <Button
               onClick={() => navigate("/supervisions")}
-              className="h-auto py-6 justify-start gap-4"
+              className="h-auto py-6 justify-start gap-3"
               variant="outline"
             >
               <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
@@ -169,7 +169,7 @@ export default function Dashboard() {
 
             <Button
               onClick={() => navigate("/school-profile")}
-              className="h-auto py-6 justify-start gap-4"
+              className="h-auto py-6 justify-start gap-3"
               variant="outline"
             >
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">

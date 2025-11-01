@@ -137,7 +137,7 @@ export default function Supervisions() {
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 gap-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -147,8 +147,8 @@ export default function Supervisions() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                <Plus className="w-4 h-4 mr-2" />
+              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                <Plus className="w-4 h-4" />
                 Buat
               </Button>
             </DialogTrigger>
@@ -262,7 +262,7 @@ export default function Supervisions() {
                     id="notes"
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    placeholder="Masukkan catatan observasi..."
+                    placeholder="Tulis catatan hasil observasi, saran, atau rekomendasi..."
                     rows={4}
                   />
                 </div>
@@ -289,8 +289,8 @@ export default function Supervisions() {
               <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">Belum ada supervisi</p>
               <p className="text-sm text-muted-foreground mb-4">Buat supervisi pertama Anda</p>
-              <Button onClick={() => setDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <Button onClick={() => setDialogOpen(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
                 Buat Supervisi
               </Button>
             </CardContent>

@@ -49,7 +49,7 @@ const Index = () => {
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
-                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                className="gap-2"
               >
                 Daftar
               </Button>
@@ -80,7 +80,7 @@ const Index = () => {
                         setMobileMenuOpen(false);
                         navigate("/auth");
                       }}
-                      className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                      className="w-full gap-2"
                     >
                       Daftar
                     </Button>
@@ -109,7 +109,7 @@ const Index = () => {
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
-              className="bg-white text-primary hover:bg-white/90 shadow-lg text-base md:text-lg px-6 md:px-8 w-full sm:w-auto"
+              className="bg-white text-primary hover:bg-white/90 shadow-lg text-base md:text-lg px-6 md:px-8 w-full sm:w-auto gap-2"
             >
               Mulai Sekarang
             </Button>
@@ -168,7 +168,7 @@ const Index = () => {
           <Button
             size="lg"
             onClick={() => navigate("/auth")}
-            className="bg-white text-secondary hover:bg-white/90 shadow-lg text-lg px-8"
+            className="bg-white text-secondary hover:bg-white/90 shadow-lg text-lg px-8 gap-2"
           >
             Daftar Gratis
           </Button>

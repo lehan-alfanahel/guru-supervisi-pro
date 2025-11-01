@@ -72,9 +72,12 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-primary)' }}>
       <Card className="w-full max-w-md shadow-[var(--shadow-elevated)]">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center">
+          <button 
+            onClick={() => navigate("/")}
+            className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
+          >
             <GraduationCap className="w-10 h-10 text-primary-foreground" />
-          </div>
+          </button>
           <CardTitle className="text-2xl font-bold">SUPERVISI DIGITAL GURU</CardTitle>
           <CardDescription>
             {isLogin ? "Masuk ke akun Anda" : "Buat akun baru"}
