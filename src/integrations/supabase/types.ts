@@ -122,6 +122,7 @@ export type Database = {
       teachers: {
         Row: {
           created_at: string
+          email: string | null
           employment_type: Database["public"]["Enums"]["employment_type"]
           id: string
           name: string
@@ -132,6 +133,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email?: string | null
           employment_type: Database["public"]["Enums"]["employment_type"]
           id?: string
           name: string
@@ -142,6 +144,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email?: string | null
           employment_type?: Database["public"]["Enums"]["employment_type"]
           id?: string
           name?: string

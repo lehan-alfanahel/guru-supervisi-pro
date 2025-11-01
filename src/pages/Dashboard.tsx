@@ -6,14 +6,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { School2, Users, ClipboardList, LogOut } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Dashboard() {
   const [school, setSchool] = useState<School | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -52,6 +65,10 @@ export default function Dashboard() {
 
   const handleSignOut = async () => {
     await signOut();
+    toast({
+      title: "Berhasil keluar",
+      description: "Anda telah keluar dari aplikasi",
+    });
     navigate("/auth");
   };
 
@@ -80,7 +97,7 @@ export default function Dashboard() {
               <p className="text-sm opacity-90">{school?.name}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-white/10 gap-0">
+          <Button variant="ghost" size="icon" onClick={() => setLogoutDialogOpen(true)} className="hover:bg-white/10 gap-0">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
@@ -216,6 +233,24 @@ export default function Dashboard() {
 
       {/* Bottom Navigation */}
       <BottomNav />
+
+      {/* Logout Confirmation Dialog */}
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Keluar</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin keluar dari aplikasi?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSignOut}>
+              Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
