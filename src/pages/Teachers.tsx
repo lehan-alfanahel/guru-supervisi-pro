@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 
-const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX', 'Honorer'];
+const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
 
 export default function Teachers() {
