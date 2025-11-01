@@ -100,7 +100,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-4">
+    <div className="min-h-screen bg-background pb-20 md:pb-4">
       {/* Header */}
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
