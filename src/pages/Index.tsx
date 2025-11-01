@@ -1,12 +1,124 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, School2, ClipboardList, TrendingUp } from "lucide-react";
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--gradient-primary)' }}>
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16 md:py-24">
+        <div className="max-w-4xl mx-auto text-center text-white">
+          <div className="inline-block mb-6 p-4 rounded-2xl bg-white/10 backdrop-blur-sm">
+            <GraduationCap className="w-16 h-16" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            SUPERVISI DIGITAL GURU
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 text-white/90">
+            Platform modern untuk supervisi kinerja guru secara digital, efisien, dan terstruktur
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              onClick={() => navigate("/auth")}
+              className="bg-white text-primary hover:bg-white/90 shadow-lg text-lg px-8"
+            >
+              Mulai Sekarang
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => navigate("/auth")}
+              className="bg-white/10 text-white border-white hover:bg-white/20 text-lg px-8"
+            >
+              Masuk
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="bg-background py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Fitur Utama</h2>
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="bg-card p-8 rounded-2xl shadow-[var(--shadow-card)] border border-border">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <School2 className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Manajemen Sekolah</h3>
+              <p className="text-muted-foreground">
+                Kelola profil sekolah dan data kepala sekolah dengan mudah dalam satu platform terpadu
+              </p>
+            </div>
+
+            <div className="bg-card p-8 rounded-2xl shadow-[var(--shadow-card)] border border-border">
+              <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-4">
+                <ClipboardList className="w-8 h-8 text-secondary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Supervisi Digital</h3>
+              <p className="text-muted-foreground">
+                Lakukan supervisi kelengkapan perangkat pembelajaran dan penilaian secara digital dan terstruktur
+              </p>
+            </div>
+
+            <div className="bg-card p-8 rounded-2xl shadow-[var(--shadow-card)] border border-border">
+              <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+                <TrendingUp className="w-8 h-8 text-accent" />
+              </div>
+              <h3 className="text-xl font-semibold mb-3">Laporan Lengkap</h3>
+              <p className="text-muted-foreground">
+                Dapatkan laporan supervisi yang komprehensif dan mudah dipahami untuk evaluasi kinerja guru
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="py-16 md:py-24" style={{ background: 'var(--gradient-secondary)' }}>
+        <div className="container mx-auto px-4 text-center text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Siap Meningkatkan Kualitas Supervisi?
+          </h2>
+          <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+            Bergabunglah dengan kepala sekolah lainnya yang telah menggunakan platform digital untuk supervisi yang lebih efektif
+          </p>
+          <Button
+            size="lg"
+            onClick={() => navigate("/auth")}
+            className="bg-white text-secondary hover:bg-white/90 shadow-lg text-lg px-8"
+          >
+            Daftar Gratis
+          </Button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-card border-t py-8">
+        <div className="container mx-auto px-4 text-center text-muted-foreground">
+          <p>&copy; 2025 Supervisi Digital Guru. Platform supervisi modern untuk sekolah Indonesia.</p>
+        </div>
+      </footer>
     </div>
   );
 };
