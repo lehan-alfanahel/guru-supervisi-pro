@@ -37,8 +37,8 @@ const Index = () => {
               <span className="font-bold text-sm sm:hidden">SUPERVISI</span>
             </div>
             
-            {/* Auth Buttons */}
-            <div className="flex items-center gap-2">
+            {/* Desktop Auth Buttons */}
+            <div className="hidden sm:flex items-center gap-2">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/auth")}
@@ -52,6 +52,40 @@ const Index = () => {
               >
                 Daftar
               </Button>
+            </div>
+
+            {/* Mobile Menu */}
+            <div className="sm:hidden">
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-white/10">
+                    <Menu className="w-6 h-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <div className="flex flex-col gap-4 mt-8">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        navigate("/auth");
+                      }}
+                      className="w-full"
+                    >
+                      Masuk
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        navigate("/auth");
+                      }}
+                      className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                    >
+                      Daftar
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>

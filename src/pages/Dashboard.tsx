@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSchool, getTeachers, getSupervisions, School, Teacher } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -68,18 +69,18 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-card border-b shadow-sm sticky top-0 z-10">
+      <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <School2 className="w-6 h-6 text-primary-foreground" />
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+              <School2 className="w-6 h-6" />
             </div>
             <div>
               <h1 className="text-lg font-bold">SUPERVISI DIGITAL GURU</h1>
-              <p className="text-sm text-muted-foreground">{school?.name}</p>
+              <p className="text-sm opacity-90">{school?.name}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-white/10">
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
@@ -214,26 +215,34 @@ export default function Dashboard() {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t md:hidden">
-        <div className="flex items-center justify-around p-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t md:hidden safe-area-bottom">
+        <div className="flex items-center justify-around p-2">
+          <Button 
+            variant={location.pathname === "/dashboard" ? "default" : "ghost"} 
+            size="sm" 
+            onClick={() => navigate("/dashboard")}
+            className="flex-col h-auto py-2 px-3"
+          >
             <School2 className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/teachers")}>
-            <Users className="w-5 h-5" />
+            <span className="text-xs mt-1">Dashboard</span>
           </Button>
           <Button 
-            size="icon" 
-            className="rounded-full w-14 h-14 shadow-lg"
-            onClick={() => navigate("/supervisions/new")}
+            variant={location.pathname === "/teachers" ? "default" : "ghost"} 
+            size="sm" 
+            onClick={() => navigate("/teachers")}
+            className="flex-col h-auto py-2 px-3"
           >
-            <Plus className="w-6 h-6" />
+            <Users className="w-5 h-5" />
+            <span className="text-xs mt-1">Guru</span>
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/supervisions")}>
+          <Button 
+            variant={location.pathname === "/supervisions" ? "default" : "ghost"} 
+            size="sm" 
+            onClick={() => navigate("/supervisions")}
+            className="flex-col h-auto py-2 px-3"
+          >
             <ClipboardList className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/school-profile")}>
-            <School2 className="w-5 h-5" />
+            <span className="text-xs mt-1">Supervisi</span>
           </Button>
         </div>
       </div>

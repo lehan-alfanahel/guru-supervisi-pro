@@ -22,6 +22,7 @@ export interface Teacher {
   school_id: string;
   name: string;
   nip: string;
+  email: string;
   rank: TeacherRank;
   employment_type: EmploymentType;
   created_at: string;

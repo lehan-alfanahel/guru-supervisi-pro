@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import BottomNav from "@/components/BottomNav";
 
 const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
@@ -26,6 +27,7 @@ export default function Teachers() {
   const [formData, setFormData] = useState({
     name: "",
     nip: "",
+    email: "",
     rank: "" as TeacherRank,
     employment_type: "" as EmploymentType,
   });
@@ -93,6 +95,7 @@ export default function Teachers() {
     setFormData({
       name: teacher.name,
       nip: teacher.nip,
+      email: teacher.email,
       rank: teacher.rank,
       employment_type: teacher.employment_type,
     });
@@ -121,6 +124,7 @@ export default function Teachers() {
     setFormData({
       name: "",
       nip: "",
+      email: "",
       rank: "" as TeacherRank,
       employment_type: "" as EmploymentType,
     });
@@ -146,20 +150,20 @@ export default function Teachers() {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-4">
       {/* Header */}
-      <header className="bg-card border-b shadow-sm sticky top-0 z-10">
+      <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="text-lg font-bold">Data Guru</h1>
-              <p className="text-sm text-muted-foreground">{teachers.length} guru terdaftar</p>
+              <p className="text-sm opacity-90">{teachers.length} guru terdaftar</p>
             </div>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm}>
+              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah
               </Button>
@@ -186,6 +190,23 @@ export default function Teachers() {
                     onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                    disabled={!!editingTeacher}
+                    placeholder="email@contoh.com"
+                  />
+                  {!editingTeacher && (
+                    <p className="text-xs text-muted-foreground">
+                      Password default: 123456
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="rank">Pangkat</Label>
@@ -256,6 +277,7 @@ export default function Teachers() {
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{teacher.name}</h3>
                       <p className="text-sm text-muted-foreground">NIP: {teacher.nip}</p>
+                      <p className="text-sm text-muted-foreground">{teacher.email}</p>
                       <div className="flex gap-2 mt-2">
                         <span className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
                           {teacher.rank}
@@ -305,6 +327,9 @@ export default function Teachers() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

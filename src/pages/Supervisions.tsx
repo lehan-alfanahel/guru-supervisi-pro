@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, ClipboardList, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import BottomNav from "@/components/BottomNav";
 
 export default function Supervisions() {
   const [supervisions, setSupervisions] = useState<any[]>([]);
@@ -133,20 +134,20 @@ export default function Supervisions() {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-4">
       {/* Header */}
-      <header className="bg-card border-b shadow-sm sticky top-0 z-10">
+      <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="text-lg font-bold">Supervisi</h1>
-              <p className="text-sm text-muted-foreground">{supervisions.length} supervisi</p>
+              <p className="text-sm opacity-90">{supervisions.length} supervisi</p>
             </div>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm}>
+              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
                 <Plus className="w-4 h-4 mr-2" />
                 Buat
               </Button>
@@ -379,6 +380,9 @@ export default function Supervisions() {
           </div>
         )}
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
