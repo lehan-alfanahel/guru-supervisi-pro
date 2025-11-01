@@ -7,7 +7,7 @@ export default function BottomNav() {
   const location = useLocation();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t md:hidden safe-area-bottom z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t safe-area-bottom z-50">
       <div className="flex items-center justify-around p-2">
         <Button 
           variant={location.pathname === "/dashboard" ? "default" : "ghost"} 

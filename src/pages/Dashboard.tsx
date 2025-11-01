@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSchool, getTeachers, getSupervisions, School, Teacher } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { School2, Users, ClipboardList, LogOut, Plus } from "lucide-react";
+import { School2, Users, ClipboardList, LogOut } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 export default function Dashboard() {
   const [school, setSchool] = useState<School | null>(null);
@@ -13,7 +14,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -87,7 +87,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-4 space-y-6">
+      <main className="max-w-7xl mx-auto p-4 pb-24 space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="shadow-[var(--shadow-card)]">
@@ -214,38 +214,8 @@ export default function Dashboard() {
         )}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t md:hidden safe-area-bottom">
-        <div className="flex items-center justify-around p-2">
-          <Button 
-            variant={location.pathname === "/dashboard" ? "default" : "ghost"} 
-            size="sm" 
-            onClick={() => navigate("/dashboard")}
-            className="flex-col h-auto py-2 px-3"
-          >
-            <School2 className="w-5 h-5" />
-            <span className="text-xs mt-1">Dashboard</span>
-          </Button>
-          <Button 
-            variant={location.pathname === "/teachers" ? "default" : "ghost"} 
-            size="sm" 
-            onClick={() => navigate("/teachers")}
-            className="flex-col h-auto py-2 px-3"
-          >
-            <Users className="w-5 h-5" />
-            <span className="text-xs mt-1">Guru</span>
-          </Button>
-          <Button 
-            variant={location.pathname === "/supervisions" ? "default" : "ghost"} 
-            size="sm" 
-            onClick={() => navigate("/supervisions")}
-            className="flex-col h-auto py-2 px-3"
-          >
-            <ClipboardList className="w-5 h-5" />
-            <span className="text-xs mt-1">Supervisi</span>
-          </Button>
-        </div>
-      </div>
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

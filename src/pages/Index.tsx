@@ -35,8 +35,7 @@ const Index = () => {
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
                 <GraduationCap className="w-6 h-6" />
               </div>
-              <span className="font-bold text-lg hidden sm:block">SUPERVISI DIGITAL GURU</span>
-              <span className="font-bold text-sm sm:hidden">SUPERVISI</span>
+              <span className="font-bold text-sm md:text-lg">SUPERVISI DIGITAL GURU</span>
             </div>
             
             {/* Desktop Auth Buttons */}
