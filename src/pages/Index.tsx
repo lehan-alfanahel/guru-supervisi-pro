@@ -23,35 +23,62 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--gradient-primary)' }}>
+    <div className="min-h-screen">
+      {/* Header */}
+      <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-lg">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo & App Name */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
+                <GraduationCap className="w-6 h-6" />
+              </div>
+              <span className="font-bold text-lg hidden sm:block">SUPERVISI DIGITAL GURU</span>
+              <span className="font-bold text-sm sm:hidden">SUPERVISI</span>
+            </div>
+            
+            {/* Auth Buttons */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/auth")}
+                className="text-primary-foreground hover:bg-white/10"
+              >
+                Masuk
+              </Button>
+              <Button
+                onClick={() => navigate("/auth")}
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+              >
+                Daftar
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="max-w-4xl mx-auto text-center text-white">
+      <div className="py-16 md:py-24" style={{ background: 'var(--gradient-primary)' }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center text-white px-4">
           <div className="inline-block mb-6 p-4 rounded-2xl bg-white/10 backdrop-blur-sm">
             <GraduationCap className="w-16 h-16" />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6">
             SUPERVISI DIGITAL GURU
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-white/90">
+          <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90">
             Platform modern untuk supervisi kinerja guru secara digital, efisien, dan terstruktur
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
-              className="bg-white text-primary hover:bg-white/90 shadow-lg text-lg px-8"
+              className="bg-white text-primary hover:bg-white/90 shadow-lg text-base md:text-lg px-6 md:px-8 w-full sm:w-auto"
             >
               Mulai Sekarang
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate("/auth")}
-              className="bg-white/10 text-white border-white hover:bg-white/20 text-lg px-8"
-            >
-              Masuk
-            </Button>
+          </div>
           </div>
         </div>
       </div>
