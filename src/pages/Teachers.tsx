@@ -12,6 +12,22 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+
+const teacherSchema = z.object({
+  name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
+  nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
+  email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
+  rank: z.enum(["III.A", "III.B", "III.C", "III.D", "IV.A", "IV.B", "IV.C", "IV.D", "IX"] as const, {
+    errorMap: () => ({ message: "Pilih golongan" }),
+  }),
+  employment_type: z.enum(["PNS", "PPPK", "Guru Honorer"] as const, {
+    errorMap: () => ({ message: "Pilih jenis kepegawaian" }),
+  }),
+});
 
 const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
@@ -24,16 +40,26 @@ export default function Teachers() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    nip: "",
-    email: "",
-    rank: "" as TeacherRank,
-    employment_type: "" as EmploymentType,
-  });
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+    reset,
+    control,
+  } = useForm<z.infer<typeof teacherSchema>>({
+    resolver: zodResolver(teacherSchema),
+    defaultValues: {
+      name: "",
+      nip: "",
+      email: "",
+      rank: undefined,
+      employment_type: undefined,
+    },
+  });
 
   useEffect(() => {
     if (!user) {
@@ -63,26 +89,59 @@ export default function Teachers() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: z.infer<typeof teacherSchema>) => {
+    if (!schoolId) return;
     setLoading(true);
 
     try {
       if (editingTeacher) {
-        await updateTeacher(editingTeacher.id, formData);
+        await updateTeacher(editingTeacher.id, data);
         toast({ title: "Berhasil!", description: "Data guru berhasil diperbarui" });
       } else {
-        await createTeacher({ ...formData, school_id: schoolId });
-        toast({ title: "Berhasil!", description: "Guru berhasil ditambahkan" });
+        await createTeacher({
+          name: data.name,
+          nip: data.nip,
+          email: data.email,
+          rank: data.rank,
+          employment_type: data.employment_type,
+          school_id: schoolId,
+        });
+
+        // Create teacher account via edge function
+        const { error: accountError } = await supabase.functions.invoke("create-teacher-account", {
+          body: {
+            email: data.email,
+            password: "123456",
+          },
+        });
+
+        if (accountError) {
+          console.error("Error creating teacher account:", accountError);
+          toast({
+            title: "Warning",
+            description: "Guru berhasil ditambahkan, tetapi gagal membuat akun login",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Berhasil!",
+            description: "Guru berhasil ditambahkan dan akun login telah dibuat",
+          });
+        }
       }
 
       setDialogOpen(false);
       resetForm();
       loadData();
     } catch (error: any) {
+      const errorMessage = error.code === "23505"
+        ? "Email atau NIP sudah terdaftar"
+        : "Gagal menyimpan data guru. Silakan coba lagi";
+      
+      console.error("Teacher submission error:", error);
       toast({
         title: "Error",
-        description: error.message || "Terjadi kesalahan",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -92,7 +151,7 @@ export default function Teachers() {
 
   const handleEdit = (teacher: Teacher) => {
     setEditingTeacher(teacher);
-    setFormData({
+    reset({
       name: teacher.name,
       nip: teacher.nip,
       email: teacher.email,
@@ -112,21 +171,23 @@ export default function Teachers() {
       setTeacherToDelete(null);
       loadData();
     } catch (error: any) {
+      const errorMessage = "Gagal menghapus guru. Silakan coba lagi";
+      console.error("Delete teacher error:", error);
       toast({
         title: "Error",
-        description: error.message || "Gagal menghapus guru",
+        description: errorMessage,
         variant: "destructive",
       });
     }
   };
 
   const resetForm = () => {
-    setFormData({
+    reset({
       name: "",
       nip: "",
       email: "",
-      rank: "" as TeacherRank,
-      employment_type: "" as EmploymentType,
+      rank: undefined,
+      employment_type: undefined,
     });
     setEditingTeacher(null);
   };
@@ -172,26 +233,28 @@ export default function Teachers() {
               <DialogHeader>
                 <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nama Guru</Label>
                   <Input
                     id="name"
                     placeholder="Masukkan nama lengkap guru"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
+                    {...register("name")}
                   />
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{String(errors.name.message)}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="nip">NIP</Label>
+                  <Label htmlFor="nip">NIP (18 digit)</Label>
                   <Input
                     id="nip"
-                    placeholder="Masukkan NIP guru"
-                    value={formData.nip}
-                    onChange={(e) => setFormData({ ...formData, nip: e.target.value })}
-                    required
+                    placeholder="123456789012345678"
+                    {...register("nip")}
                   />
+                  {errors.nip && (
+                    <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
@@ -199,11 +262,12 @@ export default function Teachers() {
                     id="email"
                     type="email"
                     placeholder="email@contoh.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
+                    {...register("email")}
                     disabled={!!editingTeacher}
                   />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{String(errors.email.message)}</p>
+                  )}
                   {!editingTeacher && (
                     <p className="text-xs text-muted-foreground">
                       Password default: 123456
@@ -212,35 +276,47 @@ export default function Teachers() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="rank">Pangkat</Label>
-                  <Select
-                    value={formData.rank}
-                    onValueChange={(value) => setFormData({ ...formData, rank: value as TeacherRank })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih pangkat" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RANKS.map((rank) => (
-                        <SelectItem key={rank} value={rank}>{rank}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="rank"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih pangkat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {RANKS.map((rank) => (
+                            <SelectItem key={rank} value={rank}>{rank}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.rank && (
+                    <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
-                  <Select
-                    value={formData.employment_type}
-                    onValueChange={(value) => setFormData({ ...formData, employment_type: value as EmploymentType })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih jenis" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {EMPLOYMENT_TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="employment_type"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenis" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EMPLOYMENT_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.employment_type && (
+                    <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">

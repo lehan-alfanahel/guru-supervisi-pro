@@ -13,6 +13,20 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, ClipboardList, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import BottomNav from "@/components/BottomNav";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const supervisionSchema = z.object({
+  teacher_id: z.string().min(1, "Pilih guru"),
+  supervision_date: z.string().min(1, "Tanggal supervisi harus diisi"),
+  lesson_plan: z.boolean().default(false),
+  syllabus: z.boolean().default(false),
+  assessment_tools: z.boolean().default(false),
+  teaching_materials: z.boolean().default(false),
+  student_attendance: z.boolean().default(false),
+  notes: z.string().max(5000, "Catatan maksimal 5000 karakter").optional(),
+});
 
 export default function Supervisions() {
   const [supervisions, setSupervisions] = useState<any[]>([]);
@@ -20,19 +34,30 @@ export default function Supervisions() {
   const [schoolId, setSchoolId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    teacher_id: "",
-    supervision_date: new Date().toISOString().split('T')[0],
-    lesson_plan: false,
-    syllabus: false,
-    assessment_tools: false,
-    teaching_materials: false,
-    student_attendance: false,
-    notes: "",
-  });
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+    reset,
+    control,
+    watch,
+  } = useForm<z.infer<typeof supervisionSchema>>({
+    resolver: zodResolver(supervisionSchema),
+    defaultValues: {
+      teacher_id: "",
+      supervision_date: new Date().toISOString().split('T')[0],
+      lesson_plan: false,
+      syllabus: false,
+      assessment_tools: false,
+      teaching_materials: false,
+      student_attendance: false,
+      notes: "",
+    },
+  });
 
   useEffect(() => {
     if (!user) {
@@ -67,15 +92,21 @@ export default function Supervisions() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: z.infer<typeof supervisionSchema>) => {
     if (!user) return;
 
     setLoading(true);
 
     try {
       await createSupervision({
-        ...formData,
+        teacher_id: data.teacher_id,
+        supervision_date: data.supervision_date,
+        lesson_plan: data.lesson_plan || false,
+        syllabus: data.syllabus || false,
+        assessment_tools: data.assessment_tools || false,
+        teaching_materials: data.teaching_materials || false,
+        student_attendance: data.student_attendance || false,
+        notes: data.notes || "",
         school_id: schoolId,
         created_by: user.id,
       });
@@ -85,9 +116,14 @@ export default function Supervisions() {
       resetForm();
       loadData();
     } catch (error: any) {
+      const errorMessage = error.code === "23503"
+        ? "Guru tidak ditemukan"
+        : "Gagal menyimpan supervisi. Silakan coba lagi";
+      
+      console.error("Supervision submission error:", error);
       toast({
         title: "Error",
-        description: error.message || "Terjadi kesalahan",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -96,7 +132,7 @@ export default function Supervisions() {
   };
 
   const resetForm = () => {
-    setFormData({
+    reset({
       teacher_id: "",
       supervision_date: new Date().toISOString().split('T')[0],
       lesson_plan: false,
@@ -156,24 +192,30 @@ export default function Supervisions() {
               <DialogHeader>
                 <DialogTitle>Buat Supervisi Baru</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="teacher">Guru</Label>
-                  <Select
-                    value={formData.teacher_id}
-                    onValueChange={(value) => setFormData({ ...formData, teacher_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih guru" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {teachers.map((teacher) => (
-                        <SelectItem key={teacher.id} value={teacher.id}>
-                          {teacher.name} - {teacher.nip}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="teacher_id"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih guru" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {teachers.map((teacher) => (
+                            <SelectItem key={teacher.id} value={teacher.id}>
+                              {teacher.name} - {teacher.nip}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.teacher_id && (
+                    <p className="text-sm text-destructive">{String(errors.teacher_id.message)}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -181,22 +223,27 @@ export default function Supervisions() {
                   <Input
                     id="date"
                     type="date"
-                    value={formData.supervision_date}
-                    onChange={(e) => setFormData({ ...formData, supervision_date: e.target.value })}
-                    required
+                    {...register("supervision_date")}
                   />
+                  {errors.supervision_date && (
+                    <p className="text-sm text-destructive">{String(errors.supervision_date.message)}</p>
+                  )}
                 </div>
 
                 <div className="space-y-3">
                   <Label>Kelengkapan Perangkat Pembelajaran</Label>
                   
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="lesson_plan"
-                      checked={formData.lesson_plan}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, lesson_plan: checked as boolean })
-                      }
+                    <Controller
+                      name="lesson_plan"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="lesson_plan"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
                     <label htmlFor="lesson_plan" className="text-sm cursor-pointer">
                       RPP (Rencana Pelaksanaan Pembelajaran)
@@ -204,12 +251,16 @@ export default function Supervisions() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="syllabus"
-                      checked={formData.syllabus}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, syllabus: checked as boolean })
-                      }
+                    <Controller
+                      name="syllabus"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="syllabus"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
                     <label htmlFor="syllabus" className="text-sm cursor-pointer">
                       Silabus
@@ -217,12 +268,16 @@ export default function Supervisions() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="assessment_tools"
-                      checked={formData.assessment_tools}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, assessment_tools: checked as boolean })
-                      }
+                    <Controller
+                      name="assessment_tools"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="assessment_tools"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
                     <label htmlFor="assessment_tools" className="text-sm cursor-pointer">
                       Instrumen Penilaian
@@ -230,12 +285,16 @@ export default function Supervisions() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="teaching_materials"
-                      checked={formData.teaching_materials}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, teaching_materials: checked as boolean })
-                      }
+                    <Controller
+                      name="teaching_materials"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="teaching_materials"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
                     <label htmlFor="teaching_materials" className="text-sm cursor-pointer">
                       Bahan Ajar
@@ -243,12 +302,16 @@ export default function Supervisions() {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="student_attendance"
-                      checked={formData.student_attendance}
-                      onCheckedChange={(checked) => 
-                        setFormData({ ...formData, student_attendance: checked as boolean })
-                      }
+                    <Controller
+                      name="student_attendance"
+                      control={control}
+                      render={({ field }) => (
+                        <Checkbox
+                          id="student_attendance"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
                     />
                     <label htmlFor="student_attendance" className="text-sm cursor-pointer">
                       Daftar Hadir Siswa
@@ -257,21 +320,23 @@ export default function Supervisions() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Catatan Observasi (opsional)</Label>
+                  <Label htmlFor="notes">Catatan Observasi (maks. 5000 karakter)</Label>
                   <Textarea
                     id="notes"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    {...register("notes")}
                     placeholder="Tulis catatan hasil observasi, saran, atau rekomendasi..."
                     rows={4}
                   />
+                  {errors.notes && (
+                    <p className="text-sm text-destructive">{String(errors.notes.message)}</p>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">
                     Batal
                   </Button>
-                  <Button type="submit" disabled={loading || !formData.teacher_id} className="flex-1">
+                  <Button type="submit" disabled={loading} className="flex-1">
                     {loading ? "Menyimpan..." : "Simpan"}
                   </Button>
                 </div>

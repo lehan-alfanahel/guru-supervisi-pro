@@ -7,16 +7,38 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
+  password: z.string().min(6, "Password minimal 6 karakter").max(100, "Password maksimal 100 karakter"),
+});
+
+const signUpSchema = loginSchema.extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Password tidak sama",
+  path: ["confirmPassword"],
+});
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(isLogin ? loginSchema : signUpSchema),
+    mode: "onSubmit",
+  });
 
   useEffect(() => {
     if (user) {
@@ -24,23 +46,16 @@ export default function Auth() {
     }
   }, [user, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    reset();
+  }, [isLogin, reset]);
+
+  const onSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signUpSchema>) => {
     setLoading(true);
 
     try {
       if (!isLogin) {
-        if (password !== confirmPassword) {
-          toast({
-            title: "Error",
-            description: "Password tidak sama",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(data.email, data.password);
         if (error) throw error;
 
         toast({
@@ -49,7 +64,7 @@ export default function Auth() {
         });
         setIsLogin(true);
       } else {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(data.email, data.password);
         if (error) throw error;
 
         toast({
@@ -58,9 +73,15 @@ export default function Auth() {
         });
       }
     } catch (error: any) {
+      const errorMessage = error.message?.includes("Invalid login credentials")
+        ? "Email atau password salah"
+        : error.message?.includes("Email not confirmed")
+        ? "Email belum dikonfirmasi"
+        : "Terjadi kesalahan. Silakan coba lagi";
+      
       toast({
         title: "Error",
-        description: error.message || "Terjadi kesalahan",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -84,17 +105,18 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="nama@sekolah.sch.id"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                {...register("email")}
               />
+              {errors.email && (
+                <p className="text-sm text-destructive">{String(errors.email.message)}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
@@ -102,11 +124,11 @@ export default function Auth() {
                 id="password"
                 type="password"
                 placeholder="Masukkan password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
+                {...register("password")}
               />
+              {errors.password && (
+                <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+              )}
             </div>
             {!isLogin && (
               <div className="space-y-2">
@@ -115,11 +137,11 @@ export default function Auth() {
                   id="confirmPassword"
                   type="password"
                   placeholder="Masukkan password lagi"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
+                  {...register("confirmPassword")}
                 />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>
+                )}
               </div>
             )}
             <Button

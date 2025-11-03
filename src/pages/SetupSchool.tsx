@@ -9,29 +9,53 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { createSchool } from "@/lib/supabase";
 import { School2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const schoolSchema = z.object({
+  name: z.string().trim().min(3, "Nama sekolah minimal 3 karakter").max(200, "Nama sekolah maksimal 200 karakter"),
+  npsn: z.string().trim().regex(/^[0-9]{8}$/, "NPSN harus 8 digit angka").optional().or(z.literal("")),
+  address: z.string().trim().max(500, "Alamat maksimal 500 karakter").optional(),
+  phone: z.string().trim().regex(/^[0-9\-+() ]{7,20}$/, "Format nomor telepon tidak valid").optional().or(z.literal("")),
+  principal_name: z.string().trim().min(3, "Nama kepala sekolah minimal 3 karakter").max(100, "Nama kepala sekolah maksimal 100 karakter"),
+  principal_nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
+});
 
 export default function SetupSchool() {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    npsn: "",
-    address: "",
-    phone: "",
-    principal_name: "",
-    principal_nip: "",
-  });
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof schoolSchema>>({
+    resolver: zodResolver(schoolSchema),
+    defaultValues: {
+      name: "",
+      npsn: "",
+      address: "",
+      phone: "",
+      principal_name: "",
+      principal_nip: "",
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof schoolSchema>) => {
     if (!user) return;
 
     setLoading(true);
     try {
       await createSchool({
-        ...formData,
+        name: data.name,
+        npsn: data.npsn || "",
+        address: data.address || "",
+        phone: data.phone || "",
+        principal_name: data.principal_name,
+        principal_nip: data.principal_nip,
         owner_id: user.id,
       });
 
@@ -41,18 +65,19 @@ export default function SetupSchool() {
       });
       navigate("/dashboard");
     } catch (error: any) {
+      const errorMessage = error.code === "23505"
+        ? "Data sekolah sudah terdaftar"
+        : "Gagal menyimpan data sekolah. Silakan coba lagi";
+      
+      console.error("Setup school error:", error);
       toast({
         title: "Error",
-        description: error.message || "Gagal menyimpan data sekolah",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -71,26 +96,29 @@ export default function SetupSchool() {
             </div>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nama Sekolah *</Label>
                 <Input
                   id="name"
                   placeholder="Contoh: SMP Negeri 1 Jakarta"
-                  value={formData.name}
-                  onChange={(e) => handleChange("name", e.target.value)}
-                  required
+                  {...register("name")}
                 />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{String(errors.name.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="npsn">NPSN</Label>
+                <Label htmlFor="npsn">NPSN (8 digit)</Label>
                 <Input
                   id="npsn"
-                  placeholder="Nomor Pokok Sekolah Nasional"
-                  value={formData.npsn}
-                  onChange={(e) => handleChange("npsn", e.target.value)}
+                  placeholder="12345678"
+                  {...register("npsn")}
                 />
+                {errors.npsn && (
+                  <p className="text-sm text-destructive">{String(errors.npsn.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -98,10 +126,12 @@ export default function SetupSchool() {
                 <Textarea
                   id="address"
                   placeholder="Jalan, Kelurahan, Kecamatan, Kota/Kabupaten"
-                  value={formData.address}
-                  onChange={(e) => handleChange("address", e.target.value)}
+                  {...register("address")}
                   rows={3}
                 />
+                {errors.address && (
+                  <p className="text-sm text-destructive">{String(errors.address.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -110,9 +140,11 @@ export default function SetupSchool() {
                   id="phone"
                   type="tel"
                   placeholder="021-12345678"
-                  value={formData.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
+                  {...register("phone")}
                 />
+                {errors.phone && (
+                  <p className="text-sm text-destructive">{String(errors.phone.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -120,21 +152,23 @@ export default function SetupSchool() {
                 <Input
                   id="principal_name"
                   placeholder="Nama lengkap kepala sekolah"
-                  value={formData.principal_name}
-                  onChange={(e) => handleChange("principal_name", e.target.value)}
-                  required
+                  {...register("principal_name")}
                 />
+                {errors.principal_name && (
+                  <p className="text-sm text-destructive">{String(errors.principal_name.message)}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="principal_nip">NIP Kepala Sekolah *</Label>
+                <Label htmlFor="principal_nip">NIP Kepala Sekolah * (18 digit)</Label>
                 <Input
                   id="principal_nip"
-                  placeholder="Nomor Induk Pegawai"
-                  value={formData.principal_nip}
-                  onChange={(e) => handleChange("principal_nip", e.target.value)}
-                  required
+                  placeholder="123456789012345678"
+                  {...register("principal_nip")}
                 />
+                {errors.principal_nip && (
+                  <p className="text-sm text-destructive">{String(errors.principal_nip.message)}</p>
+                )}
               </div>
 
               <Button
