@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSchool, getTeachers, createTeacher, updateTeacher, deleteTeacher, Teacher, TeacherRank, EmploymentType } from "@/lib/supabase";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -46,6 +48,7 @@ export default function Teachers() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const {
     register,
@@ -117,6 +120,17 @@ export default function Teachers() {
         });
 
         // Create teacher account via edge function
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!session) {
+          toast({
+            title: "Error",
+            description: "Sesi autentikasi tidak ditemukan. Silakan login kembali.",
+            variant: "destructive",
+          });
+          return;
+        }
+
         const { data: accountData, error: accountError } = await supabase.functions.invoke("create-teacher-account", {
           body: {
             email: data.email,
@@ -238,125 +252,247 @@ export default function Teachers() {
               <p className="text-sm opacity-90">{teachers.length} guru terdaftar</p>
             </div>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
-                <Plus className="w-4 h-4" />
-                Tambah
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nama Guru</Label>
-                  <Input
-                    id="name"
-                    placeholder="Masukkan nama lengkap guru"
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{String(errors.name.message)}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="nip">NIP (18 digit)</Label>
-                  <Input
-                    id="nip"
-                    placeholder="123456789012345678"
-                    {...register("nip")}
-                  />
-                  {errors.nip && (
-                    <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@contoh.com"
-                    {...register("email")}
-                    disabled={!!editingTeacher}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{String(errors.email.message)}</p>
-                  )}
-                </div>
-                {!editingTeacher && (
+          {isMobile ? (
+            <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DrawerTrigger asChild>
+                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <Plus className="w-4 h-4" />
+                  Tambah
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent className="px-4 pb-8">
+                <DrawerHeader className="px-0">
+                  <DrawerTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DrawerTitle>
+                </DrawerHeader>
+                <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password (Opsional)</Label>
+                    <Label htmlFor="name">Nama Guru</Label>
                     <Input
-                      id="password"
-                      type="password"
-                      placeholder="Min. 12 karakter"
-                      {...register("password")}
+                      id="name"
+                      placeholder="Masukkan nama lengkap guru"
+                      {...register("name")}
                     />
-                    {errors.password && (
-                      <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+                    {errors.name && (
+                      <p className="text-sm text-destructive">{String(errors.name.message)}</p>
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      Jika tidak diisi, password otomatis akan digunakan
-                    </p>
                   </div>
-                )}
-                <div className="space-y-2">
-                  <Label htmlFor="rank">Pangkat</Label>
-                  <Controller
-                    name="rank"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih pangkat" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {RANKS.map((rank) => (
-                            <SelectItem key={rank} value={rank}>{rank}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <div className="space-y-2">
+                    <Label htmlFor="nip">NIP (18 digit)</Label>
+                    <Input
+                      id="nip"
+                      placeholder="123456789012345678"
+                      {...register("nip")}
+                    />
+                    {errors.nip && (
+                      <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
                     )}
-                  />
-                  {errors.rank && (
-                    <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
-                  <Controller
-                    name="employment_type"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih jenis" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {EMPLOYMENT_TYPES.map((type) => (
-                            <SelectItem key={type} value={type}>{type}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="email@contoh.com"
+                      {...register("email")}
+                      disabled={!!editingTeacher}
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{String(errors.email.message)}</p>
                     )}
-                  />
-                  {errors.employment_type && (
-                    <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
+                  </div>
+                  {!editingTeacher && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password (Opsional)</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="Min. 12 karakter"
+                        {...register("password")}
+                      />
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Jika tidak diisi, password otomatis akan digunakan
+                      </p>
+                    </div>
                   )}
-                </div>
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
-                    Batal
-                  </Button>
-                  <Button type="submit" disabled={loading} className="flex-1">
-                    {loading ? "Menyimpan..." : "Simpan"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <div className="space-y-2">
+                    <Label htmlFor="rank">Pangkat</Label>
+                    <Controller
+                      name="rank"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih pangkat" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {RANKS.map((rank) => (
+                              <SelectItem key={rank} value={rank}>{rank}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.rank && (
+                      <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
+                    <Controller
+                      name="employment_type"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih jenis" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {EMPLOYMENT_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.employment_type && (
+                      <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 pt-4">
+                    <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
+                      Batal
+                    </Button>
+                    <Button type="submit" disabled={loading} className="flex-1">
+                      {loading ? "Menyimpan..." : "Simpan"}
+                    </Button>
+                  </div>
+                </form>
+              </DrawerContent>
+            </Drawer>
+          ) : (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <Plus className="w-4 h-4" />
+                  Tambah
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Nama Guru</Label>
+                    <Input
+                      id="name"
+                      placeholder="Masukkan nama lengkap guru"
+                      {...register("name")}
+                    />
+                    {errors.name && (
+                      <p className="text-sm text-destructive">{String(errors.name.message)}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nip">NIP (18 digit)</Label>
+                    <Input
+                      id="nip"
+                      placeholder="123456789012345678"
+                      {...register("nip")}
+                    />
+                    {errors.nip && (
+                      <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="email@contoh.com"
+                      {...register("email")}
+                      disabled={!!editingTeacher}
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive">{String(errors.email.message)}</p>
+                    )}
+                  </div>
+                  {!editingTeacher && (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password (Opsional)</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="Min. 12 karakter"
+                        {...register("password")}
+                      />
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Jika tidak diisi, password otomatis akan digunakan
+                      </p>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="rank">Pangkat</Label>
+                    <Controller
+                      name="rank"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih pangkat" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {RANKS.map((rank) => (
+                              <SelectItem key={rank} value={rank}>{rank}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.rank && (
+                      <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
+                    <Controller
+                      name="employment_type"
+                      control={control}
+                      render={({ field }) => (
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Pilih jenis" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {EMPLOYMENT_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.employment_type && (
+                      <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
+                      Batal
+                    </Button>
+                    <Button type="submit" disabled={loading} className="flex-1">
+                      {loading ? "Menyimpan..." : "Simpan"}
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </header>
 
