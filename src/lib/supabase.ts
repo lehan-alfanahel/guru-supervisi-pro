@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getUserFriendlyError } from "./errorHandler";
 
-export type TeacherRank = 'III.A' | 'III.B' | 'III.C' | 'III.D' | 'IV.A' | 'IV.B' | 'IV.C' | 'IV.D' | 'IX';
+export type TeacherRank = 'Tidak Ada' | 'III.A' | 'III.B' | 'III.C' | 'III.D' | 'IV.A' | 'IV.B' | 'IV.C' | 'IV.D' | 'IX';
 export type EmploymentType = 'PNS' | 'PPPK' | 'Guru Honorer';
 
 export interface School {
