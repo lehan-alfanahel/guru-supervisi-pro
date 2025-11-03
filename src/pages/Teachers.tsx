@@ -31,7 +31,6 @@ const teacherSchema = z.object({
   employment_type: z.enum(["PNS", "PPPK", "Guru Honorer"] as const, {
     errorMap: () => ({ message: "Pilih jenis kepegawaian" }),
   }),
-  address: z.string().trim().min(5, "Alamat minimal 5 karakter").max(500, "Alamat maksimal 500 karakter"),
 });
 
 const RANKS: TeacherRank[] = ['Tidak Ada', 'III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
@@ -62,10 +61,9 @@ export default function Teachers() {
     defaultValues: {
       name: "",
       nip: "",
-      gender: undefined,
-      rank: undefined,
-      employment_type: undefined,
-      address: "",
+      gender: "Laki-Laki",
+      rank: "Tidak Ada",
+      employment_type: "PNS",
     },
   });
 
@@ -116,7 +114,6 @@ export default function Teachers() {
           gender: data.gender,
           rank: data.rank,
           employment_type: data.employment_type,
-          address: data.address,
           school_id: schoolId,
         });
         toast({ title: "Berhasil!", description: "Guru berhasil ditambahkan" });
@@ -141,10 +138,9 @@ export default function Teachers() {
     reset({
       name: teacher.name,
       nip: teacher.nip,
-      gender: teacher.gender,
-      rank: teacher.rank,
-      employment_type: teacher.employment_type,
-      address: teacher.address || "",
+      gender: teacher.gender || "Laki-Laki",
+      rank: teacher.rank || "Tidak Ada",
+      employment_type: teacher.employment_type || "PNS",
     });
     setDialogOpen(true);
   };
@@ -171,10 +167,9 @@ export default function Teachers() {
     reset({
       name: "",
       nip: "",
-      gender: undefined,
-      rank: undefined,
-      employment_type: undefined,
-      address: "",
+      gender: "Laki-Laki",
+      rank: "Tidak Ada",
+      employment_type: "PNS",
     });
     setEditingTeacher(null);
   };
@@ -279,19 +274,6 @@ export default function Teachers() {
         )}
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="address">Alamat Lengkap</Label>
-        <Textarea
-          id="address"
-          placeholder="Masukkan alamat lengkap"
-          rows={3}
-          {...register("address")}
-        />
-        {errors.address && (
-          <p className="text-sm text-destructive">{String(errors.address.message)}</p>
-        )}
-      </div>
-      
       <div className="flex gap-2 pt-4">
         <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
           Batal
@@ -347,13 +329,15 @@ export default function Teachers() {
                     Tambah
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="h-[90vh]">
-                  <div className="mx-auto w-full max-w-md px-4 pb-8">
+                <DrawerContent className="h-full">
+                  <div className="flex flex-col h-full px-4 pb-8">
                     <DrawerHeader className="px-0">
                       <DrawerTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DrawerTitle>
                     </DrawerHeader>
-                    <div className="max-h-[calc(90vh-120px)] overflow-y-auto px-1">
-                      {formContent}
+                    <div className="flex-1 flex items-center justify-center">
+                      <div className="w-full max-w-md">
+                        {formContent}
+                      </div>
                     </div>
                   </div>
                 </DrawerContent>
@@ -366,7 +350,7 @@ export default function Teachers() {
                     Tambah
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-md sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
                   </DialogHeader>
@@ -399,7 +383,6 @@ export default function Teachers() {
                       <p>Jenis Kelamin: {teacher.gender}</p>
                       <p>Pangkat: {teacher.rank}</p>
                       <p>Jenis Kepegawaian: {teacher.employment_type}</p>
-                      {teacher.address && <p>Alamat: {teacher.address}</p>}
                     </div>
                   </div>
                   <div className="flex gap-2">

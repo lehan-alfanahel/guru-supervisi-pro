@@ -206,10 +206,10 @@ export async function getTeacherAccounts(schoolId: string) {
 }
 
 export async function createTeacherAccount(teacherId: string, email: string, password?: string) {
-  const { data: session } = await supabase.auth.getSession();
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   
-  if (!session) {
-    throw new Error("Sesi autentikasi tidak ditemukan");
+  if (sessionError || !sessionData?.session) {
+    throw new Error("Sesi autentikasi tidak ditemukan. Silakan login kembali.");
   }
 
   const { data, error } = await supabase.functions.invoke("create-teacher-account", {
@@ -217,6 +217,9 @@ export async function createTeacherAccount(teacherId: string, email: string, pas
       email,
       password,
       teacherId,
+    },
+    headers: {
+      Authorization: `Bearer ${sessionData.session.access_token}`,
     },
   });
 
