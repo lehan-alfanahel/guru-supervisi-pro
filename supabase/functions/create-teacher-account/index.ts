@@ -12,6 +12,7 @@ const corsHeaders = {
 const createTeacherSchema = z.object({
   email: z.string().email().max(255),
   password: z.string().optional(),
+  teacherId: z.string().uuid().optional(),
 });
 
 serve(async (req) => {
@@ -86,7 +87,7 @@ serve(async (req) => {
       );
     }
 
-    const { email, password } = validation.data;
+    const { email, password, teacherId } = validation.data;
     // Generate a secure random password if not provided
     const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
 
@@ -124,6 +125,21 @@ serve(async (req) => {
           status: 500,
         }
       );
+    }
+
+    // If teacherId provided, create teacher_accounts entry
+    if (teacherId && authData.user) {
+      const { error: accountLinkError } = await supabase
+        .from('teacher_accounts')
+        .insert({
+          teacher_id: teacherId,
+          user_id: authData.user.id,
+          email: email,
+        });
+
+      if (accountLinkError) {
+        console.error("Error linking teacher account:", accountLinkError);
+      }
     }
 
     console.log(`Teacher account created by user ${user.id} for school ${school.id}`);

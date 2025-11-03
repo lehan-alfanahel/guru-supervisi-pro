@@ -3,6 +3,7 @@ import { getUserFriendlyError } from "./errorHandler";
 
 export type TeacherRank = 'Tidak Ada' | 'III.A' | 'III.B' | 'III.C' | 'III.D' | 'IV.A' | 'IV.B' | 'IV.C' | 'IV.D' | 'IX';
 export type EmploymentType = 'PNS' | 'PPPK' | 'Guru Honorer';
+export type Gender = 'Laki-Laki' | 'Perempuan';
 
 export interface School {
   id: string;
@@ -23,9 +24,19 @@ export interface Teacher {
   school_id: string;
   name: string;
   nip: string;
-  email: string;
+  gender?: Gender;
   rank: TeacherRank;
   employment_type: EmploymentType;
+  address?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TeacherAccount {
+  id: string;
+  teacher_id: string;
+  user_id: string;
+  email: string;
   created_at: string;
   updated_at: string;
 }
@@ -169,6 +180,55 @@ export async function updateSupervision(id: string, updates: Partial<Supervision
 export async function deleteSupervision(id: string) {
   const { error } = await supabase
     .from('supervisions')
+    .delete()
+    .eq('id', id);
+  
+  if (error) throw new Error(getUserFriendlyError(error));
+}
+
+// Teacher Account operations
+export async function getTeacherAccounts(schoolId: string) {
+  const { data, error } = await supabase
+    .from('teacher_accounts')
+    .select(`
+      *,
+      teachers (
+        id,
+        name,
+        nip
+      )
+    `)
+    .eq('teachers.school_id', schoolId)
+    .order('created_at', { ascending: false });
+  
+  if (error) throw new Error(getUserFriendlyError(error));
+  return data;
+}
+
+export async function createTeacherAccount(teacherId: string, email: string, password?: string) {
+  const { data: session } = await supabase.auth.getSession();
+  
+  if (!session) {
+    throw new Error("Sesi autentikasi tidak ditemukan");
+  }
+
+  const { data, error } = await supabase.functions.invoke("create-teacher-account", {
+    body: {
+      email,
+      password,
+      teacherId,
+    },
+  });
+
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+  
+  return data;
+}
+
+export async function deleteTeacherAccount(id: string) {
+  const { error } = await supabase
+    .from('teacher_accounts')
     .delete()
     .eq('id', id);
   

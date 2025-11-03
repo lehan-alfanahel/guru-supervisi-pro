@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import SetupSchool from "./pages/SetupSchool";
 import Dashboard from "./pages/Dashboard";
 import Teachers from "./pages/Teachers";
+import TeacherAccounts from "./pages/TeacherAccounts";
 import Supervisions from "./pages/Supervisions";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/setup-school" element={<ProtectedRoute><SetupSchool /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/teachers" element={<ProtectedRoute><Teachers /></ProtectedRoute>} />
+            <Route path="/teacher-accounts" element={<ProtectedRoute><TeacherAccounts /></ProtectedRoute>} />
             <Route path="/supervisions" element={<ProtectedRoute><Supervisions /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

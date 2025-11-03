@@ -2,44 +2,45 @@ import { useEffect, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSchool, getTeachers, createTeacher, updateTeacher, deleteTeacher, Teacher, TeacherRank, EmploymentType } from "@/lib/supabase";
+import { getSchool, getTeachers, createTeacher, updateTeacher, deleteTeacher, Teacher, TeacherRank, EmploymentType, Gender } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Pencil, Trash2, Users } from "lucide-react";
+import { ArrowLeft, Plus, Pencil, Trash2, UserCheck } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { supabase } from "@/integrations/supabase/client";
 import { getUserFriendlyError } from "@/lib/errorHandler";
 
 const teacherSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
   nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
-  email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
-  password: z.string().min(12, "Password minimal 12 karakter").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, "Password harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus").optional(),
+  gender: z.enum(["Laki-Laki", "Perempuan"] as const, {
+    errorMap: () => ({ message: "Pilih jenis kelamin" }),
+  }),
   rank: z.enum(["Tidak Ada", "III.A", "III.B", "III.C", "III.D", "IV.A", "IV.B", "IV.C", "IV.D", "IX"] as const, {
     errorMap: () => ({ message: "Pilih golongan" }),
   }),
   employment_type: z.enum(["PNS", "PPPK", "Guru Honorer"] as const, {
     errorMap: () => ({ message: "Pilih jenis kepegawaian" }),
   }),
+  address: z.string().trim().min(5, "Alamat minimal 5 karakter").max(500, "Alamat maksimal 500 karakter"),
 });
 
 const RANKS: TeacherRank[] = ['Tidak Ada', 'III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
+const GENDERS: Gender[] = ['Laki-Laki', 'Perempuan'];
 
 export default function Teachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [schoolId, setSchoolId] = useState<string>("");
-  const [schoolNpsn, setSchoolNpsn] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
@@ -61,10 +62,10 @@ export default function Teachers() {
     defaultValues: {
       name: "",
       nip: "",
-      email: "",
-      password: "",
+      gender: undefined,
       rank: undefined,
       employment_type: undefined,
+      address: "",
     },
   });
 
@@ -87,7 +88,6 @@ export default function Teachers() {
       }
 
       setSchoolId(school.id);
-      setSchoolNpsn(school.npsn || "");
       const teachersData = await getTeachers(school.id);
       setTeachers(teachersData);
     } catch (error: any) {
@@ -113,57 +113,13 @@ export default function Teachers() {
         await createTeacher({
           name: data.name,
           nip: data.nip,
-          email: data.email,
+          gender: data.gender,
           rank: data.rank,
           employment_type: data.employment_type,
+          address: data.address,
           school_id: schoolId,
         });
-
-        // Create teacher account via edge function
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (!session) {
-          toast({
-            title: "Error",
-            description: "Sesi autentikasi tidak ditemukan. Silakan login kembali.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const { data: accountData, error: accountError } = await supabase.functions.invoke("create-teacher-account", {
-          body: {
-            email: data.email,
-            password: data.password,
-          },
-        });
-
-        if (accountError) {
-          console.error("Edge function error:", accountError);
-          toast({
-            title: "Warning",
-            description: `Guru berhasil ditambahkan, tetapi gagal membuat akun login: ${accountError.message || 'Unknown error'}`,
-            variant: "destructive",
-          });
-        } else if (accountData?.error) {
-          console.error("Account creation error:", accountData.error);
-          toast({
-            title: "Warning",
-            description: `Guru berhasil ditambahkan, tetapi gagal membuat akun login: ${accountData.error}`,
-            variant: "destructive",
-          });
-        } else if (accountData?.temporaryPassword) {
-          toast({
-            title: "Berhasil!",
-            description: `Akun login dibuat. Password: ${accountData.temporaryPassword}`,
-            duration: 10000,
-          });
-        } else {
-          toast({
-            title: "Berhasil!",
-            description: "Guru berhasil ditambahkan dan akun login telah dibuat",
-          });
-        }
+        toast({ title: "Berhasil!", description: "Guru berhasil ditambahkan" });
       }
 
       setDialogOpen(false);
@@ -185,9 +141,10 @@ export default function Teachers() {
     reset({
       name: teacher.name,
       nip: teacher.nip,
-      email: teacher.email,
+      gender: teacher.gender,
       rank: teacher.rank,
       employment_type: teacher.employment_type,
+      address: teacher.address || "",
     });
     setDialogOpen(true);
   };
@@ -214,10 +171,10 @@ export default function Teachers() {
     reset({
       name: "",
       nip: "",
-      email: "",
-      password: "",
+      gender: undefined,
       rank: undefined,
       employment_type: undefined,
+      address: "",
     });
     setEditingTeacher(null);
   };
@@ -226,6 +183,125 @@ export default function Teachers() {
     setDialogOpen(false);
     resetForm();
   };
+
+  const formContent = (
+    <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name">Nama Guru</Label>
+        <Input
+          id="name"
+          placeholder="Masukkan nama lengkap guru"
+          {...register("name")}
+        />
+        {errors.name && (
+          <p className="text-sm text-destructive">{String(errors.name.message)}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="nip">NIP (18 digit)</Label>
+        <Input
+          id="nip"
+          placeholder="123456789012345678"
+          {...register("nip")}
+        />
+        {errors.nip && (
+          <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="gender">Jenis Kelamin</Label>
+        <Controller
+          name="gender"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih jenis kelamin" />
+              </SelectTrigger>
+              <SelectContent>
+                {GENDERS.map((gender) => (
+                  <SelectItem key={gender} value={gender}>{gender}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.gender && (
+          <p className="text-sm text-destructive">{String(errors.gender.message)}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="rank">Pangkat</Label>
+        <Controller
+          name="rank"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih pangkat" />
+              </SelectTrigger>
+              <SelectContent>
+                {RANKS.map((rank) => (
+                  <SelectItem key={rank} value={rank}>{rank}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.rank && (
+          <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
+        <Controller
+          name="employment_type"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih jenis" />
+              </SelectTrigger>
+              <SelectContent>
+                {EMPLOYMENT_TYPES.map((type) => (
+                  <SelectItem key={type} value={type}>{type}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.employment_type && (
+          <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
+        )}
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="address">Alamat Lengkap</Label>
+        <Textarea
+          id="address"
+          placeholder="Masukkan alamat lengkap"
+          rows={3}
+          {...register("address")}
+        />
+        {errors.address && (
+          <p className="text-sm text-destructive">{String(errors.address.message)}</p>
+        )}
+      </div>
+      
+      <div className="flex gap-2 pt-4">
+        <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
+          Batal
+        </Button>
+        <Button type="submit" disabled={loading} className="flex-1">
+          {loading ? "Menyimpan..." : "Simpan"}
+        </Button>
+      </div>
+    </form>
+  );
 
   if (loading && teachers.length === 0) {
     return (
@@ -240,11 +316,10 @@ export default function Teachers() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-4">
-      {/* Header */}
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 gap-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -252,307 +327,109 @@ export default function Teachers() {
               <p className="text-sm opacity-90">{teachers.length} guru terdaftar</p>
             </div>
           </div>
-          {isMobile ? (
-            <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DrawerTrigger asChild>
-                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
-                  <Plus className="w-4 h-4" />
-                  Tambah
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="px-4 pb-8">
-                <DrawerHeader className="px-0">
-                  <DrawerTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DrawerTitle>
-                </DrawerHeader>
-                <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nama Guru</Label>
-                    <Input
-                      id="name"
-                      placeholder="Masukkan nama lengkap guru"
-                      {...register("name")}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">{String(errors.name.message)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nip">NIP (18 digit)</Label>
-                    <Input
-                      id="nip"
-                      placeholder="123456789012345678"
-                      {...register("nip")}
-                    />
-                    {errors.nip && (
-                      <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@contoh.com"
-                      {...register("email")}
-                      disabled={!!editingTeacher}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{String(errors.email.message)}</p>
-                    )}
-                  </div>
-                  {!editingTeacher && (
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password (Opsional)</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Min. 12 karakter"
-                        {...register("password")}
-                      />
-                      {errors.password && (
-                        <p className="text-sm text-destructive">{String(errors.password.message)}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Jika tidak diisi, password otomatis akan digunakan
-                      </p>
+          
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="secondary" 
+              onClick={() => navigate("/teacher-accounts")}
+              className="gap-2"
+            >
+              <UserCheck className="w-4 h-4" />
+              {!isMobile && "Akun Guru"}
+            </Button>
+            
+            {isMobile ? (
+              <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DrawerTrigger asChild>
+                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                    <Plus className="w-4 h-4" />
+                    Tambah
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="h-[90vh]">
+                  <div className="mx-auto w-full max-w-md px-4 pb-8">
+                    <DrawerHeader className="px-0">
+                      <DrawerTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="max-h-[calc(90vh-120px)] overflow-y-auto px-1">
+                      {formContent}
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="rank">Pangkat</Label>
-                    <Controller
-                      name="rank"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih pangkat" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {RANKS.map((rank) => (
-                              <SelectItem key={rank} value={rank}>{rank}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.rank && (
-                      <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
-                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
-                    <Controller
-                      name="employment_type"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih jenis" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {EMPLOYMENT_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.employment_type && (
-                      <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
-                      Batal
-                    </Button>
-                    <Button type="submit" disabled={loading} className="flex-1">
-                      {loading ? "Menyimpan..." : "Simpan"}
-                    </Button>
-                  </div>
-                </form>
-              </DrawerContent>
-            </Drawer>
-          ) : (
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
-                  <Plus className="w-4 h-4" />
-                  Tambah
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nama Guru</Label>
-                    <Input
-                      id="name"
-                      placeholder="Masukkan nama lengkap guru"
-                      {...register("name")}
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">{String(errors.name.message)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nip">NIP (18 digit)</Label>
-                    <Input
-                      id="nip"
-                      placeholder="123456789012345678"
-                      {...register("nip")}
-                    />
-                    {errors.nip && (
-                      <p className="text-sm text-destructive">{String(errors.nip.message)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@contoh.com"
-                      {...register("email")}
-                      disabled={!!editingTeacher}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{String(errors.email.message)}</p>
-                    )}
-                  </div>
-                  {!editingTeacher && (
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password (Opsional)</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Min. 12 karakter"
-                        {...register("password")}
-                      />
-                      {errors.password && (
-                        <p className="text-sm text-destructive">{String(errors.password.message)}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Jika tidak diisi, password otomatis akan digunakan
-                      </p>
-                    </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="rank">Pangkat</Label>
-                    <Controller
-                      name="rank"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih pangkat" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {RANKS.map((rank) => (
-                              <SelectItem key={rank} value={rank}>{rank}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.rank && (
-                      <p className="text-sm text-destructive">{String(errors.rank.message)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="employment_type">Jenis Kepegawaian</Label>
-                    <Controller
-                      name="employment_type"
-                      control={control}
-                      render={({ field }) => (
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Pilih jenis" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {EMPLOYMENT_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.employment_type && (
-                      <p className="text-sm text-destructive">{String(errors.employment_type.message)}</p>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
-                      Batal
-                    </Button>
-                    <Button type="submit" disabled={loading} className="flex-1">
-                      {loading ? "Menyimpan..." : "Simpan"}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )}
+                </DrawerContent>
+              </Drawer>
+            ) : (
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                    <Plus className="w-4 h-4" />
+                    Tambah
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
+                  </DialogHeader>
+                  {formContent}
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-4">
-        {teachers.length === 0 ? (
-          <Card className="shadow-[var(--shadow-card)]">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Users className="w-16 h-16 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">Belum ada data guru</p>
-              <p className="text-sm text-muted-foreground mb-4">Tambahkan guru pertama Anda</p>
-              <Button onClick={() => setDialogOpen(true)} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Tambah Guru
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {teachers.map((teacher) => (
-              <Card key={teacher.id} className="shadow-[var(--shadow-card)]">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{teacher.name}</h3>
-                      <p className="text-sm text-muted-foreground">NIP: {teacher.nip}</p>
-                      <p className="text-sm text-muted-foreground">{teacher.email}</p>
-                      <div className="flex gap-2 mt-2">
-                        <span className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
-                          {teacher.rank}
-                        </span>
-                        <span className="px-2 py-1 rounded-md bg-secondary/10 text-secondary text-xs font-medium">
-                          {teacher.employment_type}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="icon" variant="ghost" onClick={() => handleEdit(teacher)}>
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          setTeacherToDelete(teacher.id);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="grid gap-4">
+          {teachers.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Pencil className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Belum ada data guru</h3>
+              <p className="text-muted-foreground mb-4">Tambahkan guru untuk memulai</p>
+            </div>
+          ) : (
+            teachers.map((teacher) => (
+              <div key={teacher.id} className="bg-card border rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{teacher.name}</h3>
+                    <div className="mt-2 space-y-1 text-sm text-muted-foreground">
+                      <p>NIP: {teacher.nip}</p>
+                      <p>Jenis Kelamin: {teacher.gender}</p>
+                      <p>Pangkat: {teacher.rank}</p>
+                      <p>Jenis Kepegawaian: {teacher.employment_type}</p>
+                      {teacher.address && <p>Alamat: {teacher.address}</p>}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(teacher)}
+                      className="text-primary hover:text-primary hover:bg-primary/10"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setTeacherToDelete(teacher.id);
+                        setDeleteDialogOpen(true);
+                      }}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </main>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -563,14 +440,13 @@ export default function Teachers() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Bottom Navigation */}
       <BottomNav />
     </div>
   );

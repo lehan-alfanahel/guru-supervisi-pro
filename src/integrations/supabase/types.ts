@@ -119,11 +119,48 @@ export type Database = {
           },
         ]
       }
+      teacher_accounts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          teacher_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          teacher_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          teacher_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_accounts_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teachers: {
         Row: {
+          address: string | null
           created_at: string
           email: string | null
           employment_type: Database["public"]["Enums"]["employment_type"]
+          gender: string | null
           id: string
           name: string
           nip: string
@@ -132,9 +169,11 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           email?: string | null
           employment_type: Database["public"]["Enums"]["employment_type"]
+          gender?: string | null
           id?: string
           name: string
           nip: string
@@ -143,9 +182,11 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           email?: string | null
           employment_type?: Database["public"]["Enums"]["employment_type"]
+          gender?: string | null
           id?: string
           name?: string
           nip?: string
