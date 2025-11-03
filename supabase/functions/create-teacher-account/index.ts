@@ -115,9 +115,10 @@ serve(async (req) => {
     if (authError) {
       // Log detailed error server-side for debugging
       console.error("Auth error creating teacher:", authError);
-      // Return generic error to client
+      console.error("Auth error details:", JSON.stringify(authError, null, 2));
+      // Return error with details to client
       return new Response(
-        JSON.stringify({ error: "Gagal membuat akun guru" }),
+        JSON.stringify({ error: `Gagal membuat akun guru: ${authError.message || 'Unknown error'}` }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 500,

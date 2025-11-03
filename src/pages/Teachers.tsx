@@ -125,10 +125,18 @@ export default function Teachers() {
         });
 
         if (accountError) {
+          console.error("Edge function error:", accountError);
           toast({
             title: "Warning",
-            description: "Guru berhasil ditambahkan, tetapi gagal membuat akun login",
-            variant: "default",
+            description: `Guru berhasil ditambahkan, tetapi gagal membuat akun login: ${accountError.message || 'Unknown error'}`,
+            variant: "destructive",
+          });
+        } else if (accountData?.error) {
+          console.error("Account creation error:", accountData.error);
+          toast({
+            title: "Warning",
+            description: `Guru berhasil ditambahkan, tetapi gagal membuat akun login: ${accountData.error}`,
+            variant: "destructive",
           });
         } else if (accountData?.temporaryPassword) {
           toast({
