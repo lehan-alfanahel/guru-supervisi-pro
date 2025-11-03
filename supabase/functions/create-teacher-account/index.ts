@@ -11,8 +11,18 @@ const corsHeaders = {
 // Input validation schema
 const createTeacherSchema = z.object({
   email: z.string().email().max(255),
-  password: z.string().min(6).max(100),
 });
+
+// Generate secure random password
+function generateSecurePassword(): string {
+  const length = 12;
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map(x => charset[x % charset.length])
+    .join('');
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -86,7 +96,8 @@ serve(async (req) => {
       );
     }
 
-    const { email, password } = validation.data;
+    const { email } = validation.data;
+    const password = generateSecurePassword();
 
     // Create admin client for user creation
     const supabaseAdmin = createClient(
@@ -116,7 +127,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        userId: authData.user?.id 
+        userId: authData.user?.id,
+        temporaryPassword: password
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -126,7 +138,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error creating teacher account:", error);
     return new Response(
-      JSON.stringify({ error: "Failed to create teacher account" }),
+      JSON.stringify({ error: "Gagal membuat akun guru" }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,

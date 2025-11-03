@@ -10,6 +10,7 @@ import { GraduationCap } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
@@ -73,15 +74,9 @@ export default function Auth() {
         });
       }
     } catch (error: any) {
-      const errorMessage = error.message?.includes("Invalid login credentials")
-        ? "Email atau password salah"
-        : error.message?.includes("Email not confirmed")
-        ? "Email belum dikonfirmasi"
-        : "Terjadi kesalahan. Silakan coba lagi";
-      
       toast({
         title: "Error",
-        description: errorMessage,
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     } finally {

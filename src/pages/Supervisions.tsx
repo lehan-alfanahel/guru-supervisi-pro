@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { getSchool, getTeachers, getSupervisions, createSupervision, Teacher } from "@/lib/supabase";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -85,8 +86,12 @@ export default function Supervisions() {
 
       setTeachers(teachersData);
       setSupervisions(supervisionsData);
-    } catch (error) {
-      console.error("Error loading supervisions:", error);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: getUserFriendlyError(error),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -116,14 +121,9 @@ export default function Supervisions() {
       resetForm();
       loadData();
     } catch (error: any) {
-      const errorMessage = error.code === "23503"
-        ? "Guru tidak ditemukan"
-        : "Gagal menyimpan supervisi. Silakan coba lagi";
-      
-      console.error("Supervision submission error:", error);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     } finally {

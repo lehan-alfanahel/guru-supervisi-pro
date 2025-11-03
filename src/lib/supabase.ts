@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { getUserFriendlyError } from "./errorHandler";
 
 export type TeacherRank = 'III.A' | 'III.B' | 'III.C' | 'III.D' | 'IV.A' | 'IV.B' | 'IV.C' | 'IV.D' | 'IX';
 export type EmploymentType = 'PNS' | 'PPPK' | 'Guru Honorer';
@@ -53,7 +54,7 @@ export async function getSchool(userId: string) {
     .eq('owner_id', userId)
     .maybeSingle();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as School | null;
 }
 
@@ -64,7 +65,7 @@ export async function createSchool(schoolData: Omit<School, 'id' | 'created_at' 
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as School;
 }
 
@@ -76,7 +77,7 @@ export async function updateSchool(id: string, updates: Partial<School>) {
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as School;
 }
 
@@ -88,7 +89,7 @@ export async function getTeachers(schoolId: string) {
     .eq('school_id', schoolId)
     .order('created_at', { ascending: false });
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as Teacher[];
 }
 
@@ -99,7 +100,7 @@ export async function createTeacher(teacherData: Omit<Teacher, 'id' | 'created_a
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as Teacher;
 }
 
@@ -111,7 +112,7 @@ export async function updateTeacher(id: string, updates: Partial<Teacher>) {
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as Teacher;
 }
 
@@ -121,7 +122,7 @@ export async function deleteTeacher(id: string) {
     .delete()
     .eq('id', id);
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
 }
 
 // Supervision operations
@@ -138,7 +139,7 @@ export async function getSupervisions(schoolId: string) {
     .eq('school_id', schoolId)
     .order('supervision_date', { ascending: false });
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data;
 }
 
@@ -149,7 +150,7 @@ export async function createSupervision(supervisionData: Omit<Supervision, 'id' 
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as Supervision;
 }
 
@@ -161,7 +162,7 @@ export async function updateSupervision(id: string, updates: Partial<Supervision
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
   return data as Supervision;
 }
 
@@ -171,5 +172,5 @@ export async function deleteSupervision(id: string) {
     .delete()
     .eq('id', id);
   
-  if (error) throw error;
+  if (error) throw new Error(getUserFriendlyError(error));
 }

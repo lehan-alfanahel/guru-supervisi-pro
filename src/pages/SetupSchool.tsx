@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { createSchool } from "@/lib/supabase";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 import { School2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,14 +66,9 @@ export default function SetupSchool() {
       });
       navigate("/dashboard");
     } catch (error: any) {
-      const errorMessage = error.code === "23505"
-        ? "Data sekolah sudah terdaftar"
-        : "Gagal menyimpan data sekolah. Silakan coba lagi";
-      
-      console.error("Setup school error:", error);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     } finally {

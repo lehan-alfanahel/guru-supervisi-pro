@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { getUserFriendlyError } from "@/lib/errorHandler";
 
 const teacherSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
@@ -82,8 +83,12 @@ export default function Teachers() {
       setSchoolId(school.id);
       const teachersData = await getTeachers(school.id);
       setTeachers(teachersData);
-    } catch (error) {
-      console.error("Error loading teachers:", error);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: getUserFriendlyError(error),
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -108,19 +113,23 @@ export default function Teachers() {
         });
 
         // Create teacher account via edge function
-        const { error: accountError } = await supabase.functions.invoke("create-teacher-account", {
+        const { data: accountData, error: accountError } = await supabase.functions.invoke("create-teacher-account", {
           body: {
             email: data.email,
-            password: "123456",
           },
         });
 
         if (accountError) {
-          console.error("Error creating teacher account:", accountError);
           toast({
             title: "Warning",
             description: "Guru berhasil ditambahkan, tetapi gagal membuat akun login",
             variant: "default",
+          });
+        } else if (accountData?.temporaryPassword) {
+          toast({
+            title: "Berhasil!",
+            description: `Akun login dibuat. Password: ${accountData.temporaryPassword}`,
+            duration: 10000,
           });
         } else {
           toast({
@@ -134,14 +143,9 @@ export default function Teachers() {
       resetForm();
       loadData();
     } catch (error: any) {
-      const errorMessage = error.code === "23505"
-        ? "Email atau NIP sudah terdaftar"
-        : "Gagal menyimpan data guru. Silakan coba lagi";
-      
-      console.error("Teacher submission error:", error);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     } finally {
@@ -171,11 +175,9 @@ export default function Teachers() {
       setTeacherToDelete(null);
       loadData();
     } catch (error: any) {
-      const errorMessage = "Gagal menghapus guru. Silakan coba lagi";
-      console.error("Delete teacher error:", error);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: getUserFriendlyError(error),
         variant: "destructive",
       });
     }
@@ -270,7 +272,7 @@ export default function Teachers() {
                   )}
                   {!editingTeacher && (
                     <p className="text-xs text-muted-foreground">
-                      Password default: 123456
+                      Password akan dibuat otomatis dan ditampilkan setelah menyimpan
                     </p>
                   )}
                 </div>
