@@ -22,7 +22,7 @@ const teacherSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
   nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
   email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
-  rank: z.enum(["III.A", "III.B", "III.C", "III.D", "IV.A", "IV.B", "IV.C", "IV.D", "IX"] as const, {
+  rank: z.enum(["Tidak Ada", "III.A", "III.B", "III.C", "III.D", "IV.A", "IV.B", "IV.C", "IV.D", "IX"] as const, {
     errorMap: () => ({ message: "Pilih golongan" }),
   }),
   employment_type: z.enum(["PNS", "PPPK", "Guru Honorer"] as const, {
@@ -30,12 +30,13 @@ const teacherSchema = z.object({
   }),
 });
 
-const RANKS: TeacherRank[] = ['III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
+const RANKS: TeacherRank[] = ['Tidak Ada', 'III.A', 'III.B', 'III.C', 'III.D', 'IV.A', 'IV.B', 'IV.C', 'IV.D', 'IX'];
 const EMPLOYMENT_TYPES: EmploymentType[] = ['PNS', 'PPPK', 'Guru Honorer'];
 
 export default function Teachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [schoolId, setSchoolId] = useState<string>("");
+  const [schoolNpsn, setSchoolNpsn] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
@@ -81,6 +82,7 @@ export default function Teachers() {
       }
 
       setSchoolId(school.id);
+      setSchoolNpsn(school.npsn || "");
       const teachersData = await getTeachers(school.id);
       setTeachers(teachersData);
     } catch (error: any) {
@@ -116,6 +118,7 @@ export default function Teachers() {
         const { data: accountData, error: accountError } = await supabase.functions.invoke("create-teacher-account", {
           body: {
             email: data.email,
+            npsn: schoolNpsn,
           },
         });
 
@@ -272,7 +275,7 @@ export default function Teachers() {
                   )}
                   {!editingTeacher && (
                     <p className="text-xs text-muted-foreground">
-                      Password akan dibuat otomatis dan ditampilkan setelah menyimpan
+                      Password otomatis menggunakan NPSN sekolah
                     </p>
                   )}
                 </div>

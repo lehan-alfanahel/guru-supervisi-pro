@@ -11,18 +11,8 @@ const corsHeaders = {
 // Input validation schema
 const createTeacherSchema = z.object({
   email: z.string().email().max(255),
+  npsn: z.string().optional(),
 });
-
-// Generate secure random password
-function generateSecurePassword(): string {
-  const length = 12;
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-  const array = new Uint8Array(length);
-  crypto.getRandomValues(array);
-  return Array.from(array)
-    .map(x => charset[x % charset.length])
-    .join('');
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -96,8 +86,9 @@ serve(async (req) => {
       );
     }
 
-    const { email } = validation.data;
-    const password = generateSecurePassword();
+    const { email, npsn } = validation.data;
+    // Use NPSN as password if provided, otherwise use a default
+    const password = npsn || "default12345";
 
     // Create admin client for user creation
     const supabaseAdmin = createClient(
