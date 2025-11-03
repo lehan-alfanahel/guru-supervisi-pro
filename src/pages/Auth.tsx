@@ -17,7 +17,15 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password minimal 6 karakter").max(100, "Password maksimal 100 karakter"),
 });
 
-const signUpSchema = loginSchema.extend({
+const signUpSchema = z.object({
+  email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
+  password: z.string()
+    .min(12, "Password minimal 12 karakter")
+    .max(100, "Password maksimal 100 karakter")
+    .regex(/[A-Z]/, "Password harus mengandung huruf besar")
+    .regex(/[a-z]/, "Password harus mengandung huruf kecil")
+    .regex(/[0-9]/, "Password harus mengandung angka")
+    .regex(/[^A-Za-z0-9]/, "Password harus mengandung karakter khusus"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Password tidak sama",

@@ -90,7 +90,7 @@ serve(async (req) => {
     // Use NPSN as password if provided, otherwise use a default
     const password = npsn || "default12345";
 
-    // Create admin client for user creation
+    // Create admin client for user creation with fixed search_path
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -99,6 +99,9 @@ serve(async (req) => {
           autoRefreshToken: false,
           persistSession: false,
         },
+        db: {
+          schema: 'public'
+        }
       }
     );
 
@@ -110,7 +113,16 @@ serve(async (req) => {
     });
 
     if (authError) {
-      throw authError;
+      // Log detailed error server-side for debugging
+      console.error("Auth error creating teacher:", authError);
+      // Return generic error to client
+      return new Response(
+        JSON.stringify({ error: "Gagal membuat akun guru" }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
     }
 
     console.log(`Teacher account created by user ${user.id} for school ${school.id}`);
@@ -127,7 +139,9 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    // Log full error details server-side for debugging
     console.error("Error creating teacher account:", error);
+    // Return sanitized generic error to client
     return new Response(
       JSON.stringify({ error: "Gagal membuat akun guru" }),
       {
