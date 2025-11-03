@@ -22,6 +22,7 @@ const teacherSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
   nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
   email: z.string().trim().email("Email tidak valid").max(255, "Email maksimal 255 karakter"),
+  password: z.string().min(12, "Password minimal 12 karakter").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/, "Password harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus").optional(),
   rank: z.enum(["Tidak Ada", "III.A", "III.B", "III.C", "III.D", "IV.A", "IV.B", "IV.C", "IV.D", "IX"] as const, {
     errorMap: () => ({ message: "Pilih golongan" }),
   }),
@@ -58,6 +59,7 @@ export default function Teachers() {
       name: "",
       nip: "",
       email: "",
+      password: "",
       rank: undefined,
       employment_type: undefined,
     },
@@ -118,7 +120,7 @@ export default function Teachers() {
         const { data: accountData, error: accountError } = await supabase.functions.invoke("create-teacher-account", {
           body: {
             email: data.email,
-            npsn: schoolNpsn,
+            password: data.password,
           },
         });
 
@@ -191,6 +193,7 @@ export default function Teachers() {
       name: "",
       nip: "",
       email: "",
+      password: "",
       rank: undefined,
       employment_type: undefined,
     });
@@ -273,12 +276,24 @@ export default function Teachers() {
                   {errors.email && (
                     <p className="text-sm text-destructive">{String(errors.email.message)}</p>
                   )}
-                  {!editingTeacher && (
-                    <p className="text-xs text-muted-foreground">
-                      Password otomatis menggunakan NPSN sekolah
-                    </p>
-                  )}
                 </div>
+                {!editingTeacher && (
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password (Opsional)</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Min. 12 karakter"
+                      {...register("password")}
+                    />
+                    {errors.password && (
+                      <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Jika tidak diisi, password otomatis akan digunakan
+                    </p>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="rank">Pangkat</Label>
                   <Controller

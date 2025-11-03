@@ -11,7 +11,7 @@ const corsHeaders = {
 // Input validation schema
 const createTeacherSchema = z.object({
   email: z.string().email().max(255),
-  npsn: z.string().optional(),
+  password: z.string().optional(),
 });
 
 serve(async (req) => {
@@ -86,9 +86,9 @@ serve(async (req) => {
       );
     }
 
-    const { email, npsn } = validation.data;
-    // Use NPSN as password if provided, otherwise use a default
-    const password = npsn || "default12345";
+    const { email, password } = validation.data;
+    // Generate a secure random password if not provided
+    const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
 
     // Create admin client for user creation with fixed search_path
     const supabaseAdmin = createClient(
@@ -108,7 +108,7 @@ serve(async (req) => {
     // Create user account with admin client
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
-      password: password,
+      password: finalPassword,
       email_confirm: true,
     });
 
@@ -131,7 +131,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         userId: authData.user?.id,
-        temporaryPassword: password
+        temporaryPassword: finalPassword
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
