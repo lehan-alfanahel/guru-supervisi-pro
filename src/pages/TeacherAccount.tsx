@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
 import { TeacherHeader } from "@/components/TeacherHeader";
-import { Mail, Key, LogOut as LogOutIcon } from "lucide-react";
+import { User, Mail, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,16 +19,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface AccountInfo {
+interface TeacherAccountData {
+  name: string;
+  nip: string;
   email: string;
-  userId: string;
+  schoolName: string;
 }
 
 export default function TeacherAccount() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
+  const [accountData, setAccountData] = useState<TeacherAccountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
@@ -38,25 +40,55 @@ export default function TeacherAccount() {
       return;
     }
 
-    loadAccountInfo();
+    loadAccountData();
   }, [user, navigate]);
 
-  const loadAccountInfo = async () => {
+  const loadAccountData = async () => {
     try {
-      const { data: teacherAccount, error } = await supabase
+      // Get teacher account with related data
+      const { data: teacherAccount, error: accountError } = await supabase
         .from("teacher_accounts")
-        .select("email")
+        .select(`
+          email,
+          teachers (
+            name,
+            nip,
+            school_id
+          )
+        `)
         .eq("user_id", user?.id)
         .single();
 
-      if (error) throw error;
+      if (accountError) throw accountError;
 
-      setAccountInfo({
-        email: teacherAccount.email,
-        userId: user?.id || "",
-      });
+      if (teacherAccount && teacherAccount.teachers) {
+        const teacher = Array.isArray(teacherAccount.teachers) 
+          ? teacherAccount.teachers[0] 
+          : teacherAccount.teachers;
+
+        // Get school name
+        const { data: school, error: schoolError } = await supabase
+          .from("schools")
+          .select("name")
+          .eq("id", teacher.school_id)
+          .single();
+
+        if (schoolError) throw schoolError;
+
+        setAccountData({
+          name: teacher.name,
+          nip: teacher.nip,
+          email: teacherAccount.email,
+          schoolName: school.name,
+        });
+      }
     } catch (error) {
-      console.error("Error loading account info:", error);
+      console.error("Error loading account data:", error);
+      toast({
+        title: "Error",
+        description: "Gagal memuat data akun",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -66,14 +98,14 @@ export default function TeacherAccount() {
     try {
       await signOut();
       toast({
-        title: "Berhasil keluar",
-        description: "Anda telah keluar dari aplikasi",
+        title: "Berhasil",
+        description: "Anda telah keluar dari akun",
       });
       navigate("/auth");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Gagal keluar dari aplikasi",
+        description: "Gagal keluar dari akun",
         variant: "destructive",
       });
     }
@@ -87,12 +119,15 @@ export default function TeacherAccount() {
     );
   }
 
-  if (!accountInfo) {
+  if (!accountData) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Data tidak ditemukan</CardTitle>
+            <CardTitle>Data Tidak Ditemukan</CardTitle>
+            <CardDescription>
+              Data akun tidak ditemukan. Silakan hubungi administrator.
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -101,87 +136,98 @@ export default function TeacherAccount() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <TeacherHeader />
+      <TeacherHeader 
+        teacherName={accountData.name}
+        schoolName={accountData.schoolName}
+      />
 
-      <div className="p-4 space-y-4">
-        <Card>
+      <div className="p-4 space-y-4 max-w-2xl mx-auto">
+        {/* Account Information Card */}
+        <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
-            <CardTitle>Informasi Akun</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <User className="w-5 h-5 text-primary" />
+              Informasi Akun
+            </CardTitle>
+            <CardDescription>
+              Detail informasi akun guru Anda
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Email Login</p>
-                <p className="font-medium">{accountInfo.email}</p>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Nama Lengkap</p>
+                  <p className="font-medium">{accountData.name}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-start gap-3">
-              <Key className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">User ID</p>
-                <p className="font-medium text-xs break-all">{accountInfo.userId}</p>
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">NIP</p>
+                  <p className="font-medium">{accountData.nip}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-start gap-3">
-              <Key className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Level Akses</p>
-                <p className="font-medium">Guru</p>
+              <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium">{accountData.email}</p>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Logout Card */}
+        <Card className="shadow-[var(--shadow-card)] border-destructive/20">
           <CardHeader>
-            <CardTitle>Keamanan</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <LogOut className="w-5 h-5" />
+              Keluar dari Akun
+            </CardTitle>
+            <CardDescription>
+              Keluar dari akun guru Anda
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Untuk mengubah password atau informasi akun lainnya, silakan hubungi administrator sekolah.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <CardTitle className="text-destructive">Keluar dari Akun</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Keluar dari akun guru Anda.
-            </p>
-            <Button 
-              variant="destructive" 
-              className="w-full gap-2"
+            <Button
+              variant="destructive"
+              className="w-full"
               onClick={() => setLogoutDialogOpen(true)}
             >
-              <LogOutIcon className="w-4 h-4" />
+              <LogOut className="w-4 h-4 mr-2" />
               Keluar
             </Button>
           </CardContent>
         </Card>
       </div>
 
+      <TeacherBottomNav />
+
+      {/* Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Keluar dari Aplikasi?</AlertDialogTitle>
+            <AlertDialogTitle>Keluar dari Akun?</AlertDialogTitle>
             <AlertDialogDescription>
-              Anda akan keluar dari akun Anda. Pastikan semua data sudah tersimpan.
+              Anda akan keluar dari akun guru. Anda perlu login kembali untuk mengakses aplikasi.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSignOut}>Keluar</AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleSignOut}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ya, Keluar
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <TeacherBottomNav />
     </div>
   );
 }
