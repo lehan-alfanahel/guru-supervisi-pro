@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
+import { TeacherHeader } from "@/components/TeacherHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -217,11 +218,10 @@ export default function TeacherSupervision() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="bg-primary text-primary-foreground p-6">
-        <h1 className="text-xl md:text-2xl font-bold text-center">
-          INSTRUMEN TELAAH ADMINISTRASI PEMBELAJARAN
-        </h1>
-      </div>
+      <TeacherHeader 
+        teacherName={teacherInfo.name}
+        schoolName={teacherInfo.schoolName}
+      />
 
       <div className="p-4 space-y-4">
         <Card>

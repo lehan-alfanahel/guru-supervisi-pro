@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
+import { TeacherHeader } from "@/components/TeacherHeader";
 import { User, Mail, Building2, Hash, Award, Briefcase } from "lucide-react";
 
 interface TeacherProfile {
@@ -106,15 +107,10 @@ export default function TeacherProfile() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div>
-            <h1 className="text-lg font-bold">Profil Guru</h1>
-            <p className="text-sm opacity-90">Level Akses: Guru</p>
-          </div>
-        </div>
-      </header>
+      <TeacherHeader 
+        teacherName={profile.name}
+        schoolName={profile.schoolName}
+      />
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto p-4">

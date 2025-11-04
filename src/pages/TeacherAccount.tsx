@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
+import { TeacherHeader } from "@/components/TeacherHeader";
 import { Mail, Key } from "lucide-react";
 
 interface AccountInfo {
@@ -69,12 +70,7 @@ export default function TeacherAccount() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="bg-primary text-primary-foreground p-6">
-        <div>
-          <h1 className="text-2xl font-bold">Akun</h1>
-          <p className="text-sm opacity-90 mt-1">Level Akses: Guru</p>
-        </div>
-      </div>
+      <TeacherHeader />
 
       <div className="p-4 space-y-4">
         <Card>
