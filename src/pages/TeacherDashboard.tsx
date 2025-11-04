@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
-import { BookOpen, FileText, ClipboardList, GraduationCap } from "lucide-react";
+import { BookOpen, FileText, ClipboardList, GraduationCap, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TeacherData {
@@ -13,6 +13,7 @@ interface TeacherData {
   rank: string;
   schoolName: string;
   administrationCount: number;
+  email: string;
 }
 
 export default function TeacherDashboard() {
@@ -37,6 +38,7 @@ export default function TeacherDashboard() {
         .from("teacher_accounts")
         .select(`
           id,
+          email,
           teachers (
             id,
             name,
@@ -78,6 +80,7 @@ export default function TeacherDashboard() {
           rank: teacher.rank,
           schoolName: school.name,
           administrationCount: count || 0,
+          email: teacherAccount.email,
         });
       }
     } catch (error) {
@@ -113,13 +116,21 @@ export default function TeacherDashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="bg-primary text-primary-foreground p-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <GraduationCap className="w-6 h-6" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold">Dashboard Guru</h1>
+              <p className="text-sm opacity-90">{teacherData.name}</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">Dashboard Guru</h1>
-            <p className="text-sm opacity-90">Selamat datang, {teacherData.name}</p>
+          <div className="text-right hidden sm:block">
+            <div className="flex items-center gap-2 text-sm">
+              <User className="w-4 h-4" />
+              <span className="opacity-90">{teacherData.email}</span>
+            </div>
           </div>
         </div>
       </div>

@@ -27,6 +27,7 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [userEmail, setUserEmail] = useState<string>("");
 
   useEffect(() => {
     if (!user) {
@@ -34,6 +35,7 @@ export default function Dashboard() {
       return;
     }
 
+    setUserEmail(user.email || "");
     loadData();
   }, [user, navigate]);
 
@@ -87,19 +89,27 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <School2 className="w-6 h-6" />
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                <School2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold">SUPERVISI DIGITAL GURU</h1>
+                <p className="text-sm opacity-90">{school?.name}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-lg font-bold">SUPERVISI DIGITAL GURU</h1>
-              <p className="text-sm opacity-90">{school?.name}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium">{school?.principal_name}</p>
+                <p className="text-xs opacity-75">{userEmail}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setLogoutDialogOpen(true)} className="hover:bg-white/10">
+                <LogOut className="w-5 h-5" />
+              </Button>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => setLogoutDialogOpen(true)} className="hover:bg-white/10 gap-0">
-            <LogOut className="w-5 h-5" />
-          </Button>
         </div>
       </header>
 
