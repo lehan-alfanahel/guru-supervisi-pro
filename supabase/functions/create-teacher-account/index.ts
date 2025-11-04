@@ -46,7 +46,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
     console.log('Token extracted, length:', token.length);
 
-    // Create client with service role to verify JWT
+    // Create client with anon key to verify JWT
     const supabaseAuth = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -79,13 +79,19 @@ serve(async (req) => {
       );
     }
 
+    // Use service role to check school ownership (bypasses RLS)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
     // Verify user owns a school
     console.log('Checking if user owns a school...');
-    const { data: school, error: schoolError } = await supabaseAuth
+    const { data: school, error: schoolError } = await supabaseAdmin
       .from("schools")
       .select("id")
       .eq("owner_id", user.id)
-      .single();
+      .maybeSingle();
 
     console.log('School check:', { schoolId: school?.id, error: schoolError });
 
@@ -121,21 +127,6 @@ serve(async (req) => {
     // Generate a secure random password if not provided
     const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
 
-    // Create admin client for user creation with fixed search_path
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-        db: {
-          schema: 'public'
-        }
-      }
-    );
-
     // Create user account with admin client
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: email,
@@ -159,7 +150,7 @@ serve(async (req) => {
 
     // If teacherId provided, create teacher_accounts entry
     if (teacherId && authData.user) {
-      const { error: accountLinkError } = await supabaseAuth
+      const { error: accountLinkError } = await supabaseAdmin
         .from('teacher_accounts')
         .insert({
           teacher_id: teacherId,
