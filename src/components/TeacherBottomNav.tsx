@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Home, User, ClipboardList, LogOut } from "lucide-react";
+import { Home, User, ClipboardList, UserCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -76,6 +76,17 @@ export function TeacherBottomNav() {
           >
             <ClipboardList className="w-5 h-5" />
             <span className="text-xs">Supervisi</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={`flex flex-col items-center gap-0.5 h-full flex-1 rounded-none ${
+              isActive("/teacher/account") ? "text-primary" : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/teacher/account")}
+          >
+            <UserCircle className="w-5 h-5" />
+            <span className="text-xs">Account</span>
           </Button>
 
           <Button

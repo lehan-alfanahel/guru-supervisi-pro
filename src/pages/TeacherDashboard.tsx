@@ -4,13 +4,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
-import { BookOpen, FileText, ClipboardList } from "lucide-react";
+import { BookOpen, FileText, ClipboardList, GraduationCap } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TeacherData {
   name: string;
   nip: string;
   rank: string;
   schoolName: string;
+  administrationCount: number;
 }
 
 export default function TeacherDashboard() {
@@ -34,7 +36,7 @@ export default function TeacherDashboard() {
       const { data: teacherAccount, error: accountError } = await supabase
         .from("teacher_accounts")
         .select(`
-          *,
+          id,
           teachers (
             id,
             name,
@@ -62,11 +64,20 @@ export default function TeacherDashboard() {
 
         if (schoolError) throw schoolError;
 
+        // Get administration count
+        const { count, error: countError } = await supabase
+          .from("teaching_administration")
+          .select("*", { count: "exact", head: true })
+          .eq("teacher_account_id", teacherAccount.id);
+
+        if (countError) throw countError;
+
         setTeacherData({
           name: teacher.name,
           nip: teacher.nip,
           rank: teacher.rank,
           schoolName: school.name,
+          administrationCount: count || 0,
         });
       }
     } catch (error) {
@@ -102,12 +113,36 @@ export default function TeacherDashboard() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="bg-primary text-primary-foreground p-6">
-        <h1 className="text-2xl font-bold mb-2">Beranda</h1>
-        <p className="text-sm opacity-90">Selamat datang, {teacherData.name}</p>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard Guru</h1>
+            <p className="text-sm opacity-90">Selamat datang, {teacherData.name}</p>
+          </div>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">
-        <Card>
+        {/* Stats Card */}
+        <Card className="shadow-[var(--shadow-card)]">
+          <CardHeader>
+            <CardTitle>Statistik</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Data Administrasi</p>
+                <p className="text-3xl font-bold text-primary">{teacherData.administrationCount}</p>
+              </div>
+              <ClipboardList className="w-12 h-12 text-primary/20" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
             <CardTitle>Informasi Guru</CardTitle>
           </CardHeader>
@@ -131,6 +166,7 @@ export default function TeacherDashboard() {
           </CardContent>
         </Card>
 
+        {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -160,17 +196,38 @@ export default function TeacherDashboard() {
 
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate("/teacher/supervision")}
+            onClick={() => navigate("/teacher/account")}
           >
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center space-y-2">
                 <ClipboardList className="w-12 h-12 text-primary" />
-                <h3 className="font-semibold">Supervisi</h3>
-                <p className="text-sm text-muted-foreground">Instrumen administrasi</p>
+                <h3 className="font-semibold">Akun</h3>
+                <p className="text-sm text-muted-foreground">Informasi akun</p>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* CTA to fill administration */}
+        {teacherData.administrationCount === 0 && (
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-3">
+                <h3 className="font-semibold">Belum ada data administrasi</h3>
+                <p className="text-sm text-muted-foreground">
+                  Lengkapi instrumen administrasi pembelajaran Anda sekarang
+                </p>
+                <Button 
+                  onClick={() => navigate("/teacher/supervision")}
+                  className="gap-1.5"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Isi Administrasi
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <TeacherBottomNav />
