@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getUserFriendlyError } from "@/lib/errorHandler";
@@ -51,9 +52,32 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // Check if user is a teacher or school owner
+      checkUserRole();
     }
   }, [user, navigate]);
+
+  const checkUserRole = async () => {
+    if (!user) return;
+
+    try {
+      // Check if user is a teacher
+      const { data: teacherAccount } = await supabase
+        .from("teacher_accounts")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (teacherAccount) {
+        navigate("/teacher/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error checking user role:", error);
+      navigate("/");
+    }
+  };
 
   useEffect(() => {
     reset();

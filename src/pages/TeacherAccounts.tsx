@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Trash2, UserCheck } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, UserCheck, Edit } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 import { useForm, Controller } from "react-hook-form";
@@ -38,6 +39,8 @@ export default function TeacherAccounts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<any>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -272,7 +275,7 @@ export default function TeacherAccounts() {
           {isMobile ? (
             <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
               <DrawerTrigger asChild>
-                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                   <Plus className="w-4 h-4" />
                   Tambah
                 </Button>
@@ -289,7 +292,7 @@ export default function TeacherAccounts() {
           ) : (
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                   <Plus className="w-4 h-4" />
                   Tambah
                 </Button>
@@ -326,17 +329,30 @@ export default function TeacherAccounts() {
                   <p className="text-sm text-muted-foreground">NIP: {account.teachers?.nip}</p>
                   <p className="text-sm text-muted-foreground">Email: {account.email}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setAccountToDelete(account.id);
-                    setDeleteDialogOpen(true);
-                  }}
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setEditingAccount(account);
+                      setEditDialogOpen(true);
+                    }}
+                    className="text-primary hover:text-primary hover:bg-primary/10"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setAccountToDelete(account.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             ))
           )}
@@ -359,6 +375,64 @@ export default function TeacherAccounts() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Email Akun Guru</DialogTitle>
+            <DialogDescription>
+              {editingAccount?.teachers?.name} - NIP: {editingAccount?.teachers?.nip}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const newEmail = formData.get('email') as string;
+
+            try {
+              const { error } = await supabase
+                .from('teacher_accounts')
+                .update({ email: newEmail })
+                .eq('id', editingAccount.id);
+
+              if (error) throw error;
+
+              toast({
+                title: "Berhasil",
+                description: "Email akun guru berhasil diperbarui",
+              });
+
+              setEditDialogOpen(false);
+              loadData();
+            } catch (error: any) {
+              toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+              });
+            }
+          }} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email Baru</Label>
+              <Input
+                id="edit-email"
+                name="email"
+                type="email"
+                defaultValue={editingAccount?.email}
+                required
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)} className="flex-1">
+                Batal
+              </Button>
+              <Button type="submit" className="flex-1">
+                Simpan
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <BottomNav />
     </div>

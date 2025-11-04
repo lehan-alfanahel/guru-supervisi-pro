@@ -248,6 +248,18 @@ export async function createTeacherAccount(teacherId: string, email: string, pas
   }
 }
 
+export async function updateTeacherAccount(id: string, updates: { email?: string }) {
+  const { data, error } = await supabase
+    .from('teacher_accounts')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw new Error(getUserFriendlyError(error));
+  return data;
+}
+
 export async function deleteTeacherAccount(id: string) {
   const { error } = await supabase
     .from('teacher_accounts')

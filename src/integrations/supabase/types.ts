@@ -204,6 +204,75 @@ export type Database = {
           },
         ]
       }
+      teaching_administration: {
+        Row: {
+          annual_program_link: string | null
+          assessment_program_link: string | null
+          assessment_use_link: string | null
+          attendance_link: string | null
+          calendar_link: string | null
+          created_at: string
+          daily_agenda_link: string | null
+          grade_list_link: string | null
+          id: string
+          learning_flow_link: string | null
+          schedule_link: string | null
+          school_id: string
+          semester_class: string | null
+          status: string | null
+          teacher_account_id: string
+          teacher_id: string
+          teaching_hours: string | null
+          teaching_material_link: string | null
+          teaching_module_link: string | null
+          updated_at: string
+        }
+        Insert: {
+          annual_program_link?: string | null
+          assessment_program_link?: string | null
+          assessment_use_link?: string | null
+          attendance_link?: string | null
+          calendar_link?: string | null
+          created_at?: string
+          daily_agenda_link?: string | null
+          grade_list_link?: string | null
+          id?: string
+          learning_flow_link?: string | null
+          schedule_link?: string | null
+          school_id: string
+          semester_class?: string | null
+          status?: string | null
+          teacher_account_id: string
+          teacher_id: string
+          teaching_hours?: string | null
+          teaching_material_link?: string | null
+          teaching_module_link?: string | null
+          updated_at?: string
+        }
+        Update: {
+          annual_program_link?: string | null
+          assessment_program_link?: string | null
+          assessment_use_link?: string | null
+          attendance_link?: string | null
+          calendar_link?: string | null
+          created_at?: string
+          daily_agenda_link?: string | null
+          grade_list_link?: string | null
+          id?: string
+          learning_flow_link?: string | null
+          schedule_link?: string | null
+          school_id?: string
+          semester_class?: string | null
+          status?: string | null
+          teacher_account_id?: string
+          teacher_id?: string
+          teaching_hours?: string | null
+          teaching_material_link?: string | null
+          teaching_module_link?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

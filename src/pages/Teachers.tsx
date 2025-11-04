@@ -274,7 +274,7 @@ export default function Teachers() {
         )}
       </div>
       
-      <div className="flex gap-2 pt-4">
+      <div className="flex gap-1.5 pt-4">
         <Button type="button" variant="outline" onClick={handleDialogClose} className="flex-1">
           Batal
         </Button>
@@ -310,12 +310,12 @@ export default function Teachers() {
             </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <Button 
               size="sm" 
               variant="secondary" 
               onClick={() => navigate("/teacher-accounts")}
-              className="gap-2"
+              className="gap-1.5"
             >
               <UserCheck className="w-4 h-4" />
               {!isMobile && "Akun Guru"}
@@ -324,7 +324,7 @@ export default function Teachers() {
             {isMobile ? (
               <Drawer open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DrawerTrigger asChild>
-                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                     <Plus className="w-4 h-4" />
                     Tambah
                   </Button>
@@ -345,7 +345,7 @@ export default function Teachers() {
             ) : (
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+                  <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                     <Plus className="w-4 h-4" />
                     Tambah
                   </Button>
@@ -390,7 +390,7 @@ export default function Teachers() {
                       <p>Jenis Kepegawaian: {teacher.employment_type}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Button
                       variant="ghost"
                       size="icon"

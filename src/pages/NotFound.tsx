@@ -16,7 +16,7 @@ const NotFound = () => {
         <p className="mb-8 text-muted-foreground max-w-md">
           Maaf, halaman yang Anda cari tidak dapat ditemukan atau telah dipindahkan.
         </p>
-        <Button onClick={() => navigate("/")} size="lg" className="gap-2">
+        <Button onClick={() => navigate("/")} size="lg" className="gap-1.5">
           <Home className="w-5 h-5" />
           Kembali ke Beranda
         </Button>

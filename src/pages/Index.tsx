@@ -39,7 +39,7 @@ const Index = () => {
             </div>
             
             {/* Desktop Auth Buttons */}
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1.5">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/auth")}
@@ -49,7 +49,7 @@ const Index = () => {
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
-                className="gap-2 bg-primary hover:bg-orange-500 transition-colors"
+                className="gap-1.5 bg-primary hover:bg-orange-500 transition-colors"
               >
                 Daftar
               </Button>
@@ -80,7 +80,7 @@ const Index = () => {
                         setMobileMenuOpen(false);
                         navigate("/auth");
                       }}
-                      className="w-full gap-2 bg-primary hover:bg-orange-500 transition-colors"
+                      className="w-full gap-1.5 bg-primary hover:bg-orange-500 transition-colors"
                     >
                       Daftar
                     </Button>
@@ -109,7 +109,7 @@ const Index = () => {
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
-              className="bg-white text-primary hover:bg-white/90 shadow-lg text-base md:text-lg px-6 md:px-8 w-full sm:w-auto gap-2"
+              className="bg-white text-primary hover:bg-white/90 shadow-lg text-base md:text-lg px-6 md:px-8 w-full sm:w-auto gap-1.5"
             >
               Mulai Sekarang
             </Button>
@@ -168,7 +168,7 @@ const Index = () => {
           <Button
             size="lg"
             onClick={() => navigate("/auth")}
-            className="bg-white text-secondary hover:bg-white/90 shadow-lg text-lg px-8 gap-2"
+            className="bg-white text-secondary hover:bg-white/90 shadow-lg text-lg px-8 gap-1.5"
           >
             Daftar Gratis
           </Button>

@@ -233,14 +233,24 @@ export default function Profile() {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full gap-2"
-                disabled={saving}
-              >
-                <Save className="w-4 h-4" />
-                {saving ? "Menyimpan..." : "Simpan Perubahan"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 gap-1.5"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 gap-1.5"
+                  disabled={saving}
+                >
+                  <Save className="w-4 h-4" />
+                  {saving ? "Menyimpan..." : "Simpan"}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

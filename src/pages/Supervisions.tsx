@@ -183,7 +183,7 @@ export default function Supervisions() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-2">
+              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                 <Plus className="w-4 h-4" />
                 Buat
               </Button>
@@ -332,7 +332,7 @@ export default function Supervisions() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">
                     Batal
                   </Button>
@@ -354,7 +354,7 @@ export default function Supervisions() {
               <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">Belum ada supervisi</p>
               <p className="text-sm text-muted-foreground mb-4">Buat supervisi pertama Anda</p>
-              <Button onClick={() => setDialogOpen(true)} className="gap-2">
+              <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
                 <Plus className="w-4 h-4" />
                 Buat Supervisi
               </Button>

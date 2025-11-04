@@ -39,7 +39,7 @@ export default function BottomNav() {
             variant={location.pathname === "/dashboard" ? "default" : "ghost"} 
             size="sm" 
             onClick={() => navigate("/dashboard")}
-            className="flex-col h-auto py-2 px-3 gap-1"
+            className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <School2 className="w-5 h-5" />
             <span className="text-xs">Dashboard</span>
@@ -48,7 +48,7 @@ export default function BottomNav() {
             variant={location.pathname === "/teachers" ? "default" : "ghost"} 
             size="sm" 
             onClick={() => navigate("/teachers")}
-            className="flex-col h-auto py-2 px-3 gap-1"
+            className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <Users className="w-5 h-5" />
             <span className="text-xs">Guru</span>
@@ -57,7 +57,7 @@ export default function BottomNav() {
             variant={location.pathname === "/supervisions" ? "default" : "ghost"} 
             size="sm" 
             onClick={() => navigate("/supervisions")}
-            className="flex-col h-auto py-2 px-3 gap-1"
+            className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <ClipboardList className="w-5 h-5" />
             <span className="text-xs">Supervisi</span>
@@ -66,7 +66,7 @@ export default function BottomNav() {
             variant={location.pathname === "/profile" ? "default" : "ghost"} 
             size="sm" 
             onClick={() => navigate("/profile")}
-            className="flex-col h-auto py-2 px-3 gap-1"
+            className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <User className="w-5 h-5" />
             <span className="text-xs">Profil</span>
@@ -75,7 +75,7 @@ export default function BottomNav() {
             variant="ghost" 
             size="sm" 
             onClick={() => setLogoutDialogOpen(true)}
-            className="flex-col h-auto py-2 px-3 gap-1"
+            className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <LogOut className="w-5 h-5" />
             <span className="text-xs">Keluar</span>

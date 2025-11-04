@@ -109,7 +109,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                 <Users className="w-4 h-4" />
                 Total Guru
               </CardTitle>
@@ -121,7 +121,7 @@ export default function Dashboard() {
 
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                 <ClipboardList className="w-4 h-4" />
                 Total Supervisi
               </CardTitle>
@@ -133,7 +133,7 @@ export default function Dashboard() {
 
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                 <School2 className="w-4 h-4" />
                 Bulan Ini
               </CardTitle>
