@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Pencil, Trash2, UserCheck } from "lucide-react";
@@ -329,13 +329,13 @@ export default function Teachers() {
                     Tambah
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="h-full">
+                <DrawerContent className="h-full rounded-none">
                   <div className="flex flex-col h-full px-4 pb-8">
                     <DrawerHeader className="px-0">
                       <DrawerTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DrawerTitle>
                     </DrawerHeader>
-                    <div className="flex-1 flex items-center justify-center">
-                      <div className="w-full max-w-md">
+                    <div className="flex-1 flex items-center justify-center overflow-y-auto">
+                      <div className="w-full max-w-md py-4">
                         {formContent}
                       </div>
                     </div>
@@ -350,11 +350,16 @@ export default function Teachers() {
                     Tambah
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md sm:max-w-lg">
-                  <DialogHeader>
+                <DialogContent className="max-w-md sm:max-w-lg rounded-none max-h-screen overflow-hidden flex flex-col">
+                  <DialogHeader className="flex-shrink-0">
                     <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
+                    <DialogDescription>
+                      {editingTeacher ? "Edit data guru yang sudah ada" : "Tambahkan data guru baru ke sistem"}
+                    </DialogDescription>
                   </DialogHeader>
-                  {formContent}
+                  <div className="flex-1 overflow-y-auto px-1">
+                    {formContent}
+                  </div>
                 </DialogContent>
               </Dialog>
             )}

@@ -43,13 +43,13 @@ const Index = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate("/auth")}
-                className="text-primary-foreground hover:bg-white/10"
+                className="text-primary-foreground hover:bg-orange-500 hover:text-white transition-colors"
               >
                 Masuk
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
-                className="gap-2"
+                className="gap-2 bg-secondary hover:bg-orange-500 transition-colors"
               >
                 Daftar
               </Button>
