@@ -5,8 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
 import { TeacherHeader } from "@/components/TeacherHeader";
-import { BookOpen, FileText, ClipboardList, GraduationCap, User } from "lucide-react";
+import { BookOpen, FileText, ClipboardList, GraduationCap, User, LogOut, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TeacherData {
   name: string;
@@ -18,10 +29,12 @@ interface TeacherData {
 }
 
 export default function TeacherDashboard() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [teacherData, setTeacherData] = useState<TeacherData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -88,6 +101,23 @@ export default function TeacherDashboard() {
       console.error("Error loading teacher data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Berhasil",
+        description: "Anda telah keluar dari akun",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Gagal keluar dari akun",
+        variant: "destructive",
+      });
     }
   };
 
@@ -164,7 +194,7 @@ export default function TeacherDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
             onClick={() => navigate("/teacher/supervision")}
@@ -197,9 +227,22 @@ export default function TeacherDashboard() {
           >
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center space-y-2">
-                <ClipboardList className="w-12 h-12 text-primary" />
+                <User className="w-12 h-12 text-primary" />
                 <h3 className="font-semibold">Akun</h3>
                 <p className="text-sm text-muted-foreground">Informasi akun</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow border-destructive/20"
+            onClick={() => setLogoutDialogOpen(true)}
+          >
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <LogOut className="w-12 h-12 text-destructive" />
+                <h3 className="font-semibold text-destructive">Keluar</h3>
+                <p className="text-sm text-muted-foreground">Keluar dari akun</p>
               </div>
             </CardContent>
           </Card>
@@ -228,6 +271,27 @@ export default function TeacherDashboard() {
       </div>
 
       <TeacherBottomNav />
+
+      {/* Logout Confirmation Dialog */}
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari Akun?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda akan keluar dari akun guru. Anda perlu login kembali untuk mengakses aplikasi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSignOut}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ya, Keluar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
