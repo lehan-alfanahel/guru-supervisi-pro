@@ -70,8 +70,10 @@ export default function TeacherAccount() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="bg-primary text-primary-foreground p-6">
-        <h1 className="text-2xl font-bold">Akun</h1>
-        <p className="text-sm opacity-90">Informasi akun Anda</p>
+        <div>
+          <h1 className="text-2xl font-bold">Akun</h1>
+          <p className="text-sm opacity-90 mt-1">Level Akses: Guru</p>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">
@@ -93,6 +95,14 @@ export default function TeacherAccount() {
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground">User ID</p>
                 <p className="font-medium text-xs break-all">{accountInfo.userId}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Key className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">Level Akses</p>
+                <p className="font-medium">Guru</p>
               </div>
             </div>
           </CardContent>

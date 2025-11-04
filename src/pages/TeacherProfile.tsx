@@ -107,7 +107,10 @@ export default function TeacherProfile() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="bg-primary text-primary-foreground p-6">
-        <h1 className="text-2xl font-bold">Profil Guru</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Profil Guru</h1>
+          <p className="text-sm opacity-90 mt-1">Level Akses: Guru</p>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">
@@ -188,6 +191,38 @@ export default function TeacherProfile() {
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Status Kepegawaian</p>
                 <p className="font-medium">{profile.employment_type}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Account Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Informasi Akun</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-start gap-3">
+              <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">Email Login</p>
+                <p className="font-medium">{profile.email}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">User ID</p>
+                <p className="font-mono text-xs break-all">{user?.id}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <Award className="w-5 h-5 text-muted-foreground mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">Level Akses</p>
+                <p className="font-medium">Guru</p>
               </div>
             </div>
           </CardContent>

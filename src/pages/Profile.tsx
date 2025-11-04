@@ -154,7 +154,10 @@ export default function Profile() {
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                 <School2 className="w-6 h-6 text-primary" />
               </div>
-              <CardTitle>Informasi Sekolah</CardTitle>
+              <div className="flex-1">
+                <CardTitle>Informasi Sekolah</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">Level Akses: Admin/Kepala Sekolah</p>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -231,6 +234,25 @@ export default function Profile() {
                 {errors.principal_nip && (
                   <p className="text-sm text-destructive">{String(errors.principal_nip.message)}</p>
                 )}
+              </div>
+
+              {/* Account Information */}
+              <div className="pt-4 border-t">
+                <h3 className="font-semibold mb-3">Informasi Akun</h3>
+                <div className="space-y-3 bg-muted/50 p-3 rounded-lg">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{user?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">User ID</p>
+                    <p className="font-mono text-sm">{user?.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Level Akses</p>
+                    <p className="font-medium">Administrator</p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-2">
