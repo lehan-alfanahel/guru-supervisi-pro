@@ -57,6 +57,18 @@ export function TeacherBottomNav() {
           <span className="text-xs font-medium">Beranda</span>
         </Button>
 
+        <Button
+          variant="ghost"
+          className={`flex-col h-auto py-2 px-3 gap-1 ${
+            isActive("/teacher/profile")
+              ? "bg-primary text-primary-foreground rounded-xl"
+              : "text-muted-foreground"
+          }`}
+          onClick={() => navigate("/teacher/profile")}
+        >
+          <User className="w-5 h-5" />
+          <span className="text-xs font-medium">Profil</span>
+        </Button>
 
         <Button
           variant="ghost"
@@ -69,19 +81,6 @@ export function TeacherBottomNav() {
         >
           <ClipboardList className="w-5 h-5" />
           <span className="text-xs font-medium">Supervisi</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
-            isActive("/teacher/profile")
-              ? "bg-primary text-primary-foreground rounded-xl"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => navigate("/teacher/profile")}
-        >
-          <User className="w-5 h-5" />
-          <span className="text-xs font-medium">Profil</span>
         </Button>
 
         <Button
