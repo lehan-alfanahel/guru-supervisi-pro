@@ -277,11 +277,11 @@ export default function TeacherAccounts() {
                   Tambah
                 </Button>
               </DrawerTrigger>
-              <DrawerContent className="px-4 pb-8 rounded-none h-full">
-                <DrawerHeader className="px-0">
+              <DrawerContent className="px-4 pb-8 rounded-none flex flex-col max-h-[95vh]">
+                <DrawerHeader className="px-0 flex-shrink-0">
                   <DrawerTitle>Buat Akun Guru</DrawerTitle>
                 </DrawerHeader>
-                <div className="flex-1 overflow-y-auto px-1">
+                <div className="flex-1 overflow-y-auto px-1 py-2">
                   {formContent}
                 </div>
               </DrawerContent>
@@ -294,14 +294,14 @@ export default function TeacherAccounts() {
                   Tambah
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md sm:max-w-lg rounded-none sm:rounded-lg max-h-screen overflow-y-auto">
-                <DialogHeader>
+              <DialogContent className="max-w-md sm:max-w-lg rounded-none sm:rounded-lg max-h-[95vh] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle>Buat Akun Guru</DialogTitle>
                   <DialogDescription>
                     Buat akun login untuk guru yang sudah terdaftar
                   </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-[calc(100vh-200px)] overflow-y-auto px-1">
+                <div className="flex-1 overflow-y-auto px-1 py-2">
                   {formContent}
                 </div>
               </DialogContent>

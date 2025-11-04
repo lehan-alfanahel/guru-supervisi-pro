@@ -21,7 +21,7 @@ import { getUserFriendlyError } from "@/lib/errorHandler";
 
 const teacherSchema = z.object({
   name: z.string().trim().min(3, "Nama minimal 3 karakter").max(100, "Nama maksimal 100 karakter"),
-  nip: z.string().trim().regex(/^[0-9]{18}$/, "NIP harus 18 digit angka"),
+  nip: z.string().trim().regex(/^[0-9\-]{1,18}$/, "NIP maksimal 18 karakter (angka atau tanda '-')"),
   gender: z.enum(["Laki-Laki", "Perempuan"] as const, {
     errorMap: () => ({ message: "Pilih jenis kelamin" }),
   }),
