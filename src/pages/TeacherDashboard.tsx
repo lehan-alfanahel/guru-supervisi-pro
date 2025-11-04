@@ -194,7 +194,7 @@ export default function TeacherDashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
             onClick={() => navigate("/teacher/supervision")}
@@ -228,21 +228,8 @@ export default function TeacherDashboard() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center text-center space-y-2">
                 <User className="w-12 h-12 text-primary" />
-                <h3 className="font-semibold">Akun</h3>
+                <h3 className="font-semibold">Account</h3>
                 <p className="text-sm text-muted-foreground">Informasi akun</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow border-destructive/20"
-            onClick={() => setLogoutDialogOpen(true)}
-          >
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center space-y-2">
-                <LogOut className="w-12 h-12 text-destructive" />
-                <h3 className="font-semibold text-destructive">Keluar</h3>
-                <p className="text-sm text-muted-foreground">Keluar dari akun</p>
               </div>
             </CardContent>
           </Card>
