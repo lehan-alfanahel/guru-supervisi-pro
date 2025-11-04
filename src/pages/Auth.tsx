@@ -51,33 +51,48 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    if (user) {
-      // Check if user is a teacher or school owner
-      checkUserRole();
-    }
-  }, [user, navigate]);
+    const checkRole = async () => {
+      if (!user) return;
 
-  const checkUserRole = async () => {
-    if (!user) return;
+      try {
+        // Check if user is a teacher
+        const { data: teacherAccount, error: teacherError } = await supabase
+          .from("teacher_accounts")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-    try {
-      // Check if user is a teacher
-      const { data: teacherAccount } = await supabase
-        .from("teacher_accounts")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        if (teacherError) throw teacherError;
 
-      if (teacherAccount) {
-        navigate("/teacher/dashboard");
-      } else {
+        if (teacherAccount) {
+          navigate("/teacher/dashboard");
+          return;
+        }
+
+        // If not a teacher, check if they have a school profile (school admin)
+        const { data: schoolData, error: schoolError } = await supabase
+          .from("schools")
+          .select("id")
+          .eq("owner_id", user.id)
+          .maybeSingle();
+
+        if (schoolError) throw schoolError;
+
+        if (schoolData) {
+          navigate("/dashboard");
+        } else {
+          navigate("/setup-school");
+        }
+      } catch (error) {
+        console.error("Error checking user role:", error);
         navigate("/");
       }
-    } catch (error) {
-      console.error("Error checking user role:", error);
-      navigate("/");
+    };
+
+    if (user) {
+      checkRole();
     }
-  };
+  }, [user, navigate]);
 
   useEffect(() => {
     reset();
