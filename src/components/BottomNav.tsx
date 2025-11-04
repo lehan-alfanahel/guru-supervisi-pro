@@ -42,7 +42,7 @@ export default function BottomNav() {
             className="flex-col h-auto py-2 px-3 gap-0.5"
           >
             <School2 className="w-5 h-5" />
-            <span className="text-xs">Dashboard</span>
+            <span className="text-xs">Beranda</span>
           </Button>
           <Button 
             variant={location.pathname === "/teachers" ? "default" : "ghost"} 
