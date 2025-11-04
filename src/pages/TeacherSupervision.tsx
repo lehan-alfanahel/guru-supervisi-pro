@@ -244,12 +244,12 @@ export default function TeacherSupervision() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Form Administrasi Pembelajaran</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Informasi Pembelajaran</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="teachingHours">Jumlah Jam Tatap Muka</Label>
                 <Input
@@ -271,59 +271,60 @@ export default function TeacherSupervision() {
                   required
                 />
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="border-t pt-4">
-                <h3 className="font-semibold mb-4">Komponen Administrasi (Link Google Drive)</h3>
-                
-                <div className="space-y-4">
-                  {[
-                    { id: "calendarLink", label: "Kalender Pendidikan", key: "calendarLink" },
-                    { id: "annualProgramLink", label: "Program Tahunan", key: "annualProgramLink" },
-                    { id: "assessmentUseLink", label: "Pemanfaatan Hasil Asesmen Diagnostik/Asesmen Awal", key: "assessmentUseLink" },
-                    { id: "learningFlowLink", label: "Alur Tujuan Pembelajaran", key: "learningFlowLink" },
-                    { id: "teachingModuleLink", label: "Modul Ajar", key: "teachingModuleLink" },
-                    { id: "teachingMaterialLink", label: "Bahan Ajar/Buku Guru dan Buku Siswa", key: "teachingMaterialLink" },
-                    { id: "scheduleLink", label: "Jadwal Pelajaran", key: "scheduleLink" },
-                    { id: "assessmentProgramLink", label: "Program Penilaian", key: "assessmentProgramLink" },
-                    { id: "gradeListLink", label: "Daftar Nilai / Hasil Asesmen", key: "gradeListLink" },
-                    { id: "dailyAgendaLink", label: "Agenda Harian", key: "dailyAgendaLink" },
-                    { id: "attendanceLink", label: "Absensi Murid", key: "attendanceLink" },
-                  ].map((field) => (
-                    <div key={field.id} className="space-y-2">
-                      <Label htmlFor={field.id}>{field.label}</Label>
-                      <Input
-                        id={field.id}
-                        type="url"
-                        placeholder="Masukkan link Google Drive"
-                        value={formData[field.key as keyof typeof formData]}
-                        onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
-                        required
-                      />
-                    </div>
-                  ))}
+          <Card>
+            <CardHeader>
+              <CardTitle>Komponen Administrasi (Link Google Drive)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[
+                { id: "calendarLink", label: "Kalender Pendidikan", key: "calendarLink" },
+                { id: "annualProgramLink", label: "Program Tahunan", key: "annualProgramLink" },
+                { id: "assessmentUseLink", label: "Pemanfaatan Hasil Asesmen Diagnostik/Asesmen Awal", key: "assessmentUseLink" },
+                { id: "learningFlowLink", label: "Alur Tujuan Pembelajaran", key: "learningFlowLink" },
+                { id: "teachingModuleLink", label: "Modul Ajar", key: "teachingModuleLink" },
+                { id: "teachingMaterialLink", label: "Bahan Ajar/Buku Guru dan Buku Siswa", key: "teachingMaterialLink" },
+                { id: "scheduleLink", label: "Jadwal Pelajaran", key: "scheduleLink" },
+                { id: "assessmentProgramLink", label: "Program Penilaian", key: "assessmentProgramLink" },
+                { id: "gradeListLink", label: "Daftar Nilai / Hasil Asesmen", key: "gradeListLink" },
+                { id: "dailyAgendaLink", label: "Agenda Harian", key: "dailyAgendaLink" },
+                { id: "attendanceLink", label: "Absensi Murid", key: "attendanceLink" },
+              ].map((field) => (
+                <div key={field.id} className="space-y-2">
+                  <Label htmlFor={field.id}>{field.label}</Label>
+                  <Input
+                    id={field.id}
+                    type="url"
+                    placeholder="Masukkan link Google Drive"
+                    value={formData[field.key as keyof typeof formData]}
+                    onChange={(e) => setFormData({ ...formData, [field.key]: e.target.value })}
+                    required
+                  />
                 </div>
-              </div>
+              ))}
+            </CardContent>
+          </Card>
 
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => navigate("/teacher/dashboard")}
-                >
-                  Batal
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={submitting}
-                >
-                  {submitting ? "Menyimpan..." : "SIMPAN DATA"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => navigate("/teacher/dashboard")}
+            >
+              Batal
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1"
+              disabled={submitting}
+            >
+              {submitting ? "Menyimpan..." : "SIMPAN DATA"}
+            </Button>
+          </div>
+        </form>
 
         {administrationRecords.length > 0 && (
           <Card>
