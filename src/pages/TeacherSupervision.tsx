@@ -304,13 +304,23 @@ export default function TeacherSupervision() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-[#FF7A18] hover:bg-[#FF7A18]/90"
-                disabled={submitting}
-              >
-                {submitting ? "Menyimpan..." : "SIMPAN DATA"}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => navigate("/teacher/dashboard")}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={submitting}
+                >
+                  {submitting ? "Menyimpan..." : "SIMPAN DATA"}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

@@ -106,14 +106,19 @@ export default function TeacherProfile() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="bg-primary text-primary-foreground p-6">
-        <div>
-          <h1 className="text-2xl font-bold">Profil Guru</h1>
-          <p className="text-sm opacity-90 mt-1">Level Akses: Guru</p>
+      {/* Header */}
+      <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div>
+            <h1 className="text-lg font-bold">Profil Guru</h1>
+            <p className="text-sm opacity-90">Level Akses: Guru</p>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <div className="p-4 space-y-4">
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto p-4">
+        <div className="grid md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Informasi Pribadi</CardTitle>
@@ -196,38 +201,8 @@ export default function TeacherProfile() {
           </CardContent>
         </Card>
 
-        {/* Account Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Informasi Akun</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Email Login</p>
-                <p className="font-medium">{profile.email}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <User className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">User ID</p>
-                <p className="font-mono text-xs break-all">{user?.id}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Award className="w-5 h-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground">Level Akses</p>
-                <p className="font-medium">Guru</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        </div>
+      </main>
 
       <TeacherBottomNav />
     </div>
