@@ -186,6 +186,29 @@ export async function deleteSupervision(id: string) {
   if (error) throw new Error(getUserFriendlyError(error));
 }
 
+// Helper function to get teacher's school
+export async function getTeacherSchool(userId: string) {
+  const { data, error } = await supabase
+    .from('teacher_accounts')
+    .select(`
+      teachers (
+        school_id,
+        schools (
+          *
+        )
+      )
+    `)
+    .eq('user_id', userId)
+    .single();
+  
+  if (error) throw new Error(getUserFriendlyError(error));
+  
+  const teacher = Array.isArray(data.teachers) ? data.teachers[0] : data.teachers;
+  const school = teacher?.schools;
+  
+  return Array.isArray(school) ? school[0] : school;
+}
+
 // Teacher Account operations
 export async function getTeacherAccounts(schoolId: string) {
   const { data, error } = await supabase
@@ -195,14 +218,19 @@ export async function getTeacherAccounts(schoolId: string) {
       teachers (
         id,
         name,
-        nip
+        nip,
+        school_id
       )
     `)
-    .eq('teachers.school_id', schoolId)
     .order('created_at', { ascending: false });
   
   if (error) throw new Error(getUserFriendlyError(error));
-  return data;
+  
+  // Filter by school_id on the client side since we can't filter on joined table
+  return data?.filter(account => {
+    const teacher = Array.isArray(account.teachers) ? account.teachers[0] : account.teachers;
+    return teacher?.school_id === schoolId;
+  }) || [];
 }
 
 export async function createTeacherAccount(teacherId: string, email: string, password?: string) {

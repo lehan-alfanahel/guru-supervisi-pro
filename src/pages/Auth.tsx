@@ -51,70 +51,44 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    const checkRole = async () => {
+    const handleAuthRedirect = async () => {
       if (!user) return;
 
-      // If userRole is available, use it for navigation
-      if (userRole) {
-        if (userRole === 'teacher') {
-          navigate("/teacher/dashboard");
-        } else if (userRole === 'admin') {
-          // Check if admin has school profile
-          const { data: schoolData } = await supabase
-            .from("schools")
-            .select("id")
-            .eq("owner_id", user.id)
-            .maybeSingle();
-
-          if (schoolData) {
-            navigate("/dashboard");
-          } else {
-            navigate("/setup-school");
-          }
-        }
-        return;
-      }
-
-      // Fallback: Check database if userRole is not yet loaded
       try {
-        // Check if user is a teacher
-        const { data: teacherAccount, error: teacherError } = await supabase
+        // First check if user is a teacher - teachers bypass school setup
+        const { data: teacherAccount } = await supabase
           .from("teacher_accounts")
           .select("id")
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (teacherError) throw teacherError;
-
         if (teacherAccount) {
-          navigate("/teacher/dashboard");
+          // Teacher login - go directly to teacher dashboard
+          navigate("/teacher/dashboard", { replace: true });
           return;
         }
 
-        // If not a teacher, check if they have a school profile (school admin)
-        const { data: schoolData, error: schoolError } = await supabase
+        // If not a teacher, check if user is admin with school
+        const { data: schoolData } = await supabase
           .from("schools")
           .select("id")
           .eq("owner_id", user.id)
           .maybeSingle();
 
-        if (schoolError) throw schoolError;
-
         if (schoolData) {
-          navigate("/dashboard");
+          // Admin with school - go to admin dashboard
+          navigate("/dashboard", { replace: true });
         } else {
-          navigate("/setup-school");
+          // Admin without school - go to setup
+          navigate("/setup-school", { replace: true });
         }
       } catch (error) {
         console.error("Error checking user role:", error);
-        navigate("/");
       }
     };
 
-    if (user) {
-      checkRole();
-    }
-  }, [user, userRole, navigate]);
+    handleAuthRedirect();
+  }, [user, navigate]);
 
   useEffect(() => {
     reset();
