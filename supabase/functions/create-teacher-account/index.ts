@@ -124,23 +124,15 @@ serve(async (req) => {
     }
 
     const { email, password, teacherId } = validation.data;
-    // Generate a secure random password if not provided
-    const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
-
-    // Create user account with admin client
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email: email,
-      password: finalPassword,
-      email_confirm: true,
-    });
-
-    if (authError) {
-      // Log detailed error server-side for debugging
-      console.error("Auth error creating teacher:", authError);
-      console.error("Auth error details:", JSON.stringify(authError, null, 2));
-      // Return error with details to client
+    
+    // Check if user with this email already exists
+    console.log('Checking if user exists with email:', email);
+    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    
+    if (listError) {
+      console.error('Error listing users:', listError);
       return new Response(
-        JSON.stringify({ error: `Gagal membuat akun guru: ${authError.message || 'Unknown error'}` }),
+        JSON.stringify({ error: `Gagal memeriksa user: ${listError.message}` }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 500,
@@ -148,28 +140,97 @@ serve(async (req) => {
       );
     }
 
-    // If teacherId provided, create teacher_accounts entry
-    if (teacherId && authData.user) {
+    const existingUser = users?.find(u => u.email === email);
+    let userId: string;
+    let temporaryPassword: string | null = null;
+
+    if (existingUser) {
+      console.log('User already exists:', existingUser.id);
+      userId = existingUser.id;
+      
+      // Check if this user is already linked to a teacher account in this school
+      const { data: existingAccount } = await supabaseAdmin
+        .from('teacher_accounts')
+        .select('id, teacher_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (existingAccount) {
+        return new Response(
+          JSON.stringify({ error: 'Email ini sudah digunakan untuk akun guru lain' }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 400,
+          }
+        );
+      }
+    } else {
+      // Generate a secure random password if not provided
+      const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+      temporaryPassword = finalPassword;
+
+      // Create new user account
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: email,
+        password: finalPassword,
+        email_confirm: true,
+      });
+
+      if (authError) {
+        console.error("Auth error creating teacher:", authError);
+        console.error("Auth error details:", JSON.stringify(authError, null, 2));
+        return new Response(
+          JSON.stringify({ error: `Gagal membuat akun guru: ${authError.message || 'Unknown error'}` }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500,
+          }
+        );
+      }
+
+      if (!authData.user) {
+        return new Response(
+          JSON.stringify({ error: 'Gagal membuat user' }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500,
+          }
+        );
+      }
+
+      userId = authData.user.id;
+      console.log('New user created:', userId);
+    }
+
+    // Create teacher_accounts entry if teacherId provided
+    if (teacherId) {
       const { error: accountLinkError } = await supabaseAdmin
         .from('teacher_accounts')
         .insert({
           teacher_id: teacherId,
-          user_id: authData.user.id,
+          user_id: userId,
           email: email,
         });
 
       if (accountLinkError) {
         console.error("Error linking teacher account:", accountLinkError);
+        return new Response(
+          JSON.stringify({ error: `Gagal menghubungkan akun: ${accountLinkError.message}` }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 500,
+          }
+        );
       }
     }
 
-    console.log(`Teacher account created by user ${user.id} for school ${school.id}`);
+    console.log(`Teacher account created/linked by user ${user.id} for school ${school.id}`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        userId: authData.user?.id,
-        temporaryPassword: finalPassword
+        userId: userId,
+        temporaryPassword: temporaryPassword
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
