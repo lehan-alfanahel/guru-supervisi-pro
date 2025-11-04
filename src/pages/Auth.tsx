@@ -115,10 +115,43 @@ export default function Auth() {
         const { error } = await signIn(data.email, data.password);
         if (error) throw error;
 
-        toast({
-          title: "Berhasil!",
-          description: "Login berhasil",
-        });
+        // After successful login, check user role
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        
+        if (currentUser) {
+          // Check if user is a teacher
+          const { data: teacherAccount } = await supabase
+            .from("teacher_accounts")
+            .select("id")
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+          if (teacherAccount) {
+            toast({
+              title: "Berhasil!",
+              description: "Login berhasil - Guru",
+            });
+            navigate("/teacher/dashboard");
+          } else {
+            // Check if user has a school (school owner/admin)
+            const { data: schoolData } = await supabase
+              .from("schools")
+              .select("id")
+              .eq("owner_id", currentUser.id)
+              .maybeSingle();
+
+            toast({
+              title: "Berhasil!",
+              description: "Login berhasil",
+            });
+
+            if (schoolData) {
+              navigate("/dashboard");
+            } else {
+              navigate("/setup-school");
+            }
+          }
+        }
       }
     } catch (error: any) {
       toast({
