@@ -25,7 +25,7 @@ const schoolSchema = z.object({
 
 export default function SetupSchool() {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -74,6 +74,11 @@ export default function SetupSchool() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = async () => {
+    await signOut();
+    navigate("/auth");
   };
 
   return (
@@ -167,14 +172,26 @@ export default function SetupSchool() {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full mt-6"
-                disabled={loading}
-                size="lg"
-              >
-                {loading ? "Menyimpan..." : "Simpan & Lanjutkan"}
-              </Button>
+              <div className="flex gap-1.5 mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleCancel}
+                  disabled={loading}
+                  size="lg"
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={loading}
+                  size="lg"
+                >
+                  {loading ? "Menyimpan..." : "Simpan & Lanjutkan"}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
