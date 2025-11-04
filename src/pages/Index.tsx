@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { GraduationCap, School2, ClipboardList, TrendingUp, Menu } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -11,8 +12,32 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    const checkUserRole = async () => {
+      if (!user) return;
+
+      try {
+        // Check if user is a teacher
+        const { data: teacherAccount } = await supabase
+          .from("teacher_accounts")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (teacherAccount) {
+          navigate("/teacher/dashboard");
+          return;
+        }
+
+        // If not a teacher, redirect to dashboard (school owner)
+        navigate("/dashboard");
+      } catch (error) {
+        console.error("Error checking user role:", error);
+        navigate("/dashboard");
+      }
+    };
+
     if (user) {
-      navigate("/dashboard");
+      checkUserRole();
     }
   }, [user, navigate]);
 
