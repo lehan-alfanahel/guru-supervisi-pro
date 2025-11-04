@@ -5,7 +5,7 @@ import { getSchool, getTeachers, getSupervisions, School, Teacher } from "@/lib/
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { School2, Users, ClipboardList, LogOut } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -242,7 +242,7 @@ export default function Dashboard() {
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav />
+      <AdminBottomNav />
 
       {/* Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>

@@ -13,7 +13,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Pencil, Trash2, UserCheck } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import BottomNav from "@/components/BottomNav";
+import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -435,7 +435,7 @@ export default function Teachers() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <BottomNav />
+      <AdminBottomNav />
     </div>
   );
 }

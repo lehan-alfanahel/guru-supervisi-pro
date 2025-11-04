@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, School2, Save } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -279,7 +279,7 @@ export default function Profile() {
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav />
+      <AdminBottomNav />
     </div>
   );
 }

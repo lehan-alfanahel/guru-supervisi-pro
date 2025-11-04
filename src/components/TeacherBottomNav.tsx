@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, ClipboardList, User, LogOut } from "lucide-react";
+import { Home, ClipboardList, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function TeacherBottomNav() {
@@ -10,7 +10,7 @@ export function TeacherBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center justify-around px-2 py-2 max-w-md mx-auto">
         <Button
           variant="ghost"
           className={`flex-col h-auto py-2 px-3 gap-1 ${
@@ -24,18 +24,6 @@ export function TeacherBottomNav() {
           <span className="text-xs font-medium">Beranda</span>
         </Button>
 
-        <Button
-          variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
-            isActive("/teachers")
-              ? "bg-primary text-primary-foreground rounded-xl"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => navigate("/teachers")}
-        >
-          <Users className="w-5 h-5" />
-          <span className="text-xs font-medium">Guru</span>
-        </Button>
 
         <Button
           variant="ghost"

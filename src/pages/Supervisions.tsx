@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, ClipboardList, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import BottomNav from "@/components/BottomNav";
+import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -447,7 +447,7 @@ export default function Supervisions() {
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav />
+      <AdminBottomNav />
     </div>
   );
 }
