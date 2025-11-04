@@ -49,7 +49,7 @@ const Index = () => {
               </Button>
               <Button
                 onClick={() => navigate("/auth")}
-                className="gap-2 bg-secondary hover:bg-orange-500 transition-colors"
+                className="gap-2 bg-primary hover:bg-orange-500 transition-colors"
               >
                 Daftar
               </Button>
@@ -80,7 +80,7 @@ const Index = () => {
                         setMobileMenuOpen(false);
                         navigate("/auth");
                       }}
-                      className="w-full gap-2"
+                      className="w-full gap-2 bg-primary hover:bg-orange-500 transition-colors"
                     >
                       Daftar
                     </Button>
