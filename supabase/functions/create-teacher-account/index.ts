@@ -16,17 +16,23 @@ const createTeacherSchema = z.object({
 });
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log('=== CREATE TEACHER ACCOUNT REQUEST ===');
+    console.log('Method:', req.method);
+    console.log('URL:', req.url);
+    
     // Get and verify authentication
     const authHeader = req.headers.get("Authorization");
     console.log('Auth header present:', !!authHeader);
+    console.log('Auth header value:', authHeader ? authHeader.substring(0, 20) + '...' : 'null');
     
     if (!authHeader) {
-      console.error('No authorization header found');
+      console.error('ERROR: No authorization header found');
       return new Response(
         JSON.stringify({ error: "Unauthorized - No auth header" }),
         {
@@ -36,20 +42,34 @@ serve(async (req) => {
       );
     }
 
-    // Create client with user's auth to verify permissions
-    const supabase = createClient(
+    // Extract token from Bearer header
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Token extracted, length:', token.length);
+
+    // Create client with service role to verify JWT
+    const supabaseAuth = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: { headers: { Authorization: authHeader } },
-      }
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
+    console.log('Verifying JWT token...');
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser(token);
+    
+    if (userError) {
+      console.error('ERROR verifying JWT:', userError);
+      return new Response(
+        JSON.stringify({ error: `Auth error: ${userError.message}` }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 401,
+        }
+      );
+    }
+    
     console.log('User from auth:', { userId: user?.id, email: user?.email });
     
     if (!user) {
-      console.error('No user found from token');
+      console.error('ERROR: No user found from token');
       return new Response(
         JSON.stringify({ error: "Unauthorized - Invalid token" }),
         {
@@ -60,13 +80,17 @@ serve(async (req) => {
     }
 
     // Verify user owns a school
-    const { data: school, error: schoolError } = await supabase
+    console.log('Checking if user owns a school...');
+    const { data: school, error: schoolError } = await supabaseAuth
       .from("schools")
       .select("id")
       .eq("owner_id", user.id)
       .single();
 
+    console.log('School check:', { schoolId: school?.id, error: schoolError });
+
     if (schoolError || !school) {
+      console.error('ERROR: No school found for user');
       return new Response(
         JSON.stringify({ error: "No school found for this user" }),
         {
@@ -135,7 +159,7 @@ serve(async (req) => {
 
     // If teacherId provided, create teacher_accounts entry
     if (teacherId && authData.user) {
-      const { error: accountLinkError } = await supabase
+      const { error: accountLinkError } = await supabaseAuth
         .from('teacher_accounts')
         .insert({
           teacher_id: teacherId,
