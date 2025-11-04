@@ -206,27 +206,46 @@ export async function getTeacherAccounts(schoolId: string) {
 }
 
 export async function createTeacherAccount(teacherId: string, email: string, password?: string) {
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  
-  if (sessionError || !sessionData?.session) {
-    throw new Error("Sesi autentikasi tidak ditemukan. Silakan login kembali.");
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    console.log('Session check:', { hasSession: !!sessionData?.session, error: sessionError });
+    
+    if (sessionError || !sessionData?.session) {
+      console.error('Session error:', sessionError);
+      throw new Error("Sesi autentikasi tidak ditemukan. Silakan login kembali.");
+    }
+
+    const accessToken = sessionData.session.access_token;
+    console.log('Access token available:', !!accessToken);
+
+    const { data, error } = await supabase.functions.invoke("create-teacher-account", {
+      body: {
+        email,
+        password,
+        teacherId,
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    console.log('Edge function response:', { data, error });
+
+    if (error) {
+      console.error('Edge function error:', error);
+      throw error;
+    }
+    if (data?.error) {
+      console.error('Data error:', data.error);
+      throw new Error(data.error);
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('createTeacherAccount error:', error);
+    throw error;
   }
-
-  const { data, error } = await supabase.functions.invoke("create-teacher-account", {
-    body: {
-      email,
-      password,
-      teacherId,
-    },
-    headers: {
-      Authorization: `Bearer ${sessionData.session.access_token}`,
-    },
-  });
-
-  if (error) throw error;
-  if (data?.error) throw new Error(data.error);
-  
-  return data;
 }
 
 export async function deleteTeacherAccount(id: string) {

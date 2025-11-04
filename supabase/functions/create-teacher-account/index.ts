@@ -23,9 +23,12 @@ serve(async (req) => {
   try {
     // Get and verify authentication
     const authHeader = req.headers.get("Authorization");
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader) {
+      console.error('No authorization header found');
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Unauthorized - No auth header" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 401,
@@ -43,9 +46,12 @@ serve(async (req) => {
     );
 
     const { data: { user } } = await supabase.auth.getUser();
+    console.log('User from auth:', { userId: user?.id, email: user?.email });
+    
     if (!user) {
+      console.error('No user found from token');
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Unauthorized - Invalid token" }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 401,
