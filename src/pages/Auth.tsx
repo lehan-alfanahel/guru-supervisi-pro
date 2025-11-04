@@ -36,7 +36,7 @@ const signUpSchema = z.object({
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, userRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -54,6 +54,28 @@ export default function Auth() {
     const checkRole = async () => {
       if (!user) return;
 
+      // If userRole is available, use it for navigation
+      if (userRole) {
+        if (userRole === 'teacher') {
+          navigate("/teacher/dashboard");
+        } else if (userRole === 'admin') {
+          // Check if admin has school profile
+          const { data: schoolData } = await supabase
+            .from("schools")
+            .select("id")
+            .eq("owner_id", user.id)
+            .maybeSingle();
+
+          if (schoolData) {
+            navigate("/dashboard");
+          } else {
+            navigate("/setup-school");
+          }
+        }
+        return;
+      }
+
+      // Fallback: Check database if userRole is not yet loaded
       try {
         // Check if user is a teacher
         const { data: teacherAccount, error: teacherError } = await supabase
@@ -92,7 +114,7 @@ export default function Auth() {
     if (user) {
       checkRole();
     }
-  }, [user, navigate]);
+  }, [user, userRole, navigate]);
 
   useEffect(() => {
     reset();

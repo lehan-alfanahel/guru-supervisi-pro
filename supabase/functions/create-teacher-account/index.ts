@@ -200,6 +200,19 @@ serve(async (req) => {
 
       userId = authData.user.id;
       console.log('New user created:', userId);
+
+      // Create teacher role for the new user
+      const { error: roleError } = await supabaseAdmin
+        .from('user_roles')
+        .insert({
+          user_id: userId,
+          role: 'teacher'
+        });
+
+      if (roleError) {
+        console.error("Error creating teacher role:", roleError);
+        // Continue even if role creation fails - we can manually fix this
+      }
     }
 
     // Create teacher_accounts entry if teacherId provided

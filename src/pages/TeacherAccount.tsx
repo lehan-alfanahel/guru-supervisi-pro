@@ -5,7 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TeacherBottomNav } from "@/components/TeacherBottomNav";
 import { TeacherHeader } from "@/components/TeacherHeader";
-import { Mail, Key } from "lucide-react";
+import { Mail, Key, LogOut as LogOutIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface AccountInfo {
   email: string;
@@ -13,10 +25,12 @@ interface AccountInfo {
 }
 
 export default function TeacherAccount() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -45,6 +59,23 @@ export default function TeacherAccount() {
       console.error("Error loading account info:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Berhasil keluar",
+        description: "Anda telah keluar dari aplikasi",
+      });
+      navigate("/auth");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Gagal keluar dari aplikasi",
+        variant: "destructive",
+      });
     }
   };
 
@@ -114,7 +145,41 @@ export default function TeacherAccount() {
             </p>
           </CardContent>
         </Card>
+
+        <Card className="border-destructive/50">
+          <CardHeader>
+            <CardTitle className="text-destructive">Keluar dari Akun</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Keluar dari akun guru Anda.
+            </p>
+            <Button 
+              variant="destructive" 
+              className="w-full gap-2"
+              onClick={() => setLogoutDialogOpen(true)}
+            >
+              <LogOutIcon className="w-4 h-4" />
+              Keluar
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari Aplikasi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Anda akan keluar dari akun Anda. Pastikan semua data sudah tersimpan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSignOut}>Keluar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <TeacherBottomNav />
     </div>

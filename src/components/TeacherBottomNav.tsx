@@ -65,15 +65,11 @@ export function TeacherBottomNav() {
 
         <Button
           variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
-            isActive("/teacher/account")
-              ? "bg-primary text-primary-foreground rounded-xl"
-              : "text-muted-foreground"
-          }`}
+          className="flex-col h-auto py-2 px-3 gap-1 text-muted-foreground"
           onClick={() => navigate("/teacher/account")}
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-xs font-medium">Keluar</span>
+          <span className="text-xs font-medium">Akun</span>
         </Button>
       </div>
     </nav>

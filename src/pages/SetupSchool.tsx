@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { createSchool } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { getUserFriendlyError } from "@/lib/errorHandler";
 import { School2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -59,6 +60,19 @@ export default function SetupSchool() {
         principal_nip: data.principal_nip,
         owner_id: user.id,
       });
+
+      // Create admin role for the user
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: 'admin'
+        });
+
+      if (roleError) {
+        console.error("Error creating admin role:", roleError);
+        // Continue even if role creation fails
+      }
 
       toast({
         title: "Berhasil!",
