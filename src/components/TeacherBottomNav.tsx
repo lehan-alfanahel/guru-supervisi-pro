@@ -43,10 +43,10 @@ export function TeacherBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
-      <div className="flex items-center justify-around px-2 py-2 max-w-md mx-auto">
+      <div className="flex items-center justify-around px-1 py-2 max-w-lg mx-auto">
         <Button
           variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
             isActive("/teacher/dashboard")
               ? "bg-primary text-primary-foreground rounded-xl"
               : "text-muted-foreground"
@@ -59,7 +59,7 @@ export function TeacherBottomNav() {
 
         <Button
           variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
             isActive("/teacher/profile")
               ? "bg-primary text-primary-foreground rounded-xl"
               : "text-muted-foreground"
@@ -72,7 +72,7 @@ export function TeacherBottomNav() {
 
         <Button
           variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
             isActive("/teacher/supervision")
               ? "bg-[#FF7A18] text-white rounded-xl"
               : "text-muted-foreground"
@@ -85,20 +85,33 @@ export function TeacherBottomNav() {
 
         <Button
           variant="ghost"
-          className={`flex-col h-auto py-2 px-3 gap-1 ${
-            isActive("/teacher/account")
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
+            isActive("/teacher/history")
               ? "bg-primary text-primary-foreground rounded-xl"
               : "text-muted-foreground"
           }`}
-          onClick={() => navigate("/teacher/account")}
+          onClick={() => navigate("/teacher/history")}
         >
-          <User className="w-5 h-5" />
-          <span className="text-xs font-medium">Account</span>
+          <History className="w-5 h-5" />
+          <span className="text-xs font-medium">Riwayat</span>
         </Button>
 
         <Button
           variant="ghost"
-          className="flex-col h-auto py-2 px-3 gap-1 text-muted-foreground"
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
+            isActive("/teacher/coaching")
+              ? "bg-primary text-primary-foreground rounded-xl"
+              : "text-muted-foreground"
+          }`}
+          onClick={() => navigate("/teacher/coaching")}
+        >
+          <MessageSquare className="w-5 h-5" />
+          <span className="text-xs font-medium">Coaching</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="flex-col h-auto py-2 px-2 gap-1 text-muted-foreground"
           onClick={() => setLogoutDialogOpen(true)}
         >
           <LogOut className="w-5 h-5" />
