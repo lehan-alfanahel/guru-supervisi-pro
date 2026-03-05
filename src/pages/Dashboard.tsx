@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { getSchool, getTeachers, getSupervisions, School, Teacher } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { School2, Users, ClipboardList, LogOut } from "lucide-react";
+import { School2, Users, ClipboardList, LogOut, MessageSquare } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useToast } from "@/hooks/use-toast";
 import {
