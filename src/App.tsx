@@ -66,11 +66,14 @@ const App = () => (
             <Route path="/teachers" element={<ProtectedRoute allowedRoles={['admin']}><Teachers /></ProtectedRoute>} />
             <Route path="/teacher-accounts" element={<ProtectedRoute allowedRoles={['admin']}><TeacherAccounts /></ProtectedRoute>} />
             <Route path="/supervisions" element={<ProtectedRoute allowedRoles={['admin']}><Supervisions /></ProtectedRoute>} />
+            <Route path="/coaching" element={<ProtectedRoute allowedRoles={['admin']}><Coaching /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute allowedRoles={['admin']}><Profile /></ProtectedRoute>} />
             <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
             <Route path="/teacher/profile" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherProfile /></ProtectedRoute>} />
             <Route path="/teacher/supervision" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherSupervision /></ProtectedRoute>} />
             <Route path="/teacher/account" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherAccount /></ProtectedRoute>} />
+            <Route path="/teacher/history" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherHistory /></ProtectedRoute>} />
+            <Route path="/teacher/coaching" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherCoaching /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
