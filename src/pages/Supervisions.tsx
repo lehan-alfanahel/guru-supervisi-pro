@@ -501,13 +501,18 @@ export default function Supervisions() {
                           <h3 className="font-semibold text-lg">{supervision.teachers?.name}</h3>
                           <p className="text-sm text-muted-foreground">NIP: {supervision.teachers?.nip}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(supervision.supervision_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(supervision.supervision_date).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </div>
+                          <Button size="sm" variant="outline" className="gap-1" onClick={() => handlePrintSingle(supervision)}>
+                            <Printer className="w-3 h-3" /> Cetak
+                          </Button>
                         </div>
                       </div>
 
