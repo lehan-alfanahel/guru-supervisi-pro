@@ -210,6 +210,32 @@ export default function TeacherDashboard() {
 
           <Card 
             className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate("/teacher/history")}
+          >
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <History className="w-12 h-12 text-primary" />
+                <h3 className="font-semibold">Riwayat Supervisi</h3>
+                <p className="text-sm text-muted-foreground">Lihat & cetak hasil supervisi</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => navigate("/teacher/coaching")}
+          >
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center text-center space-y-2">
+                <MessageSquare className="w-12 h-12 text-primary" />
+                <h3 className="font-semibold">Coaching</h3>
+                <p className="text-sm text-muted-foreground">Catatan coaching kepala sekolah</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow"
             onClick={() => navigate("/teacher/profile")}
           >
             <CardContent className="pt-6">
