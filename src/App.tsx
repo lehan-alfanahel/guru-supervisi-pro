@@ -11,12 +11,15 @@ import Dashboard from "./pages/Dashboard";
 import Teachers from "./pages/Teachers";
 import TeacherAccounts from "./pages/TeacherAccounts";
 import Supervisions from "./pages/Supervisions";
+import Coaching from "./pages/Coaching";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherProfile from "./pages/TeacherProfile";
 import TeacherAccount from "./pages/TeacherAccount";
 import TeacherSupervision from "./pages/TeacherSupervision";
+import TeacherHistory from "./pages/TeacherHistory";
+import TeacherCoaching from "./pages/TeacherCoaching";
 
 const queryClient = new QueryClient();
 
