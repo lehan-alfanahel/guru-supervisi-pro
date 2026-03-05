@@ -33,6 +33,8 @@ export default function Supervisions() {
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [schoolId, setSchoolId] = useState<string>("");
+  const [schoolName, setSchoolName] = useState<string>("");
+  const [principalName, setPrincipalName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
