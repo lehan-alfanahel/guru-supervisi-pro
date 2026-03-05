@@ -195,16 +195,16 @@ export default function Dashboard() {
             </Button>
 
             <Button
-              onClick={() => navigate("/school-profile")}
+              onClick={() => navigate("/coaching")}
               className="h-auto py-6 justify-start gap-3"
               variant="outline"
             >
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <School2 className="w-6 h-6 text-accent" />
+                <MessageSquare className="w-6 h-6 text-accent" />
               </div>
               <div className="text-left">
-                <p className="font-semibold">Profil Sekolah</p>
-                <p className="text-sm text-muted-foreground">Lihat & edit profil</p>
+                <p className="font-semibold">Coaching Guru</p>
+                <p className="text-sm text-muted-foreground">Catatan coaching guru</p>
               </div>
             </Button>
           </CardContent>
