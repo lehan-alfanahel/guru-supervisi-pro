@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
@@ -33,6 +33,8 @@ export default function Supervisions() {
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [schoolId, setSchoolId] = useState<string>("");
+  const [schoolName, setSchoolName] = useState<string>("");
+  const [principalName, setPrincipalName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const { user } = useAuth();
@@ -79,6 +81,8 @@ export default function Supervisions() {
       }
 
       setSchoolId(school.id);
+      setSchoolName(school.name);
+      setPrincipalName(school.principal_name);
       const [teachersData, supervisionsData] = await Promise.all([
         getTeachers(school.id),
         getSupervisions(school.id),
@@ -156,6 +160,122 @@ export default function Supervisions() {
     return Math.round((completed / total) * 100);
   };
 
+  const handlePrintAll = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Laporan Supervisi - ${schoolName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1, h2 { text-align: center; margin: 4px 0; }
+            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 16px; }
+            .session { border: 1px solid #ccc; border-radius: 4px; padding: 12px; margin-bottom: 12px; page-break-inside: avoid; }
+            .teacher { font-weight: bold; font-size: 15px; }
+            .meta { color: #666; font-size: 12px; margin-bottom: 8px; }
+            .items { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; }
+            .item-ok { color: green; }
+            .item-no { color: #999; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>LAPORAN SUPERVISI PEMBELAJARAN</h1>
+            <h2>${schoolName}</h2>
+            <h2>Kepala Sekolah: ${principalName}</h2>
+          </div>
+          ${supervisions.map(s => {
+            const c = calculateCompleteness(s);
+            return `
+              <div class="session">
+                <div class="teacher">${s.teachers?.name}</div>
+                <div class="meta">NIP: ${s.teachers?.nip} | Tanggal: ${new Date(s.supervision_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} | Kelengkapan: ${c}%</div>
+                <div class="items">
+                  <span class="${s.lesson_plan ? "item-ok" : "item-no"}">${s.lesson_plan ? "✓" : "✗"} RPP</span>
+                  <span class="${s.syllabus ? "item-ok" : "item-no"}">${s.syllabus ? "✓" : "✗"} Silabus</span>
+                  <span class="${s.assessment_tools ? "item-ok" : "item-no"}">${s.assessment_tools ? "✓" : "✗"} Penilaian</span>
+                  <span class="${s.teaching_materials ? "item-ok" : "item-no"}">${s.teaching_materials ? "✓" : "✗"} Bahan Ajar</span>
+                  <span class="${s.student_attendance ? "item-ok" : "item-no"}">${s.student_attendance ? "✓" : "✗"} Daftar Hadir</span>
+                </div>
+                ${s.notes ? `<div style="margin-top:8px;font-size:12px;color:#555;">Catatan: ${s.notes}</div>` : ""}
+              </div>`;
+          }).join("")}
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
+  const handlePrintSingle = (supervision: any) => {
+    const items = [
+      { label: "RPP (Rencana Pelaksanaan Pembelajaran)", value: supervision.lesson_plan },
+      { label: "Silabus", value: supervision.syllabus },
+      { label: "Instrumen Penilaian", value: supervision.assessment_tools },
+      { label: "Bahan Ajar", value: supervision.teaching_materials },
+      { label: "Daftar Hadir Siswa", value: supervision.student_attendance },
+    ];
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Instrumen Supervisi - ${supervision.teachers?.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
+            h1, h2 { text-align: center; margin: 4px 0; }
+            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            td, th { padding: 8px 12px; border: 1px solid #ccc; font-size: 13px; }
+            th { background: #f5f5f5; font-weight: bold; }
+            .check { color: green; font-weight: bold; }
+            .uncheck { color: red; }
+            .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 13px; }
+            .sign-box { text-align: center; }
+            .sign-line { margin-top: 60px; border-top: 1px solid #333; padding-top: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>INSTRUMEN SUPERVISI PEMBELAJARAN</h1>
+            <h2>${schoolName}</h2>
+          </div>
+          <table>
+            <tr><td style="width:35%;background:#f5f5f5;font-weight:bold;">Nama Guru</td><td>${supervision.teachers?.name}</td></tr>
+            <tr><td style="background:#f5f5f5;font-weight:bold;">NIP</td><td>${supervision.teachers?.nip}</td></tr>
+            <tr><td style="background:#f5f5f5;font-weight:bold;">Tanggal Supervisi</td><td>${new Date(supervision.supervision_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</td></tr>
+          </table>
+          <br/>
+          <table>
+            <tr><th style="width:5%;">No</th><th>Komponen Supervisi</th><th style="width:15%;">Ada</th><th style="width:15%;">Tidak Ada</th></tr>
+            ${items.map((item, i) => `
+              <tr>
+                <td style="text-align:center;">${i + 1}</td>
+                <td>${item.label}</td>
+                <td style="text-align:center;">${item.value ? '<span class="check">✓</span>' : ''}</td>
+                <td style="text-align:center;">${!item.value ? '<span class="uncheck">✗</span>' : ''}</td>
+              </tr>
+            `).join("")}
+          </table>
+          ${supervision.notes ? `<div style="margin-top:16px;padding:10px;border:1px solid #ccc;"><strong>Catatan Observasi:</strong><br/>${supervision.notes}</div>` : ""}
+          <div class="footer">
+            <div class="sign-box">
+              <p>Kepala Sekolah,</p>
+              <div class="sign-line">${principalName}</div>
+            </div>
+            <div class="sign-box">
+              <p>Guru,</p>
+              <div class="sign-line">${supervision.teachers?.name || ""}</div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
   if (loading && supervisions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,7 +301,14 @@ export default function Supervisions() {
               <p className="text-sm opacity-90">{supervisions.length} supervisi</p>
             </div>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <div className="flex items-center gap-2">
+            {supervisions.length > 0 && (
+              <Button size="sm" variant="ghost" className="hover:bg-white/10 gap-1.5" onClick={handlePrintAll}>
+                <Printer className="w-4 h-4" />
+                <span className="hidden sm:inline">Cetak Semua</span>
+              </Button>
+            )}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
                 <Plus className="w-4 h-4" />
@@ -343,6 +470,7 @@ export default function Supervisions() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </header>
 
@@ -373,13 +501,18 @@ export default function Supervisions() {
                           <h3 className="font-semibold text-lg">{supervision.teachers?.name}</h3>
                           <p className="text-sm text-muted-foreground">NIP: {supervision.teachers?.nip}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(supervision.supervision_date).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(supervision.supervision_date).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </div>
+                          <Button size="sm" variant="outline" className="gap-1" onClick={() => handlePrintSingle(supervision)}>
+                            <Printer className="w-3 h-3" /> Cetak
+                          </Button>
                         </div>
                       </div>
 

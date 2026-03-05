@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, ClipboardList, User, LogOut } from "lucide-react";
+import { Home, Users, ClipboardList, User, LogOut, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -82,6 +82,19 @@ export function AdminBottomNav() {
           >
             <ClipboardList className="w-5 h-5" />
             <span className="text-xs font-medium">Supervisi</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={`flex-col h-auto py-2 px-3 gap-1 ${
+              isActive("/coaching")
+                ? "bg-primary text-primary-foreground rounded-xl"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/coaching")}
+          >
+            <MessageSquare className="w-5 h-5" />
+            <span className="text-xs font-medium">Coaching</span>
           </Button>
 
           <Button
