@@ -470,6 +470,7 @@ export default function Supervisions() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </header>
 
