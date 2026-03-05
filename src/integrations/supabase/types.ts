@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      coaching_sessions: {
+        Row: {
+          coaching_date: string
+          created_at: string
+          created_by: string
+          findings: string | null
+          follow_up: string | null
+          id: string
+          recommendations: string | null
+          school_id: string
+          teacher_id: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          coaching_date?: string
+          created_at?: string
+          created_by: string
+          findings?: string | null
+          follow_up?: string | null
+          id?: string
+          recommendations?: string | null
+          school_id: string
+          teacher_id: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          coaching_date?: string
+          created_at?: string
+          created_by?: string
+          findings?: string | null
+          follow_up?: string | null
+          id?: string
+          recommendations?: string | null
+          school_id?: string
+          teacher_id?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coaching_sessions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coaching_sessions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schools: {
         Row: {
           address: string | null
