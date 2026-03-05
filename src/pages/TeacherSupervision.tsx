@@ -330,7 +330,70 @@ export default function TeacherSupervision() {
         {administrationRecords.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Riwayat Data Administrasi</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Riwayat Data Administrasi</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5"
+                  onClick={() => {
+                    if (!teacherInfo || administrationRecords.length === 0) return;
+                    const latest = administrationRecords[0];
+                    const win = window.open("", "_blank");
+                    if (!win) return;
+                    const fields = [
+                      { label: "Kalender Pendidikan", val: latest.calendar_link },
+                      { label: "Program Tahunan", val: latest.annual_program_link },
+                      { label: "Pemanfaatan Hasil Asesmen Diagnostik", val: latest.assessment_use_link },
+                      { label: "Alur Tujuan Pembelajaran", val: latest.learning_flow_link },
+                      { label: "Modul Ajar", val: latest.teaching_module_link },
+                      { label: "Bahan Ajar", val: latest.teaching_material_link },
+                      { label: "Jadwal Pelajaran", val: latest.schedule_link },
+                      { label: "Program Penilaian", val: latest.assessment_program_link },
+                      { label: "Daftar Nilai / Hasil Asesmen", val: latest.grade_list_link },
+                      { label: "Agenda Harian", val: latest.daily_agenda_link },
+                      { label: "Absensi Murid", val: latest.attendance_link },
+                    ];
+                    win.document.write(`
+                      <html>
+                        <head>
+                          <title>Rekap Administrasi - ${teacherInfo.name}</title>
+                          <style>
+                            body { font-family: Arial, sans-serif; margin: 30px; }
+                            h1, h2 { text-align: center; margin: 4px 0; }
+                            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+                            td, th { padding: 8px 12px; border: 1px solid #ccc; font-size: 13px; }
+                            th { background: #f5f5f5; font-weight: bold; }
+                            a { color: #0066cc; }
+                          </style>
+                        </head>
+                        <body>
+                          <div class="header">
+                            <h1>REKAP ADMINISTRASI PEMBELAJARAN</h1>
+                            <h2>${teacherInfo.schoolName}</h2>
+                          </div>
+                          <table>
+                            <tr><td style="width:35%;background:#f5f5f5;font-weight:bold;">Nama Guru</td><td>${teacherInfo.name}</td></tr>
+                            <tr><td style="background:#f5f5f5;font-weight:bold;">Pangkat/Golongan</td><td>${teacherInfo.rank}</td></tr>
+                            <tr><td style="background:#f5f5f5;font-weight:bold;">Semester/Kelas</td><td>${latest.semester_class || "-"}</td></tr>
+                            <tr><td style="background:#f5f5f5;font-weight:bold;">Jam Tatap Muka</td><td>${latest.teaching_hours || "-"}</td></tr>
+                          </table>
+                          <br/>
+                          <table>
+                            <tr><th style="width:5%;">No</th><th>Komponen Administrasi</th><th>Link Google Drive</th></tr>
+                            ${fields.map((f, i) => `<tr><td style="text-align:center;">${i + 1}</td><td>${f.label}</td><td>${f.val ? `<a href="${f.val}">${f.val}</a>` : "-"}</td></tr>`).join("")}
+                          </table>
+                        </body>
+                      </html>
+                    `);
+                    win.document.close();
+                    win.print();
+                  }}
+                >
+                  <Printer className="w-4 h-4" /> Cetak Rekap
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
