@@ -81,6 +81,8 @@ export default function Supervisions() {
       }
 
       setSchoolId(school.id);
+      setSchoolName(school.name);
+      setPrincipalName(school.principal_name);
       const [teachersData, supervisionsData] = await Promise.all([
         getTeachers(school.id),
         getSupervisions(school.id),
