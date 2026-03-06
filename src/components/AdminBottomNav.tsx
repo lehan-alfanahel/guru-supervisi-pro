@@ -110,14 +110,6 @@ export function AdminBottomNav() {
             <span className="text-xs font-medium">Profil</span>
           </Button>
 
-          <Button
-            variant="ghost"
-            className="flex-col h-auto py-2 px-3 gap-1 text-muted-foreground"
-            onClick={() => setLogoutDialogOpen(true)}
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="text-xs font-medium">Keluar</span>
-          </Button>
         </div>
       </nav>
 
