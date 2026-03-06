@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, ShieldCheck, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,10 +33,13 @@ const signUpSchema = z.object({
   path: ["confirmPassword"],
 });
 
+type UserType = "admin" | "teacher";
+
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
-  const { signUp, signIn, user, userRole } = useAuth();
+  const [userType, setUserType] = useState<UserType>("teacher");
+  const { signUp, signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -53,9 +56,7 @@ export default function Auth() {
   useEffect(() => {
     const handleAuthRedirect = async () => {
       if (!user) return;
-
       try {
-        // First check if user is a teacher - teachers bypass school setup
         const { data: teacherAccount } = await supabase
           .from("teacher_accounts")
           .select("id")
@@ -63,12 +64,10 @@ export default function Auth() {
           .maybeSingle();
 
         if (teacherAccount) {
-          // Teacher login - go directly to teacher dashboard
           navigate("/teacher/dashboard", { replace: true });
           return;
         }
 
-        // If not a teacher, check if user is admin with school
         const { data: schoolData } = await supabase
           .from("schools")
           .select("id")
@@ -76,32 +75,27 @@ export default function Auth() {
           .maybeSingle();
 
         if (schoolData) {
-          // Admin with school - go to admin dashboard
           navigate("/dashboard", { replace: true });
         } else {
-          // Admin without school - go to setup
           navigate("/setup-school", { replace: true });
         }
       } catch (error) {
         console.error("Error checking user role:", error);
       }
     };
-
     handleAuthRedirect();
   }, [user, navigate]);
 
   useEffect(() => {
     reset();
-  }, [isLogin, reset]);
+  }, [isLogin, userType, reset]);
 
   const onSubmit = async (data: z.infer<typeof loginSchema> | z.infer<typeof signUpSchema>) => {
     setLoading(true);
-
     try {
       if (!isLogin) {
         const { error } = await signUp(data.email, data.password);
         if (error) throw error;
-
         toast({
           title: "Berhasil!",
           description: "Akun berhasil dibuat. Silakan login.",
@@ -111,11 +105,9 @@ export default function Auth() {
         const { error } = await signIn(data.email, data.password);
         if (error) throw error;
 
-        // After successful login, check user role
         const { data: { user: currentUser } } = await supabase.auth.getUser();
-        
+
         if (currentUser) {
-          // Check if user is a teacher
           const { data: teacherAccount } = await supabase
             .from("teacher_accounts")
             .select("id")
@@ -123,24 +115,16 @@ export default function Auth() {
             .maybeSingle();
 
           if (teacherAccount) {
-            toast({
-              title: "Berhasil!",
-              description: "Login berhasil - Guru",
-            });
+            toast({ title: "Selamat datang!", description: "Login berhasil – Guru" });
             navigate("/teacher/dashboard");
           } else {
-            // Check if user has a school (school owner/admin)
             const { data: schoolData } = await supabase
               .from("schools")
               .select("id")
               .eq("owner_id", currentUser.id)
               .maybeSingle();
 
-            toast({
-              title: "Berhasil!",
-              description: "Login berhasil",
-            });
-
+            toast({ title: "Selamat datang!", description: "Login berhasil – Kepala Sekolah" });
             if (schoolData) {
               navigate("/dashboard");
             } else {
@@ -161,79 +145,135 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-primary)' }}>
-      <Card className="w-full max-w-md shadow-[var(--shadow-elevated)]">
-        <CardHeader className="space-y-3 text-center">
-          <button 
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--gradient-primary)" }}>
+      <div className="w-full max-w-md space-y-4">
+        {/* Logo & Title */}
+        <div className="text-center space-y-2">
+          <button
             onClick={() => navigate("/")}
-            className="mx-auto w-16 h-16 rounded-2xl bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
+            className="mx-auto w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors border border-white/30"
           >
-            <GraduationCap className="w-10 h-10 text-primary-foreground" />
+            <GraduationCap className="w-10 h-10 text-white" />
           </button>
-          <CardTitle className="text-2xl font-bold">SUPERVISI DIGITAL GURU</CardTitle>
-          <CardDescription>
-            {isLogin ? "Masuk ke akun Anda" : "Buat akun baru"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="nama@sekolah.sch.id"
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive">{String(errors.email.message)}</p>
-              )}
+          <h1 className="text-2xl font-bold text-white tracking-wide">SUPERVISI DIGITAL GURU</h1>
+          <p className="text-white/80 text-sm">Platform supervisi modern untuk sekolah Indonesia</p>
+        </div>
+
+        {/* User Type Selector */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-1 flex gap-1 border border-white/20">
+          <button
+            type="button"
+            onClick={() => { setUserType("teacher"); setIsLogin(true); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all ${
+              userType === "teacher"
+                ? "bg-white text-primary shadow-md"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <User className="w-4 h-4" />
+            Login Guru
+          </button>
+          <button
+            type="button"
+            onClick={() => { setUserType("admin"); setIsLogin(true); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-semibold transition-all ${
+              userType === "admin"
+                ? "bg-white text-primary shadow-md"
+                : "text-white/80 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            Kepala Sekolah
+          </button>
+        </div>
+
+        {/* Auth Card */}
+        <Card className="shadow-[var(--shadow-elevated)] border-0">
+          <CardHeader className="space-y-1 pb-4">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1 ${userType === "teacher" ? "bg-primary/10" : "bg-orange-100"}`}>
+              {userType === "teacher"
+                ? <User className="w-5 h-5 text-primary" />
+                : <ShieldCheck className="w-5 h-5 text-orange-500" />}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Masukkan password"
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive">{String(errors.password.message)}</p>
-              )}
-            </div>
-            {!isLogin && (
+            <CardTitle className="text-xl">
+              {userType === "teacher" ? "Login Guru" : "Login Kepala Sekolah"}
+            </CardTitle>
+            <CardDescription>
+              {isLogin
+                ? userType === "teacher"
+                  ? "Masukkan email dan password akun guru Anda"
+                  : "Masukkan email dan password akun kepala sekolah"
+                : "Buat akun kepala sekolah baru"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Masukkan password lagi"
-                  {...register("confirmPassword")}
+                  id="email"
+                  type="email"
+                  placeholder={userType === "teacher" ? "email.guru@sekolah.sch.id" : "kepala@sekolah.sch.id"}
+                  {...register("email")}
                 />
-                {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>
+                {errors.email && (
+                  <p className="text-sm text-destructive">{String(errors.email.message)}</p>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Masukkan password"
+                  {...register("password")}
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{String(errors.password.message)}</p>
+                )}
+              </div>
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Masukkan password lagi"
+                    {...register("confirmPassword")}
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>
+                  )}
+                </div>
+              )}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Memproses..." : isLogin ? "Masuk" : "Daftar"}
+              </Button>
+            </form>
+
+            {userType === "admin" && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {isLogin ? "Belum punya akun? Daftar sebagai Kepala Sekolah" : "Sudah punya akun? Masuk"}
+                </button>
+              </div>
             )}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              {loading ? "Memproses..." : isLogin ? "Masuk" : "Daftar"}
-            </Button>
-          </form>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              {isLogin ? "Belum punya akun? Daftar" : "Sudah punya akun? Masuk"}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+
+            {userType === "teacher" && (
+              <div className="mt-4 p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Akun guru dibuat oleh kepala sekolah.<br />
+                  Hubungi kepala sekolah jika belum memiliki akun.
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
