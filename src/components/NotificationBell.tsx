@@ -108,7 +108,7 @@ export function NotificationBell() {
                       onClick={() => handleNotificationClick(notif.id, notif.is_read)}
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`} // design tokens used in helper fn
                       >
                         {getIcon(notif.type)}
                       </div>
