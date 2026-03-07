@@ -47,7 +47,13 @@ export function useNotifications() {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          setNotifications((prev) => [payload.new as Notification, ...prev]);
+          const newNotif = payload.new as Notification;
+          setNotifications((prev) => [newNotif, ...prev]);
+          // Show toast for incoming real-time notification
+          toast({
+            title: newNotif.title,
+            description: newNotif.message,
+          });
         }
       )
       .on(
