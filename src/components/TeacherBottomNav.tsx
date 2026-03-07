@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, ClipboardList, User, LogOut, History, MessageSquare } from "lucide-react";
+import { Home, ClipboardList, User, History, MessageSquare, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/use-notifications";
 import {
   AlertDialog,
   AlertDialogAction,
