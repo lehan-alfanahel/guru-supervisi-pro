@@ -6,6 +6,7 @@ import { School, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface TeacherHeaderProps {
   teacherName?: string;
@@ -72,11 +73,12 @@ export function TeacherHeader({ teacherName = "", schoolName = "" }: TeacherHead
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-2">
-            <div className="text-right hidden sm:block">
+          <div className="flex items-center gap-1">
+            <div className="text-right hidden sm:block mr-1">
               <p className="text-xs font-medium leading-tight">{teacherName}</p>
               <p className="text-xs opacity-80 truncate max-w-[150px]">{email}</p>
             </div>
+            <NotificationBell />
             <Button 
               variant="ghost" 
               size="icon"
