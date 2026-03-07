@@ -18,12 +18,12 @@ export function NotificationBell() {
 
   const getIcon = (type: string) => {
     if (type === "coaching") return <MessageSquare className="w-4 h-4 text-primary" />;
-    return <ClipboardList className="w-4 h-4 text-blue-500" />;
+    return <ClipboardList className="w-4 h-4 text-secondary-foreground" />;
   };
 
   const getIconBg = (type: string) => {
     if (type === "coaching") return "bg-primary/10";
-    return "bg-blue-50";
+    return "bg-secondary";
   };
 
   return (
