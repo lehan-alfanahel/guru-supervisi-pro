@@ -3,7 +3,7 @@ import { Bell, BellRing, CheckCheck, ClipboardList, MessageSquare, X } from "luc
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/hooks/use-notifications";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
 export function NotificationBell() {
