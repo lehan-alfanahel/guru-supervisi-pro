@@ -20,6 +20,7 @@ import TeacherAccount from "./pages/TeacherAccount";
 import TeacherSupervision from "./pages/TeacherSupervision";
 import TeacherHistory from "./pages/TeacherHistory";
 import TeacherCoaching from "./pages/TeacherCoaching";
+import TeacherNotifications from "./pages/TeacherNotifications";
 
 const queryClient = new QueryClient();
 

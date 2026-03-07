@@ -1,46 +1,14 @@
-import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, ClipboardList, User, History, MessageSquare, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/use-notifications";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 export function TeacherBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
-  const { toast } = useToast();
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      toast({
-        title: "Berhasil",
-        description: "Anda telah keluar dari akun",
-      });
-      navigate("/auth");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Gagal keluar dari akun",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
@@ -61,40 +29,14 @@ export function TeacherBottomNav() {
         <Button
           variant="ghost"
           className={`flex-col h-auto py-2 px-2 gap-1 ${
-            isActive("/teacher/profile")
-              ? "bg-primary text-primary-foreground rounded-xl"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => navigate("/teacher/profile")}
-        >
-          <User className="w-5 h-5" />
-          <span className="text-xs font-medium">Profil</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={`flex-col h-auto py-2 px-2 gap-1 ${
             isActive("/teacher/supervision")
-              ? "bg-[#FF7A18] text-white rounded-xl"
+              ? "bg-secondary text-secondary-foreground rounded-xl"
               : "text-muted-foreground"
           }`}
           onClick={() => navigate("/teacher/supervision")}
         >
           <ClipboardList className="w-5 h-5" />
           <span className="text-xs font-medium">Supervisi</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={`flex-col h-auto py-2 px-2 gap-1 ${
-            isActive("/teacher/history")
-              ? "bg-primary text-primary-foreground rounded-xl"
-              : "text-muted-foreground"
-          }`}
-          onClick={() => navigate("/teacher/history")}
-        >
-          <History className="w-5 h-5" />
-          <span className="text-xs font-medium">Riwayat</span>
         </Button>
 
         <Button
@@ -110,28 +52,39 @@ export function TeacherBottomNav() {
           <span className="text-xs font-medium">Coaching</span>
         </Button>
 
-      </div>
+        <Button
+          variant="ghost"
+          className={`flex-col h-auto py-2 px-2 gap-1 relative ${
+            isActive("/teacher/notifications")
+              ? "bg-primary text-primary-foreground rounded-xl"
+              : "text-muted-foreground"
+          }`}
+          onClick={() => navigate("/teacher/notifications")}
+        >
+          <span className="relative">
+            <Bell className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </span>
+          <span className="text-xs font-medium">Notifikasi</span>
+        </Button>
 
-      {/* Logout Confirmation Dialog */}
-      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Keluar dari Akun?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Anda akan keluar dari akun guru. Anda perlu login kembali untuk mengakses aplikasi.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleSignOut}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Ya, Keluar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <Button
+          variant="ghost"
+          className={`flex-col h-auto py-2 px-2 gap-1 ${
+            isActive("/teacher/profile")
+              ? "bg-primary text-primary-foreground rounded-xl"
+              : "text-muted-foreground"
+          }`}
+          onClick={() => navigate("/teacher/profile")}
+        >
+          <User className="w-5 h-5" />
+          <span className="text-xs font-medium">Profil</span>
+        </Button>
+      </div>
     </nav>
   );
 }
