@@ -146,6 +146,66 @@ export type Database = {
         }
         Relationships: []
       }
+      supervision_observations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          mata_pelajaran: string | null
+          materi_topik: string | null
+          notes: string | null
+          observation_date: string
+          school_id: string
+          scores: Json
+          teacher_id: string
+          tindak_lanjut: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          mata_pelajaran?: string | null
+          materi_topik?: string | null
+          notes?: string | null
+          observation_date?: string
+          school_id: string
+          scores?: Json
+          teacher_id: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          mata_pelajaran?: string | null
+          materi_topik?: string | null
+          notes?: string | null
+          observation_date?: string
+          school_id?: string
+          scores?: Json
+          teacher_id?: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supervision_observations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supervision_observations_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supervisions: {
         Row: {
           absensi_siswa: number | null
