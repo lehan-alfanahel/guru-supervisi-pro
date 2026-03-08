@@ -60,17 +60,9 @@ export default function Auth() {
       navigate("/teacher/dashboard", { replace: true });
     } else if (userRole === "admin") {
       navigate("/dashboard", { replace: true });
-    } else {
-      // userRole null: bisa admin baru yg belum setup sekolah (role belum ada di DB)
-      // Cek apakah sudah punya sekolah untuk menentukan tujuan
-      import("@/integrations/supabase/client").then(({ supabase }) => {
-        supabase.from("schools").select("id").eq("owner_id", user.id).maybeSingle()
-          .then(({ data }) => {
-            navigate(data ? "/dashboard" : "/setup-school", { replace: true });
-          })
-          .catch(() => navigate("/setup-school", { replace: true }));
-      });
     }
+    // userRole null setelah loading selesai: kemungkinan admin baru belum setup sekolah
+    // Dashboard.tsx akan otomatis redirect ke /setup-school jika belum ada sekolah
   }, [user?.id, userRole, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
