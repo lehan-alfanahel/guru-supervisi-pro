@@ -270,11 +270,12 @@ export default function SupervisionModulAjar() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editForm, setEditForm] = useState<FormState>(emptyForm());
 
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -617,44 +618,45 @@ export default function SupervisionModulAjar() {
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
-              <DialogHeader>
-                <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={onSubmit} className="space-y-5">
-                <FormContent f={form} setF={setForm as any} prefix="new_" />
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
-                  <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
-                    {submitting ? "Menyimpan..." : "Simpan"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-            </Dialog>
           </div>
         </div>
       </header>
 
+      {/* Create Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+          <DialogHeader>
+            <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={onSubmit} className="space-y-5">
+            <FormContent f={form} setF={setForm as any} prefix="new_" />
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
+              <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
+                {submitting ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
-              <DialogHeader>
-                <DialogTitle>Edit Supervisi Modul Ajar</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={onUpdate} className="space-y-5">
-                <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
-                  <Button type="submit" className="flex-1" disabled={submitting}>
-                    {submitting ? "Menyimpan..." : "Perbarui"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+          <DialogHeader>
+            <DialogTitle>Edit Supervisi Modul Ajar</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={onUpdate} className="space-y-5">
+            <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
+              <Button type="submit" className="flex-1" disabled={submitting}>
+                {submitting ? "Menyimpan..." : "Perbarui"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="max-w-4xl mx-auto px-4 py-4 space-y-3">
         {list.length === 0 ? (
@@ -763,6 +765,20 @@ export default function SupervisionModulAjar() {
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction onClick={onDelete} className="bg-destructive hover:bg-destructive/90">Hapus</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Logout Dialog */}
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Logout</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin keluar dari aplikasi?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setLogoutDialogOpen(false); signOut(); }} className="bg-destructive hover:bg-destructive/90">Logout</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
