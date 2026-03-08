@@ -459,7 +459,7 @@ export default function Supervisions() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold">Supervisi</h1>
+              <h1 className="text-base sm:text-lg font-bold">Supervisi Administrasi</h1>
               <p className="text-xs sm:text-sm opacity-90">{supervisions.length} data</p>
             </div>
           </div>
@@ -468,7 +468,7 @@ export default function Supervisions() {
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
-                <Plus className="w-4 h-4" /> <span className="hidden xs:inline">Buat</span>
+                <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
