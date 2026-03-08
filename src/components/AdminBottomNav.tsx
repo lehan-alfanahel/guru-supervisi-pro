@@ -94,6 +94,15 @@ export function AdminBottomNav() {
               <ClipboardList className="w-4 h-4 shrink-0" />
               Supervisi ATP
             </button>
+            <button
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-accent border-t ${
+                isActive("/supervision-modul-ajar") ? "bg-primary/10 text-primary" : "text-foreground"
+              }`}
+              onClick={() => handleSupervisiNav("/supervision-modul-ajar")}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              Telaah Modul Ajar
+            </button>
           </div>
         </>
       )}
