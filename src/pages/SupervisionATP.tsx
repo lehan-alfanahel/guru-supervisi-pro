@@ -309,7 +309,7 @@ export default function SupervisionATP() {
     const total = calcTotal(scores);
     const pct = Math.round((total / ATP_SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
-    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const printDate = format(new Date(row.supervision_date + "T00:00:00"), "dd MMMM yyyy", { locale: idLocale });
     const cityName = schoolAddress.split(",")[0] || schoolName;
 
     let bodyRows = "";
@@ -353,7 +353,6 @@ export default function SupervisionATP() {
         <table class="noborder">
           <tr><td style="width:160px;">Nama Sekolah</td><td>: ${schoolName}</td></tr>
           <tr><td>Nama Guru</td><td>: ${row.teachers?.name || ""}</td></tr>
-          <tr><td>Mata Pelajaran</td><td>: ${row.mata_pelajaran || "............................."}</td></tr>
           <tr><td>Kelas/ Semester</td><td>: ${row.kelas_semester || "............................."}</td></tr>
         </table>
         <table>
@@ -453,10 +452,6 @@ export default function SupervisionATP() {
         <div className="space-y-1.5">
           <Label>Tanggal Supervisi</Label>
           <Input type="date" value={f.supervision_date} onChange={(e) => setF(p => ({ ...p, supervision_date: e.target.value }))} />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Mata Pelajaran</Label>
-          <Input placeholder="Contoh: Matematika" value={f.mata_pelajaran} onChange={(e) => setF(p => ({ ...p, mata_pelajaran: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
           <Label>Kelas - Semester</Label>
