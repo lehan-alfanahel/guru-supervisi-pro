@@ -39,7 +39,18 @@ interface CoachingRecord {
   type: "coaching";
 }
 
-type HistoryRecord = SupervisionRecord | CoachingRecord;
+interface ObservationRecord {
+  id: string;
+  observation_date: string;
+  mata_pelajaran: string | null;
+  materi_topik: string | null;
+  scores: Record<string, number>;
+  notes: string | null;
+  tindak_lanjut: string | null;
+  type: "observation";
+}
+
+type HistoryRecord = SupervisionRecord | CoachingRecord | ObservationRecord;
 
 interface TeacherInfo {
   name: string;
