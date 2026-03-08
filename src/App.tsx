@@ -24,6 +24,7 @@ import TeacherHistory from "./pages/TeacherHistory";
 import TeacherCoaching from "./pages/TeacherCoaching";
 import TeacherNotifications from "./pages/TeacherNotifications";
 import SupervisionModulAjar from "./pages/SupervisionModulAjar";
+import AdminNotifications from "./pages/AdminNotifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/teacher/history" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherHistory /></ProtectedRoute>} />
             <Route path="/teacher/coaching" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherCoaching /></ProtectedRoute>} />
             <Route path="/teacher/notifications" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherNotifications /></ProtectedRoute>} />
+            <Route path="/admin/notifications" element={<ProtectedRoute allowedRoles={['admin']}><AdminNotifications /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

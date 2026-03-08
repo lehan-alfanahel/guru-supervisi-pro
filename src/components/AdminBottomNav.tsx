@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, ClipboardList, User, MessageSquare, BookOpen, Eye, ChevronUp } from "lucide-react";
+import { Home, Users, ClipboardList, User, MessageSquare, BookOpen, Eye, ChevronUp, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNotifications } from "@/hooks/use-notifications";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -20,6 +21,7 @@ export function AdminBottomNav() {
   const location = useLocation();
   const { signOut } = useAuth();
   const { toast } = useToast();
+  const { unreadCount } = useNotifications();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [supervisiMenuOpen, setSupervisiMenuOpen] = useState(false);
 
@@ -163,6 +165,26 @@ export function AdminBottomNav() {
           >
             <MessageSquare className="w-5 h-5" />
             <span className="text-xs font-medium">Coaching</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={`flex-col h-auto py-2 px-3 gap-1 relative ${
+              isActive("/admin/notifications")
+                ? "bg-primary text-primary-foreground rounded-xl"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/admin/notifications")}
+          >
+            <div className="relative">
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
+            <span className="text-xs font-medium">Notifikasi</span>
           </Button>
 
           <Button
