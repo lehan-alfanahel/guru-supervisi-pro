@@ -12,6 +12,7 @@ import Teachers from "./pages/Teachers";
 import TeacherAccounts from "./pages/TeacherAccounts";
 import Supervisions from "./pages/Supervisions";
 import SupervisionObservation from "./pages/SupervisionObservation";
+import SupervisionATP from "./pages/SupervisionATP";
 import Coaching from "./pages/Coaching";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
