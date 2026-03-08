@@ -41,7 +41,7 @@ export function AdminBottomNav() {
   };
 
   const isActive = (path: string) => location.pathname === path;
-  const isSupervisiActive = isActive("/supervisions") || isActive("/supervision-observation");
+  const isSupervisiActive = isActive("/supervisions") || isActive("/supervision-observation") || isActive("/supervision-atp");
 
   const handleSupervisiClick = () => {
     setSupervisiMenuOpen((prev) => !prev);

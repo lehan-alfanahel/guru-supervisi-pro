@@ -593,9 +593,9 @@ export default function TeacherSupervision() {
                               return (
                                 <div key={f.key} className="flex items-start gap-2 text-sm">
                                   <span className="text-xs text-muted-foreground w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
-                                  {val
-                                    ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                                    : <XCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />}
+                                   {val
+                                     ? <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                                     : <XCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />}
                                   <div className="flex-1 min-w-0">
                                     <p className={`text-xs font-medium ${val ? "text-foreground" : "text-muted-foreground"}`}>{f.label}</p>
                                     {val && (
