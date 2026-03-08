@@ -260,10 +260,11 @@ export default function TeacherHistory() {
   const navigate = useNavigate();
   const [supervisions, setSupervisions] = useState<SupervisionRecord[]>([]);
   const [coachings, setCoachings] = useState<CoachingRecord[]>([]);
+  const [observations, setObservations] = useState<ObservationRecord[]>([]);
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<"semua" | "supervisi" | "coaching">("semua");
+  const [activeTab, setActiveTab] = useState<"semua" | "supervisi" | "observasi" | "coaching">("semua");
   const [searchDate, setSearchDate] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
@@ -283,22 +284,11 @@ export default function TeacherHistory() {
       if (!ta?.teachers) return;
       const teacher = Array.isArray(ta.teachers) ? ta.teachers[0] : ta.teachers;
 
-      const [schoolRes, supsRes, coachRes] = await Promise.all([
-        supabase
-          .from("schools")
-          .select("name, principal_name")
-          .eq("id", teacher.school_id)
-          .single(),
-        supabase
-          .from("supervisions")
-          .select("*")
-          .eq("teacher_id", teacher.id)
-          .order("supervision_date", { ascending: false }),
-        supabase
-          .from("coaching_sessions")
-          .select("*")
-          .eq("teacher_id", teacher.id)
-          .order("coaching_date", { ascending: false }),
+      const [schoolRes, supsRes, coachRes, obsRes] = await Promise.all([
+        supabase.from("schools").select("name, principal_name").eq("id", teacher.school_id).single(),
+        supabase.from("supervisions").select("*").eq("teacher_id", teacher.id).order("supervision_date", { ascending: false }),
+        supabase.from("coaching_sessions").select("*").eq("teacher_id", teacher.id).order("coaching_date", { ascending: false }),
+        supabase.from("supervision_observations").select("*").eq("teacher_id", teacher.id).order("observation_date", { ascending: false }),
       ]);
 
       setTeacherInfo({
@@ -310,12 +300,9 @@ export default function TeacherHistory() {
         teacherId: teacher.id,
       });
 
-      setSupervisions(
-        (supsRes.data || []).map((s) => ({ ...s, type: "supervision" as const }))
-      );
-      setCoachings(
-        (coachRes.data || []).map((c) => ({ ...c, type: "coaching" as const }))
-      );
+      setSupervisions((supsRes.data || []).map((s) => ({ ...s, type: "supervision" as const })));
+      setCoachings((coachRes.data || []).map((c) => ({ ...c, type: "coaching" as const })));
+      setObservations((obsRes.data || []).map((o) => ({ ...o, scores: o.scores || {}, type: "observation" as const })));
     } catch (error) {
       console.error("Error loading history:", error);
     } finally {
@@ -323,27 +310,29 @@ export default function TeacherHistory() {
     }
   };
 
+  const getRecordDate = (r: HistoryRecord) => {
+    if (r.type === "supervision") return r.supervision_date;
+    if (r.type === "coaching") return r.coaching_date;
+    return r.observation_date;
+  };
+
   const allRecords = useMemo((): HistoryRecord[] => {
-    const mapped: HistoryRecord[] = [
-      ...supervisions,
-      ...coachings,
-    ];
+    const mapped: HistoryRecord[] = [...supervisions, ...coachings, ...observations];
     return mapped.sort((a, b) => {
-      const dateA = a.type === "supervision" ? a.supervision_date : a.coaching_date;
-      const dateB = b.type === "supervision" ? b.supervision_date : b.coaching_date;
-      return sortOrder === "desc"
-        ? dateB.localeCompare(dateA)
-        : dateA.localeCompare(dateB);
+      const dateA = getRecordDate(a);
+      const dateB = getRecordDate(b);
+      return sortOrder === "desc" ? dateB.localeCompare(dateA) : dateA.localeCompare(dateB);
     });
-  }, [supervisions, coachings, sortOrder]);
+  }, [supervisions, coachings, observations, sortOrder]);
 
   const filtered = useMemo(() => {
     return allRecords.filter((r) => {
-      const date = r.type === "supervision" ? r.supervision_date : r.coaching_date;
+      const date = getRecordDate(r);
       const matchType =
         activeTab === "semua" ||
         (activeTab === "supervisi" && r.type === "supervision") ||
-        (activeTab === "coaching" && r.type === "coaching");
+        (activeTab === "coaching" && r.type === "coaching") ||
+        (activeTab === "observasi" && r.type === "observation");
       const matchDate = searchDate ? date.includes(searchDate) : true;
       return matchType && matchDate;
     });
