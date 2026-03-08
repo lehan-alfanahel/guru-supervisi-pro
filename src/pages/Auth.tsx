@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { GraduationCap, ShieldCheck, User } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { getUserFriendlyError } from "@/lib/errorHandler";
@@ -39,7 +38,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<UserType>("teacher");
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -53,46 +52,16 @@ export default function Auth() {
     mode: "onSubmit",
   });
 
-  // Redirect jika sudah login — jalankan SEKALI saat komponen mount
+  // Redirect berdasarkan userRole dari AuthContext — tanpa DB query tambahan
   useEffect(() => {
-    if (!user) return;
+    if (authLoading || !user || !userRole) return;
 
-    let cancelled = false;
-
-    const redirect = async () => {
-      try {
-        const { data: teacherAccount } = await supabase
-          .from("teacher_accounts")
-          .select("id")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (cancelled) return;
-
-        if (teacherAccount) {
-          navigate("/teacher/dashboard", { replace: true });
-          return;
-        }
-
-        const { data: schoolData } = await supabase
-          .from("schools")
-          .select("id")
-          .eq("owner_id", user.id)
-          .maybeSingle();
-
-        if (cancelled) return;
-
-        navigate(schoolData ? "/dashboard" : "/setup-school", { replace: true });
-      } catch (error) {
-        console.error("Error checking user role:", error);
-      }
-    };
-
-    redirect();
-
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]); // hanya re-run saat user ID berubah, bukan setiap render
+    if (userRole === "teacher") {
+      navigate("/teacher/dashboard", { replace: true });
+    } else if (userRole === "admin") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user?.id, userRole, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     reset();
