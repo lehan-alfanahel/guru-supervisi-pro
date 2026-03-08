@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import {
   Printer, CheckCircle2, XCircle, Clock, BookOpen,
   Link2, PlusCircle, ChevronDown, ChevronUp, ClipboardList, ExternalLink
