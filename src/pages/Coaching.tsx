@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, MessageSquare, Calendar, Printer } from "lucide-react";
+import { ArrowLeft, Plus, MessageSquare, Calendar, Printer, Trash2 } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,7 +50,7 @@ export default function Coaching() {
   const [principalName, setPrincipalName] = useState("");
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -118,6 +123,19 @@ export default function Coaching() {
     }
   };
 
+  const onDelete = async () => {
+    if (!deleteId) return;
+    try {
+      const { error } = await supabase.from("coaching_sessions").delete().eq("id", deleteId);
+      if (error) throw error;
+      toast({ title: "🗑️ Coaching berhasil dihapus!" });
+      setDeleteId(null);
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   const handlePrintAll = () => {
     const printContent = document.getElementById("coaching-print-area");
     if (!printContent) return;
@@ -138,7 +156,6 @@ export default function Coaching() {
             .section { margin-bottom: 8px; }
             .section-label { font-weight: bold; font-size: 12px; color: #444; }
             .section-content { font-size: 13px; margin-top: 2px; }
-            .footer { text-align: right; margin-top: 30px; font-size: 12px; }
             @media print { body { margin: 10px; } }
           </style>
         </head>
@@ -212,19 +229,19 @@ export default function Coaching() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 md:pb-4">
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 flex-shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-lg font-bold">Coaching Guru</h1>
-              <p className="text-sm opacity-90">{sessions.length} sesi coaching</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold">Coaching Guru</h1>
+              <p className="text-xs sm:text-sm opacity-90">{sessions.length} sesi coaching</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {sessions.length > 0 && (
               <Button size="sm" variant="ghost" className="hover:bg-white/10 gap-1.5" onClick={handlePrintAll}>
                 <Printer className="w-4 h-4" />
@@ -287,52 +304,82 @@ export default function Coaching() {
         </div>
       </header>
 
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Sesi Coaching?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Data coaching ini akan dihapus permanen dan tidak dapat dikembalikan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={onDelete}
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Hidden print area */}
       <div id="coaching-print-area" style={{ display: "none" }}>
-        <div className="header" style={{ textAlign: "center", marginBottom: "20px", borderBottom: "2px solid #333", paddingBottom: "10px" }}>
+        <div style={{ textAlign: "center", marginBottom: "20px", borderBottom: "2px solid #333", paddingBottom: "10px" }}>
           <h1 style={{ margin: 0 }}>LAPORAN COACHING GURU</h1>
           <h2 style={{ margin: "4px 0 0" }}>{schoolName}</h2>
         </div>
         {sessions.map(s => (
-          <div key={s.id} className="session" style={{ border: "1px solid #ccc", padding: "12px", marginBottom: "16px" }}>
-            <div className="session-title">{s.teachers?.name} - NIP: {s.teachers?.nip}</div>
-            <div className="meta">Tanggal: {new Date(s.coaching_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} | Topik: {s.topic}</div>
-            {s.findings && <div className="section"><span className="section-label">Temuan: </span><span className="section-content">{s.findings}</span></div>}
-            {s.recommendations && <div className="section"><span className="section-label">Rekomendasi: </span><span className="section-content">{s.recommendations}</span></div>}
-            {s.follow_up && <div className="section"><span className="section-label">Tindak Lanjut: </span><span className="section-content">{s.follow_up}</span></div>}
+          <div key={s.id} style={{ border: "1px solid #ccc", padding: "12px", marginBottom: "16px" }}>
+            <div style={{ fontWeight: "bold", fontSize: "15px", marginBottom: "6px" }}>{s.teachers?.name} - NIP: {s.teachers?.nip}</div>
+            <div style={{ color: "#666", fontSize: "12px", marginBottom: "10px" }}>Tanggal: {new Date(s.coaching_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} | Topik: {s.topic}</div>
+            {s.findings && <div style={{ marginBottom: "8px" }}><span style={{ fontWeight: "bold", fontSize: "12px" }}>Temuan: </span><span style={{ fontSize: "13px" }}>{s.findings}</span></div>}
+            {s.recommendations && <div style={{ marginBottom: "8px" }}><span style={{ fontWeight: "bold", fontSize: "12px" }}>Rekomendasi: </span><span style={{ fontSize: "13px" }}>{s.recommendations}</span></div>}
+            {s.follow_up && <div style={{ marginBottom: "8px" }}><span style={{ fontWeight: "bold", fontSize: "12px" }}>Tindak Lanjut: </span><span style={{ fontSize: "13px" }}>{s.follow_up}</span></div>}
           </div>
         ))}
       </div>
 
-      <main className="max-w-7xl mx-auto p-4">
+      <main className="max-w-4xl mx-auto p-3 sm:p-4">
         {sessions.length === 0 ? (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col items-center justify-center py-12 px-4">
               <MessageSquare className="w-16 h-16 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">Belum ada sesi coaching</p>
-              <p className="text-sm text-muted-foreground mb-4">Buat sesi coaching pertama Anda</p>
+              <p className="text-lg font-medium mb-2 text-center">Belum ada sesi coaching</p>
+              <p className="text-sm text-muted-foreground mb-4 text-center">Buat sesi coaching pertama Anda</p>
               <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
                 <Plus className="w-4 h-4" /> Buat Coaching
               </Button>
-            </CardContent>
+            </div>
           </Card>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {sessions.map(session => (
               <Card key={session.id} className="shadow-[var(--shadow-card)]">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-lg">{session.teachers?.name}</h3>
-                      <p className="text-sm text-muted-foreground">NIP: {session.teachers?.nip}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-sm sm:text-base leading-tight">{session.teachers?.name}</h3>
+                      <p className="text-xs text-muted-foreground">NIP: {session.teachers?.nip}</p>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
                         {new Date(session.coaching_date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
                       </div>
-                      <Button size="sm" variant="outline" className="gap-1" onClick={() => handlePrintSingle(session)}>
-                        <Printer className="w-3 h-3" /> Cetak
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button size="sm" variant="outline" className="gap-1 text-xs h-8 px-2" onClick={() => handlePrintSingle(session)}>
+                        <Printer className="w-3 h-3" />
+                        <span className="hidden sm:inline">Cetak</span>
+                      </Button>
+                      <Button
+                        size="sm" variant="outline"
+                        className="gap-1 text-xs h-8 px-2 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/5"
+                        onClick={() => setDeleteId(session.id)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span className="hidden sm:inline">Hapus</span>
                       </Button>
                     </div>
                   </div>

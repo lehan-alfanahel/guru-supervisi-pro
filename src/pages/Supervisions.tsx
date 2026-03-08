@@ -8,14 +8,20 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 const SUPERVISION_COMPONENTS = [
   { key: "kalender_pendidikan", label: "Kalender Pendidikan" },
@@ -61,6 +67,7 @@ export default function Supervisions() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [schoolId, setSchoolId] = useState("");
   const [schoolName, setSchoolName] = useState("");
+  const [schoolAddress, setSchoolAddress] = useState("");
   const [principalName, setPrincipalName] = useState("");
   const [principalNip, setPrincipalNip] = useState("");
   const [loading, setLoading] = useState(true);
@@ -68,6 +75,7 @@ export default function Supervisions() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<FormState>({
     teacher_id: "",
     supervision_date: new Date().toISOString().split("T")[0],
@@ -102,6 +110,7 @@ export default function Supervisions() {
       if (!school) { navigate("/setup-school"); return; }
       setSchoolId(school.id);
       setSchoolName(school.name);
+      setSchoolAddress((school as any).address || "");
       setPrincipalName(school.principal_name);
       setPrincipalNip(school.principal_nip);
 
@@ -137,18 +146,11 @@ export default function Supervisions() {
     setForm((prev) => ({ ...prev, scores: { ...prev.scores, [key]: val } }));
   };
 
-  const calculateScore = (supervision: any) => {
-    const total = SUPERVISION_COMPONENTS.reduce(
-      (sum, c) => sum + (Number(supervision[c.key]) || 0),
-      0
-    );
-    return total;
-  };
+  const calculateScore = (supervision: any) =>
+    SUPERVISION_COMPONENTS.reduce((sum, c) => sum + (Number(supervision[c.key]) || 0), 0);
 
-  const calculatePct = (supervision: any) => {
-    const score = calculateScore(supervision);
-    return Math.round((score / SCORE_MAX) * 100);
-  };
+  const calculatePct = (supervision: any) =>
+    Math.round((calculateScore(supervision) / SCORE_MAX) * 100);
 
   const openEdit = (s: any) => {
     setEditingId(s.id);
@@ -222,10 +224,33 @@ export default function Supervisions() {
     }
   };
 
+  const onDelete = async () => {
+    if (!deleteId) return;
+    try {
+      const { error } = await supabase.from("supervisions").delete().eq("id", deleteId);
+      if (error) throw error;
+      toast({ title: "🗑️ Supervisi berhasil dihapus!" });
+      setDeleteId(null);
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
+    }
+  };
+
+  const formatPrintDate = (dateStr: string) => {
+    try {
+      return format(new Date(dateStr), "dd MMMM yyyy", { locale: idLocale });
+    } catch {
+      return dateStr;
+    }
+  };
+
   const handlePrintSingle = (s: any) => {
     const score = calculateScore(s);
     const pct = Math.round((score / SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
+    const printDate = formatPrintDate(new Date().toISOString());
+    const cityName = schoolAddress ? schoolAddress.split(",")[0].trim() : "............";
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(`
@@ -239,18 +264,12 @@ export default function Supervisions() {
             h2 { font-size: 13px; }
             .info-table { width: 100%; margin-bottom: 14px; }
             .info-table td { padding: 3px 6px; }
-            .info-table td:first-child { width: 180px; }
+            .info-table td:first-child { width: 200px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
             th { background: #f0f0f0; text-align: center; font-size: 12px; }
             .center { text-align: center; }
             .score-cell { text-align: center; font-weight: bold; }
-            .footer-row { display: flex; justify-content: space-between; margin-top: 16px; }
-            .sign-block { width: 45%; text-align: center; }
-            .sign-space { height: 60px; }
-            .sign-line { border-top: 1px solid #333; margin-top: 4px; padding-top: 2px; font-size: 12px; }
-            .summary-table { width: 100%; border-collapse: collapse; }
-            .summary-table td { padding: 5px 10px; border: 1px solid #999; font-size: 12px; }
             .predikat-box { display:inline-block; padding:2px 8px; border:1px solid #333; font-weight:bold; }
           </style>
         </head>
@@ -260,9 +279,11 @@ export default function Supervisions() {
           <br/>
           <table class="info-table" style="border:none;">
             <tr><td>Nama Sekolah</td><td>: ${schoolName}</td></tr>
+            <tr><td>Alamat Sekolah</td><td>: ${schoolAddress || "-"}</td></tr>
             <tr><td>Nama Guru</td><td>: ${s.teachers?.name || ""}</td></tr>
+            <tr><td>NIP Guru</td><td>: ${s.teachers?.nip || "-"}</td></tr>
             <tr><td>Mata Pelajaran</td><td>: ${s.mata_pelajaran || ""}</td></tr>
-            <tr><td>Jumlah Jam Tatap Muka</td><td>: ${s.teaching_hours || ""}</td></tr>
+            <tr><td>Tanggal Supervisi</td><td>: ${formatPrintDate(s.supervision_date)}</td></tr>
           </table>
 
           <table>
@@ -333,16 +354,17 @@ export default function Supervisions() {
             <tr>
               <td style="border:none;width:50%;"></td>
               <td style="border:none;text-align:center;">
-                ............, .............................<br/><br/><br/>
+                ${cityName}, ${printDate}
               </td>
             </tr>
             <tr>
-              <td style="border:none;text-align:center;">Guru yang di Supervisi</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi</td>
+              <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/>
-                <u>${s.teachers?.name || ""}</u>
+                <u>${s.teachers?.name || ""}</u><br/>
+                NIP. ${s.teachers?.nip || ""}
               </td>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/>
                 <u>${principalName}</u><br/>
@@ -365,24 +387,88 @@ export default function Supervisions() {
     );
   }
 
+  const ScoreTable = ({
+    scores,
+    onChange,
+    prefix = "",
+  }: {
+    scores: Record<string, ScoreValue>;
+    onChange: (key: string, val: ScoreValue) => void;
+    prefix?: string;
+  }) => (
+    <div>
+      <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
+      <p className="text-xs text-muted-foreground mb-3">
+        0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
+      </p>
+      <div className="border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm min-w-[320px]">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="p-2 text-left border-b w-8">No</th>
+              <th className="p-2 text-left border-b">Komponen</th>
+              <th className="p-2 text-center border-b w-10">0</th>
+              <th className="p-2 text-center border-b w-10">1</th>
+              <th className="p-2 text-center border-b w-10">2</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SUPERVISION_COMPONENTS.map((c, i) => (
+              <tr key={c.key} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                <td className="p-2 text-center text-muted-foreground border-b text-xs">{i + 1}</td>
+                <td className="p-2 border-b text-xs">{c.label}</td>
+                {([0, 1, 2] as ScoreValue[]).map((val) => (
+                  <td key={val} className="p-2 text-center border-b">
+                    <input
+                      type="radio"
+                      name={`${prefix}${c.key}`}
+                      value={val}
+                      checked={scores[c.key] === val}
+                      onChange={() => onChange(c.key, val)}
+                      className="accent-primary w-4 h-4 cursor-pointer"
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {(() => {
+        const total = Object.values(scores).reduce((s, v) => s + v, 0);
+        const pct = Math.round((total / SCORE_MAX) * 100);
+        const predikat = getPredikat(pct);
+        return (
+          <div className="mt-3 p-3 bg-muted/30 rounded-lg flex flex-wrap items-center justify-between gap-2 text-sm">
+            <span>Skor: <strong>{total}/{SCORE_MAX}</strong></span>
+            <span>Nilai: <strong>{pct}%</strong></span>
+            <Badge className={`${predikat.color} text-white border-0`}>{predikat.label}</Badge>
+          </div>
+        );
+      })()}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-4">
       {/* Header */}
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 flex-shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-lg font-bold">Supervisi</h1>
-              <p className="text-sm opacity-90">{supervisions.length} data</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-bold">Supervisi</h1>
+              <p className="text-xs sm:text-sm opacity-90">{supervisions.length} data</p>
             </div>
           </div>
+
+          {/* Create Dialog */}
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
-                <Plus className="w-4 h-4" /> Buat
+              <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
+                <Plus className="w-4 h-4" /> <span className="hidden xs:inline">Buat</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -390,14 +476,11 @@ export default function Supervisions() {
                 <DialogTitle>Instrumen Supervisi Akademik</DialogTitle>
               </DialogHeader>
               <form onSubmit={onSubmit} className="space-y-5">
-                {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label>Guru <span className="text-destructive">*</span></Label>
                     <Select value={form.teacher_id} onValueChange={(v) => setForm((p) => ({ ...p, teacher_id: v }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih guru" />
-                      </SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder="Pilih guru" /></SelectTrigger>
                       <SelectContent>
                         {teachers.map((t) => (
                           <SelectItem key={t.id} value={t.id}>{t.name} — {t.nip}</SelectItem>
@@ -410,68 +493,15 @@ export default function Supervisions() {
                     <Input type="date" value={form.supervision_date}
                       onChange={(e) => setForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 sm:col-span-2">
                     <Label>Mata Pelajaran</Label>
                     <Input placeholder="Contoh: Matematika" value={form.mata_pelajaran}
                       onChange={(e) => setForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
                   </div>
                 </div>
 
-                {/* Scoring Table */}
-                <div>
-                  <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
-                  </p>
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="p-2 text-left border-b w-8">No</th>
-                          <th className="p-2 text-left border-b">Komponen</th>
-                          <th className="p-2 text-center border-b w-12">0</th>
-                          <th className="p-2 text-center border-b w-12">1</th>
-                          <th className="p-2 text-center border-b w-12">2</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {SUPERVISION_COMPONENTS.map((c, i) => (
-                          <tr key={c.key} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                            <td className="p-2 text-center text-muted-foreground border-b">{i + 1}</td>
-                            <td className="p-2 border-b">{c.label}</td>
-                            {([0, 1, 2] as ScoreValue[]).map((val) => (
-                              <td key={val} className="p-2 text-center border-b">
-                                <input
-                                  type="radio"
-                                  name={c.key}
-                                  value={val}
-                                  checked={form.scores[c.key] === val}
-                                  onChange={() => handleScoreChange(c.key, val)}
-                                  className="accent-primary w-4 h-4 cursor-pointer"
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {/* Score summary */}
-                  {(() => {
-                    const total = Object.values(form.scores).reduce((s, v) => s + v, 0);
-                    const pct = Math.round((total / SCORE_MAX) * 100);
-                    const predikat = getPredikat(pct);
-                    return (
-                      <div className="mt-3 p-3 bg-muted/30 rounded-lg flex items-center justify-between text-sm">
-                        <span>Skor: <strong>{total}/{SCORE_MAX}</strong></span>
-                        <span>Nilai: <strong>{pct}%</strong></span>
-                        <Badge className={`${predikat.color} text-white border-0`}>{predikat.label}</Badge>
-                      </div>
-                    );
-                  })()}
-                </div>
+                <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" />
 
-                {/* Catatan & Tindak Lanjut */}
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
                     <Label>Catatan</Label>
@@ -515,57 +545,7 @@ export default function Supervisions() {
                   </div>
                 </div>
 
-                <div>
-                  <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
-                  </p>
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="p-2 text-left border-b w-8">No</th>
-                          <th className="p-2 text-left border-b">Komponen</th>
-                          <th className="p-2 text-center border-b w-12">0</th>
-                          <th className="p-2 text-center border-b w-12">1</th>
-                          <th className="p-2 text-center border-b w-12">2</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {SUPERVISION_COMPONENTS.map((c, i) => (
-                          <tr key={c.key} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                            <td className="p-2 text-center text-muted-foreground border-b">{i + 1}</td>
-                            <td className="p-2 border-b">{c.label}</td>
-                            {([0, 1, 2] as ScoreValue[]).map((val) => (
-                              <td key={val} className="p-2 text-center border-b">
-                                <input
-                                  type="radio"
-                                  name={`edit_${c.key}`}
-                                  value={val}
-                                  checked={editForm.scores[c.key] === val}
-                                  onChange={() => handleEditScoreChange(c.key, val)}
-                                  className="accent-primary w-4 h-4 cursor-pointer"
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {(() => {
-                    const total = Object.values(editForm.scores).reduce((s, v) => s + v, 0);
-                    const pct = Math.round((total / SCORE_MAX) * 100);
-                    const predikat = getPredikat(pct);
-                    return (
-                      <div className="mt-3 p-3 bg-muted/30 rounded-lg flex items-center justify-between text-sm">
-                        <span>Skor: <strong>{total}/{SCORE_MAX}</strong></span>
-                        <span>Nilai: <strong>{pct}%</strong></span>
-                        <Badge className={`${predikat.color} text-white border-0`}>{predikat.label}</Badge>
-                      </div>
-                    );
-                  })()}
-                </div>
+                <ScoreTable scores={editForm.scores} onChange={handleEditScoreChange} prefix="edit_" />
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
@@ -592,18 +572,39 @@ export default function Supervisions() {
         </div>
       </header>
 
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Data Supervisi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Data supervisi ini akan dihapus permanen dan tidak dapat dikembalikan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={onDelete}
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Content */}
-      <main className="max-w-4xl mx-auto p-4 space-y-4">
+      <main className="max-w-4xl mx-auto p-3 sm:p-4 space-y-3">
         {supervisions.length === 0 ? (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="flex flex-col items-center justify-center py-12 px-4">
               <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">Belum ada supervisi</p>
-              <p className="text-sm text-muted-foreground mb-4">Mulai buat instrumen supervisi pertama</p>
+              <p className="text-lg font-medium mb-2 text-center">Belum ada supervisi</p>
+              <p className="text-sm text-muted-foreground mb-4 text-center">Mulai buat instrumen supervisi pertama</p>
               <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
                 <Plus className="w-4 h-4" /> Buat Supervisi
               </Button>
-            </CardContent>
+            </div>
           </Card>
         ) : (
           supervisions.map((s) => {
@@ -613,28 +614,39 @@ export default function Supervisions() {
             const isExpanded = expandedId === s.id;
             return (
               <Card key={s.id} className="shadow-[var(--shadow-card)]">
-                <CardContent className="p-4">
+                <CardContent className="p-3 sm:p-4">
+                  {/* Top row */}
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold">{s.teachers?.name}</h3>
+                        <h3 className="font-semibold text-sm sm:text-base leading-tight">{s.teachers?.name}</h3>
                         <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">NIP: {s.teachers?.nip}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">NIP: {s.teachers?.nip}</p>
                       {s.mata_pelajaran && <p className="text-xs text-muted-foreground">Mapel: {s.mata_pelajaran}</p>}
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <Calendar className="w-3 h-3" />
                         {format(new Date(s.supervision_date), "dd MMM yyyy")}
                       </div>
                     </div>
-                    <div className="flex gap-1 flex-shrink-0">
-                      <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => openEdit(s)}>
-                        <Pencil className="w-3 h-3" /> Edit
+
+                    {/* Action buttons */}
+                    <div className="flex gap-1 flex-shrink-0 flex-wrap justify-end">
+                      <Button size="sm" variant="outline" className="gap-1 text-xs h-8 px-2" onClick={() => openEdit(s)}>
+                        <Pencil className="w-3 h-3" />
+                        <span className="hidden sm:inline">Edit</span>
                       </Button>
-                      <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintSingle(s)}>
-                        <Printer className="w-3 h-3" /> Cetak
+                      <Button size="sm" variant="outline" className="gap-1 text-xs h-8 px-2" onClick={() => handlePrintSingle(s)}>
+                        <Printer className="w-3 h-3" />
+                        <span className="hidden sm:inline">Cetak</span>
                       </Button>
-                      <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedId(isExpanded ? null : s.id)}>
+                      <Button size="sm" variant="outline" className="gap-1 text-xs h-8 px-2 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/5"
+                        onClick={() => setDeleteId(s.id)}>
+                        <Trash2 className="w-3 h-3" />
+                        <span className="hidden sm:inline">Hapus</span>
+                      </Button>
+                      <Button size="sm" variant="ghost" className="px-2 h-8"
+                        onClick={() => setExpandedId(isExpanded ? null : s.id)}>
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </Button>
                     </div>
@@ -654,7 +666,7 @@ export default function Supervisions() {
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div className="mt-3 border-t pt-3 space-y-2">
-                      <div className="grid grid-cols-1 gap-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                         {SUPERVISION_COMPONENTS.map((c, i) => {
                           const val = Number(s[c.key]) || 0;
                           const colors = ["text-destructive", "text-yellow-600", "text-green-600"];
@@ -662,13 +674,13 @@ export default function Supervisions() {
                           return (
                             <div key={c.key} className="flex items-center justify-between text-xs">
                               <span className="text-muted-foreground">{i + 1}. {c.label}</span>
-                              <Badge variant="outline" className={`text-xs ${colors[val]}`}>{labels[val]}</Badge>
+                              <Badge variant="outline" className={`text-xs ${colors[val]} ml-1`}>{labels[val]}</Badge>
                             </div>
                           );
                         })}
                       </div>
                       {s.notes && (
-                        <div className="pt-2">
+                        <div className="pt-2 border-t">
                           <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
                           <p className="text-sm">{s.notes}</p>
                         </div>
