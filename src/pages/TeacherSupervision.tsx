@@ -18,6 +18,7 @@ import {
   Link2, PlusCircle, ChevronDown, ChevronUp, ClipboardList, ExternalLink
 } from "lucide-react";
 import { ATP_SECTIONS, ATP_ALL_KEYS } from "@/pages/SupervisionATP";
+import { MODUL_AJAR_SECTIONS, MA_ALL_KEYS } from "@/pages/SupervisionModulAjar";
 
 interface TeacherInfo {
   id: string;
