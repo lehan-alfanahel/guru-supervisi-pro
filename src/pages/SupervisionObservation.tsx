@@ -592,7 +592,8 @@ export default function SupervisionObservation() {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
       </header>
 
