@@ -95,6 +95,14 @@ export default function Dashboard() {
       const schoolData = await getSchool(user.id);
       if (!schoolData) { navigate("/setup-school"); return; }
       setSchool(schoolData);
+      setEditForm({
+        name: schoolData.name,
+        npsn: schoolData.npsn || "",
+        address: schoolData.address || "",
+        phone: schoolData.phone || "",
+        principal_name: schoolData.principal_name,
+        principal_nip: schoolData.principal_nip,
+      });
 
       const [teachersData, { data: supervisionsData }, { data: adminData }, { data: teachersList }, { data: coachingData }] = await Promise.all([
         getTeachers(schoolData.id),
