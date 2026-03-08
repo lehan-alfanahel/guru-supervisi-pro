@@ -41,7 +41,7 @@ export function AdminBottomNav() {
   };
 
   const isActive = (path: string) => location.pathname === path;
-  const isSupervisiActive = isActive("/supervisions") || isActive("/supervision-observation");
+  const isSupervisiActive = isActive("/supervisions") || isActive("/supervision-observation") || isActive("/supervision-atp");
 
   const handleSupervisiClick = () => {
     setSupervisiMenuOpen((prev) => !prev);
@@ -63,7 +63,7 @@ export function AdminBottomNav() {
             onClick={() => setSupervisiMenuOpen(false)}
           />
           {/* Sub-menu panel */}
-          <div className="fixed bottom-[68px] left-1/2 -translate-x-1/2 z-50 bg-popover border rounded-2xl shadow-xl overflow-hidden w-64">
+          <div className="fixed bottom-[68px] left-1/2 -translate-x-1/2 z-50 bg-popover border rounded-2xl shadow-xl overflow-hidden w-72">
             <div className="px-4 pt-3 pb-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supervisi</p>
             </div>
@@ -84,6 +84,15 @@ export function AdminBottomNav() {
             >
               <Eye className="w-4 h-4 shrink-0" />
               Supervisi Pelaksanaan
+            </button>
+            <button
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-accent border-t ${
+                isActive("/supervision-atp") ? "bg-primary/10 text-primary" : "text-foreground"
+              }`}
+              onClick={() => handleSupervisiNav("/supervision-atp")}
+            >
+              <ClipboardList className="w-4 h-4 shrink-0" />
+              Supervisi ATP
             </button>
           </div>
         </>

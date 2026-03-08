@@ -17,6 +17,7 @@ import {
   Printer, CheckCircle2, XCircle, Clock, BookOpen,
   Link2, PlusCircle, ChevronDown, ChevronUp, ClipboardList, ExternalLink
 } from "lucide-react";
+import { ATP_SECTIONS, ATP_ALL_KEYS } from "@/pages/SupervisionATP";
 
 interface TeacherInfo {
   id: string;
@@ -109,6 +110,9 @@ export default function TeacherSupervision() {
   // Supervisions from principal
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [expandedSupId, setExpandedSupId] = useState<string | null>(null);
+  // ATP Supervisions from principal
+  const [atpSupervisions, setAtpSupervisions] = useState<any[]>([]);
+  const [expandedAtpId, setExpandedAtpId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -149,17 +153,21 @@ export default function TeacherSupervision() {
         principalNip: school?.principal_nip || "",
       });
 
-      const [{ data: records }, { data: sups }] = await Promise.all([
+      const [{ data: records }, { data: sups }, { data: atpData }] = await Promise.all([
         supabase.from("teaching_administration").select("*")
           .eq("teacher_account_id", teacherAccount.id)
           .order("created_at", { ascending: false }),
         supabase.from("supervisions").select("*")
           .eq("teacher_id", teacher.id)
           .order("supervision_date", { ascending: false }),
+        supabase.from("atp_supervisions" as any).select("*")
+          .eq("teacher_id", teacher.id)
+          .order("supervision_date", { ascending: false }),
       ]);
 
       setAdministrationRecords(records || []);
       setSupervisions(sups || []);
+      setAtpSupervisions(atpData || []);
       if (!records || records.length === 0) setShowForm(true);
     } catch (error) {
       console.error("Error loading data:", error);
@@ -424,14 +432,17 @@ export default function TeacherSupervision() {
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
           <TabsList className="w-full">
-            <TabsTrigger value="administrasi" className="flex-1">
-              Instrumen Administrasi
+            <TabsTrigger value="administrasi" className="flex-1 text-xs">
+              Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="flex-1">
-              Hasil Supervisi
+            <TabsTrigger value="supervisi" className="flex-1 text-xs">
+              Supervisi
               {supervisions.length > 0 && (
                 <Badge className="ml-1.5 bg-primary/20 text-primary border-0 text-xs">{supervisions.length}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="atp" className="flex-1 text-xs">
+              ATP
             </TabsTrigger>
           </TabsList>
 
@@ -565,9 +576,9 @@ export default function TeacherSupervision() {
                               const val = record[f.key as keyof AdministrationData];
                               return (
                                 <div key={f.key} className={`flex items-center gap-1.5 text-xs ${val ? "text-green-700" : "text-muted-foreground"}`}>
-                                  {val
-                                    ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                                    : <XCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
+                                   {val
+                                     ? <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                                     : <XCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                                   <span className="truncate">{f.label.split(" ").slice(0, 2).join(" ")}</span>
                                 </div>
                               );
@@ -582,9 +593,9 @@ export default function TeacherSupervision() {
                               return (
                                 <div key={f.key} className="flex items-start gap-2 text-sm">
                                   <span className="text-xs text-muted-foreground w-5 flex-shrink-0 mt-0.5">{i + 1}.</span>
-                                  {val
-                                    ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                                    : <XCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />}
+                                   {val
+                                     ? <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                                     : <XCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />}
                                   <div className="flex-1 min-w-0">
                                     <p className={`text-xs font-medium ${val ? "text-foreground" : "text-muted-foreground"}`}>{f.label}</p>
                                     {val && (
@@ -708,6 +719,114 @@ export default function TeacherSupervision() {
                               <div>
                                 <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
                                 <p className="text-sm">{s.tindak_lanjut}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ── TAB 3: HASIL SUPERVISI ATP ── */}
+          <TabsContent value="atp" className="space-y-4 mt-4">
+            <div>
+              <h2 className="text-base font-bold">Hasil Supervisi ATP</h2>
+              <p className="text-xs text-muted-foreground">Penelaahan Alur Tujuan Pembelajaran — {atpSupervisions.length} penilaian</p>
+            </div>
+
+            {atpSupervisions.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
+                  <p className="text-lg font-semibold mb-1">Belum ada hasil supervisi ATP</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Data akan muncul setelah kepala sekolah melakukan penilaian ATP
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {atpSupervisions.map((row: any, index: number) => {
+                  const ATP_SCORE_MAX = ATP_ALL_KEYS.length * 2;
+                  const total = ATP_ALL_KEYS.reduce((s, k) => s + (Number(row[k]) || 0), 0);
+                  const pct = Math.round((total / ATP_SCORE_MAX) * 100);
+                  const getPredikat = (p: number) => {
+                    if (p >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+                    if (p >= 81) return { label: "Baik", color: "bg-primary" };
+                    if (p >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+                    return { label: "Kurang", color: "bg-destructive" };
+                  };
+                  const predikat = getPredikat(pct);
+                  const isExpanded = expandedAtpId === row.id;
+                  return (
+                    <Card key={row.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
+                              {index === 0 && <Badge variant="outline" className="text-xs">Terbaru</Badge>}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(row.supervision_date), "dd MMMM yyyy")}
+                            </div>
+                            <div className="flex gap-2 text-xs mt-1">
+                              {row.mata_pelajaran && <span className="font-medium">{row.mata_pelajaran}</span>}
+                              {row.kelas_semester && <span className="text-muted-foreground">{row.kelas_semester}</span>}
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedAtpId(isExpanded ? null : row.id)}>
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </Button>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Skor {total}/{ATP_SCORE_MAX}</span>
+                            <span className="font-semibold">{pct}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="mt-3 border-t pt-3 space-y-2">
+                            {ATP_SECTIONS.map((sec) => (
+                              <div key={sec.section}>
+                                <p className="text-xs font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                                {sec.items.map((item) => {
+                                  const v = Number(row[item.key]) || 0;
+                                  const labels: Record<number, { text: string; cls: string }> = {
+                                    2: { text: "Sesuai", cls: "text-green-600" },
+                                    1: { text: "Tidak Sesuai", cls: "text-yellow-600" },
+                                    0: { text: "Tidak Ada", cls: "text-destructive" },
+                                  };
+                                  const badge = labels[v];
+                                  return (
+                                    <div key={item.key} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                                      <span className="text-muted-foreground flex-1">{item.num}. {item.label}</span>
+                                      <span className={`font-medium shrink-0 ${badge.cls}`}>{badge.text}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                            {row.notes && (
+                              <div className="pt-2 border-t">
+                                <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
+                                <p className="text-sm">{row.notes}</p>
+                              </div>
+                            )}
+                            {row.tindak_lanjut && (
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
+                                <p className="text-sm">{row.tindak_lanjut}</p>
                               </div>
                             )}
                           </div>

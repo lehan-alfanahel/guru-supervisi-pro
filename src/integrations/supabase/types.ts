@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      atp_supervisions: {
+        Row: {
+          a1: number
+          b2: number
+          b3: number
+          b4: number
+          c5: number
+          c6: number
+          c7: number
+          created_at: string
+          created_by: string
+          d10: number
+          d11: number
+          d12: number
+          d8: number
+          d9: number
+          id: string
+          kelas_semester: string | null
+          mata_pelajaran: string | null
+          notes: string | null
+          school_id: string
+          supervision_date: string
+          teacher_id: string
+          tindak_lanjut: string | null
+          updated_at: string
+        }
+        Insert: {
+          a1?: number
+          b2?: number
+          b3?: number
+          b4?: number
+          c5?: number
+          c6?: number
+          c7?: number
+          created_at?: string
+          created_by: string
+          d10?: number
+          d11?: number
+          d12?: number
+          d8?: number
+          d9?: number
+          id?: string
+          kelas_semester?: string | null
+          mata_pelajaran?: string | null
+          notes?: string | null
+          school_id: string
+          supervision_date?: string
+          teacher_id: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Update: {
+          a1?: number
+          b2?: number
+          b3?: number
+          b4?: number
+          c5?: number
+          c6?: number
+          c7?: number
+          created_at?: string
+          created_by?: string
+          d10?: number
+          d11?: number
+          d12?: number
+          d8?: number
+          d9?: number
+          id?: string
+          kelas_semester?: string | null
+          mata_pelajaran?: string | null
+          notes?: string | null
+          school_id?: string
+          supervision_date?: string
+          teacher_id?: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atp_supervisions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atp_supervisions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coaching_sessions: {
         Row: {
           coaching_date: string
