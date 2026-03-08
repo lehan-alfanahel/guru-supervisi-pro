@@ -249,7 +249,6 @@ export default function Dashboard() {
                 <TrendingUp className="w-5 h-5 text-primary" />
                 Perkembangan Nilai Supervisi
               </CardTitle>
-              <Badge variant="outline">{supervisions.length} data</Badge>
             </div>
             <p className="text-sm text-muted-foreground">Persentase nilai supervisi administrasi per guru (6 sesi terakhir)</p>
           </CardHeader>
