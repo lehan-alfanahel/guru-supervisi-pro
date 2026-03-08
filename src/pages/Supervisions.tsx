@@ -259,6 +259,7 @@ export default function Supervisions() {
         mata_pelajaran: editForm.mata_pelajaran,
         notes: editForm.notes,
         tindak_lanjut: editForm.tindak_lanjut,
+        remarks: editForm.remarks,
         ...editForm.scores,
       };
       const { error } = await supabase.from("supervisions").update(payload).eq("id", editingId);
