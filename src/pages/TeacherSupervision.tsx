@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import {
   Printer, CheckCircle2, XCircle, Clock, BookOpen,
   Link2, PlusCircle, ChevronDown, ChevronUp, ClipboardList, ExternalLink
@@ -24,6 +25,7 @@ interface TeacherInfo {
   rank: string;
   schoolId: string;
   schoolName: string;
+  schoolAddress: string;
   teacherAccountId: string;
   principalName: string;
   principalNip: string;
@@ -130,7 +132,7 @@ export default function TeacherSupervision() {
 
       const { data: school } = await supabase
         .from("schools")
-        .select("name, principal_name, principal_nip")
+        .select("name, address, principal_name, principal_nip")
         .eq("id", teacher.school_id)
         .single();
 
@@ -141,6 +143,7 @@ export default function TeacherSupervision() {
         rank: teacher.rank,
         schoolId: teacher.school_id,
         schoolName: school?.name || "",
+        schoolAddress: (school as any)?.address || "",
         teacherAccountId: teacherAccount.id,
         principalName: school?.principal_name || "",
         principalNip: school?.principal_nip || "",
@@ -270,6 +273,10 @@ export default function TeacherSupervision() {
     const score = calculateSupScore(s);
     const pct = Math.round((score / SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
+    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const cityName = (teacherInfo as any).schoolAddress
+      ? (teacherInfo as any).schoolAddress.split(",")[0].trim()
+      : "............";
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(`
@@ -279,6 +286,8 @@ export default function TeacherSupervision() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
+            h1 { font-size: 14px; }
+            h2 { font-size: 13px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
             th { background: #f0f0f0; text-align: center; font-size: 12px; }
@@ -291,10 +300,12 @@ export default function TeacherSupervision() {
           <h2>Administrasi Pembelajaran</h2>
           <br/>
           <table style="border:none;">
-            <tr><td style="border:none;width:180px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
+            <tr><td style="border:none;width:200px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
+            <tr><td style="border:none;">Alamat Sekolah</td><td style="border:none;">: ${(teacherInfo as any).schoolAddress || "-"}</td></tr>
             <tr><td style="border:none;">Nama Guru</td><td style="border:none;">: ${teacherInfo.name}</td></tr>
+            <tr><td style="border:none;">NIP Guru</td><td style="border:none;">: ${teacherInfo.nip}</td></tr>
             <tr><td style="border:none;">Mata Pelajaran</td><td style="border:none;">: ${s.mata_pelajaran || ""}</td></tr>
-            <tr><td style="border:none;">Jumlah Jam Tatap Muka</td><td style="border:none;">: ${s.teaching_hours || ""}</td></tr>
+            <tr><td style="border:none;">Tanggal Supervisi</td><td style="border:none;">: ${format(new Date(s.supervision_date), "dd MMMM yyyy", { locale: idLocale })}</td></tr>
           </table>
           <table>
             <thead>
@@ -328,16 +339,32 @@ export default function TeacherSupervision() {
           </table>
           <p style="font-size:12px;">Keterangan : Nilai Akhir = Skor Perolehan / ${SCORE_MAX} x 100%</p>
           <br/>
-          <table style="border:none;"><tr><td style="border:none;">Catatan</td><td style="border:none;">: ${s.notes || "..."}</td></tr><tr><td style="border:none;">Tindak Lanjut</td><td style="border:none;">: ${s.tindak_lanjut || "..."}</td></tr></table>
+          <table style="border:none;width:100%;font-size:12px;">
+            <tr><td style="border:none;width:30%;">Ketercapaian :</td><td style="border:none;">91% - 100% = Sangat Baik &nbsp;&nbsp;&nbsp; 71% - 80% = Cukup</td></tr>
+            <tr><td style="border:none;"></td><td style="border:none;">81% - 90% = Baik &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dibawah 71% = Kurang</td></tr>
+          </table>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;">Catatan</td><td style="border:none;">: ${s.notes || "..................................................................................."}</td></tr>
+            <tr><td style="border:none;">Tindak Lanjut</td><td style="border:none;">: ${s.tindak_lanjut || "..................................................................................."}</td></tr>
+          </table>
           <br/><br/>
           <table style="border:none;width:100%;">
             <tr>
-              <td style="border:none;text-align:center;">Guru yang di Supervisi</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi</td>
+              <td style="border:none;width:50%;"></td>
+              <td style="border:none;text-align:center;">${cityName}, ${printDate}</td>
             </tr>
             <tr>
-              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u></td>
-              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.principalName}</u><br/>NIP. ${teacherInfo.principalNip}</td>
+              <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/>
+                <u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}
+              </td>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/>
+                <u>${teacherInfo.principalName}</u><br/>NIP. ${teacherInfo.principalNip}
+              </td>
             </tr>
           </table>
         </body>
@@ -424,13 +451,7 @@ export default function TeacherSupervision() {
             {/* Form */}
             {showForm && (
               <Card className="border-primary/30">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-primary" />
-                    Isi Instrumen Administrasi Pembelajaran
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
