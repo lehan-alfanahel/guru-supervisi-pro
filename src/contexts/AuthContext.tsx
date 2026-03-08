@@ -21,43 +21,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState<'admin' | 'teacher' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Defer role fetching with setTimeout to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
-        } else {
-          setUserRole(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Then check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        setTimeout(() => {
-          fetchUserRole(session.user.id);
-        }, 0);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const fetchUserRole = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -68,14 +31,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (error) {
         console.error('Error fetching user role:', error);
-        return;
       }
       
-      setUserRole(data?.role || null);
+      setUserRole(data?.role ?? null);
     } catch (error) {
       console.error('Error fetching user role:', error);
+      setUserRole(null);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // First restore existing session, THEN subscribe to changes
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // fetchUserRole sets loading=false in its finally block
+        fetchUserRole(session.user.id);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Defer to avoid Supabase deadlock
+          setTimeout(() => {
+            fetchUserRole(session.user.id);
+          }, 0);
+        } else {
+          setUserRole(null);
+          setLoading(false);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signUp = async (email: string, password: string) => {
     const redirectUrl = `${window.location.origin}/`;
