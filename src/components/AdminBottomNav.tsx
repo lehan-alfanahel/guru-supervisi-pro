@@ -169,6 +169,26 @@ export function AdminBottomNav() {
 
           <Button
             variant="ghost"
+            className={`flex-col h-auto py-2 px-3 gap-1 relative ${
+              isActive("/admin/notifications")
+                ? "bg-primary text-primary-foreground rounded-xl"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => navigate("/admin/notifications")}
+          >
+            <div className="relative">
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </div>
+            <span className="text-xs font-medium">Notifikasi</span>
+          </Button>
+
+          <Button
+            variant="ghost"
             className={`flex-col h-auto py-2 px-3 gap-1 ${
               isActive("/profile")
                 ? "bg-primary text-primary-foreground rounded-xl"
