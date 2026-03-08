@@ -302,7 +302,7 @@ export default function TeacherHistory() {
 
       setSupervisions((supsRes.data || []).map((s) => ({ ...s, type: "supervision" as const })));
       setCoachings((coachRes.data || []).map((c) => ({ ...c, type: "coaching" as const })));
-      setObservations((obsRes.data || []).map((o) => ({ ...o, scores: o.scores || {}, type: "observation" as const })));
+      setObservations((obsRes.data || []).map((o) => ({ ...o, scores: (o.scores as Record<string, number>) || {}, type: "observation" as const })));
     } catch (error) {
       console.error("Error loading history:", error);
     } finally {
