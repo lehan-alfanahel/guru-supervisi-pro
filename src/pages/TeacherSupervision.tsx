@@ -424,14 +424,17 @@ export default function TeacherSupervision() {
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
           <TabsList className="w-full">
-            <TabsTrigger value="administrasi" className="flex-1">
-              Instrumen Administrasi
+            <TabsTrigger value="administrasi" className="flex-1 text-xs">
+              Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="flex-1">
-              Hasil Supervisi
+            <TabsTrigger value="supervisi" className="flex-1 text-xs">
+              Supervisi
               {supervisions.length > 0 && (
                 <Badge className="ml-1.5 bg-primary/20 text-primary border-0 text-xs">{supervisions.length}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="atp" className="flex-1 text-xs">
+              ATP
             </TabsTrigger>
           </TabsList>
 
