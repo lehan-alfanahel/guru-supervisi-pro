@@ -217,6 +217,35 @@ serve(async (req) => {
 
     // Create teacher_accounts entry if teacherId provided
     if (teacherId) {
+      // Verify the teacher belongs to the caller's school (prevents cross-school linking)
+      const { data: teacher, error: teacherCheckError } = await supabaseAdmin
+        .from('teachers')
+        .select('school_id')
+        .eq('id', teacherId)
+        .single();
+
+      if (teacherCheckError || !teacher) {
+        console.error('Teacher not found:', teacherCheckError);
+        return new Response(
+          JSON.stringify({ error: 'Guru tidak ditemukan' }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 404,
+          }
+        );
+      }
+
+      if (teacher.school_id !== school.id) {
+        console.error(`Cross-school linking attempt: teacher school ${teacher.school_id} !== caller school ${school.id}`);
+        return new Response(
+          JSON.stringify({ error: 'Guru tidak terdaftar di sekolah Anda' }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 403,
+          }
+        );
+      }
+
       const { error: accountLinkError } = await supabaseAdmin
         .from('teacher_accounts')
         .insert({
