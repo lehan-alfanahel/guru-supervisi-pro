@@ -569,11 +569,6 @@ export default function Supervisions() {
                     <Input type="date" value={form.supervision_date}
                       onChange={(e) => setForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                   </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label>Mata Pelajaran</Label>
-                    <Input placeholder="Contoh: Matematika" value={form.mata_pelajaran}
-                      onChange={(e) => setForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
-                  </div>
                 </div>
 
                 <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" showLinks={true} />
