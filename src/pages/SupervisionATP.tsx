@@ -555,11 +555,23 @@ export default function SupervisionATP() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-4 space-y-3">
         {atpList.length === 0 ? (
-          <div className="text-center py-16 space-y-3">
-            <ClipboardList className="w-14 h-14 mx-auto text-muted-foreground/40" />
-            <p className="text-muted-foreground font-medium">Belum ada data supervisi ATP</p>
-            <p className="text-sm text-muted-foreground">Klik "+ Buat Observasi" untuk menambah data</p>
-          </div>
+          <Card className="rounded-2xl border border-border shadow-sm">
+            <CardContent className="flex flex-col items-center justify-center py-16 px-6 space-y-4">
+              <div className="text-muted-foreground/50">
+                <ClipboardList className="w-16 h-16" />
+              </div>
+              <div className="text-center space-y-1.5">
+                <p className="text-lg font-bold text-foreground">Belum ada data observasi</p>
+                <p className="text-sm text-muted-foreground">Mulai buat instrumen supervisi ATP penelaahan alur tujuan pembelajaran</p>
+              </div>
+              <Button
+                className="mt-2 px-8 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold gap-2"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Plus className="w-4 h-4" /> Buat Observasi
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           atpList.map((row) => {
             const scores = rowToScores(row);
