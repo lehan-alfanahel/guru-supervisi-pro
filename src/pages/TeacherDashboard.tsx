@@ -353,11 +353,11 @@ export default function TeacherDashboard() {
           </Card>
         </div>
 
-        {/* ── HASIL PENILAIAN KEPALA SEKOLAH ── */}
+        {/* ── PENILAIAN KEPALA SEKOLAH ── */}
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-2">
             <Award className="w-5 h-5 text-primary" />
-            <h2 className="text-base font-bold">Hasil Penilaian Kepala Sekolah</h2>
+            <h2 className="text-base font-bold">Penilaian Kepala Sekolah</h2>
           </div>
           <Badge variant={totalAllSupervisions > 0 ? "default" : "secondary"} className="text-xs">
             {totalAllSupervisions} penilaian
@@ -376,12 +376,12 @@ export default function TeacherDashboard() {
           </Card>
         ) : (
           <>
-            <Card className="shadow-[var(--shadow-card)]">
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-blue-50 to-blue-100/60">
               <CardHeader className="pb-2 pt-3 px-4">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-primary" />
-                  <CardTitle className="text-sm">Supervisi Administrasi</CardTitle>
-                  <Badge variant="outline" className="ml-auto text-xs">{allResults.administrasi.length}</Badge>
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <CardTitle className="text-sm text-blue-800">Supervisi Administrasi</CardTitle>
+                  <Badge className="ml-auto text-xs bg-blue-600 text-white border-0">{allResults.administrasi.length}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-3">
@@ -394,12 +394,12 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-[var(--shadow-card)]">
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-violet-50 to-violet-100/60">
               <CardHeader className="pb-2 pt-3 px-4">
                 <div className="flex items-center gap-2">
-                  <ClipboardList className="w-4 h-4 text-primary" />
-                  <CardTitle className="text-sm">Supervisi ATP</CardTitle>
-                  <Badge variant="outline" className="ml-auto text-xs">{allResults.atp.length}</Badge>
+                  <ClipboardList className="w-4 h-4 text-violet-600" />
+                  <CardTitle className="text-sm text-violet-800">Supervisi ATP</CardTitle>
+                  <Badge className="ml-auto text-xs bg-violet-600 text-white border-0">{allResults.atp.length}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-3">
@@ -412,12 +412,12 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-[var(--shadow-card)]">
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-emerald-50 to-emerald-100/60">
               <CardHeader className="pb-2 pt-3 px-4">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-primary" />
-                  <CardTitle className="text-sm">Telaah Modul Ajar</CardTitle>
-                  <Badge variant="outline" className="ml-auto text-xs">{allResults.modulAjar.length}</Badge>
+                  <BookOpen className="w-4 h-4 text-emerald-600" />
+                  <CardTitle className="text-sm text-emerald-800">Telaah Modul Ajar</CardTitle>
+                  <Badge className="ml-auto text-xs bg-emerald-600 text-white border-0">{allResults.modulAjar.length}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-3">
@@ -430,12 +430,12 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-[var(--shadow-card)]">
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-amber-50 to-amber-100/60">
               <CardHeader className="pb-2 pt-3 px-4">
                 <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-primary" />
-                  <CardTitle className="text-sm">Supervisi Pelaksanaan Pembelajaran</CardTitle>
-                  <Badge variant="outline" className="ml-auto text-xs">{allResults.observasi.length}</Badge>
+                  <Award className="w-4 h-4 text-amber-600" />
+                  <CardTitle className="text-sm text-amber-800">Supervisi Pelaksanaan Pembelajaran</CardTitle>
+                  <Badge className="ml-auto text-xs bg-amber-600 text-white border-0">{allResults.observasi.length}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-3">
