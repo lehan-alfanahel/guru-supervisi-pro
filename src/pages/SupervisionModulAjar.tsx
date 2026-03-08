@@ -617,44 +617,43 @@ export default function SupervisionModulAjar() {
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
-              <DialogHeader>
-                <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={onSubmit} className="space-y-5">
-                <FormContent f={form} setF={setForm as any} prefix="new_" />
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
-                  <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
-                    {submitting ? "Menyimpan..." : "Simpan"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-            </Dialog>
           </div>
         </div>
       </header>
 
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+        <DialogHeader>
+          <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={onSubmit} className="space-y-5">
+          <FormContent f={form} setF={setForm as any} prefix="new_" />
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
+            <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
+              {submitting ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+      </Dialog>
+
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
-              <DialogHeader>
-                <DialogTitle>Edit Supervisi Modul Ajar</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={onUpdate} className="space-y-5">
-                <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
-                <div className="flex gap-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
-                  <Button type="submit" className="flex-1" disabled={submitting}>
-                    {submitting ? "Menyimpan..." : "Perbarui"}
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+          <DialogHeader>
+            <DialogTitle>Edit Supervisi Modul Ajar</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={onUpdate} className="space-y-5">
+            <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
+              <Button type="submit" className="flex-1" disabled={submitting}>
+                {submitting ? "Menyimpan..." : "Perbarui"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="max-w-4xl mx-auto px-4 py-4 space-y-3">
         {list.length === 0 ? (
