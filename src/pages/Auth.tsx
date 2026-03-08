@@ -112,34 +112,8 @@ export default function Auth() {
       } else {
         const { error } = await signIn(data.email, data.password);
         if (error) throw error;
-
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-
-        if (currentUser) {
-          const { data: teacherAccount } = await supabase
-            .from("teacher_accounts")
-            .select("id")
-            .eq("user_id", currentUser.id)
-            .maybeSingle();
-
-          if (teacherAccount) {
-            toast({ title: "Selamat datang!", description: "Login berhasil – Guru" });
-            navigate("/teacher/dashboard");
-          } else {
-            const { data: schoolData } = await supabase
-              .from("schools")
-              .select("id")
-              .eq("owner_id", currentUser.id)
-              .maybeSingle();
-
-            toast({ title: "Selamat datang!", description: "Login berhasil – Kepala Sekolah" });
-            if (schoolData) {
-              navigate("/dashboard");
-            } else {
-              navigate("/setup-school");
-            }
-          }
-        }
+        // Redirect ditangani oleh useEffect di atas setelah user state terupdate
+        toast({ title: "Selamat datang!", description: "Login berhasil" });
       }
     } catch (error: any) {
       toast({
