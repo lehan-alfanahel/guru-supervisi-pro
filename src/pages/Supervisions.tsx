@@ -326,7 +326,7 @@ export default function Supervisions() {
             <tr><td>Alamat Sekolah</td><td>: ${schoolAddress || "-"}</td></tr>
             <tr><td>Nama Guru</td><td>: ${s.teachers?.name || ""}</td></tr>
             <tr><td>NIP Guru</td><td>: ${s.teachers?.nip || "-"}</td></tr>
-            <tr><td>Mata Pelajaran</td><td>: ${s.mata_pelajaran || ""}</td></tr>
+            
             <tr><td>Tanggal Supervisi</td><td>: ${formatPrintDate(s.supervision_date)}</td></tr>
           </table>
 
@@ -569,11 +569,6 @@ export default function Supervisions() {
                     <Input type="date" value={form.supervision_date}
                       onChange={(e) => setForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                   </div>
-                  <div className="space-y-1.5 sm:col-span-2">
-                    <Label>Mata Pelajaran</Label>
-                    <Input placeholder="Contoh: Matematika" value={form.mata_pelajaran}
-                      onChange={(e) => setForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
-                  </div>
                 </div>
 
                 <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" showLinks={true} />
@@ -608,18 +603,13 @@ export default function Supervisions() {
                 <DialogTitle>Edit Supervisi</DialogTitle>
               </DialogHeader>
               <form onSubmit={onUpdate} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label>Tanggal Supervisi</Label>
-                    <Input type="date" value={editForm.supervision_date}
-                      onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label>Mata Pelajaran</Label>
-                    <Input placeholder="Contoh: Matematika" value={editForm.mata_pelajaran}
-                      onChange={(e) => setEditForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
-                  </div>
-                </div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                     <Label>Tanggal Supervisi</Label>
+                     <Input type="date" value={editForm.supervision_date}
+                       onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
+                   </div>
+                 </div>
 
                 <ScoreTable scores={editForm.scores} onChange={handleEditScoreChange} prefix="edit_" />
 
