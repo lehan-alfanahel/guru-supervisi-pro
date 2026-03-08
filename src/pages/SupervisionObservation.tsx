@@ -422,7 +422,6 @@ export default function SupervisionObservation() {
           <tr><td>Mata Pelajaran</td><td>: ${obs.mata_pelajaran || ""}</td></tr>
           <tr><td>Materi/Topik/Tema</td><td>: ${obs.materi_topik || ""}</td></tr>
           <tr><td>Tanggal Supervisi</td><td>: ${format(new Date(obs.observation_date), "dd MMMM yyyy", { locale: idLocale })}</td></tr>
-          <tr><td>Alamat Sekolah</td><td>: ${schoolAddress || ""}</td></tr>
         </table>
 
         <table style="border-collapse:collapse;width:100%;">
