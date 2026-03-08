@@ -137,7 +137,7 @@ export default function AdminNotifications() {
       <div className="max-w-2xl mx-auto w-full">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 rounded border-4 border-primary border-t-transparent animate-spin" />
+            <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground px-8 text-center">

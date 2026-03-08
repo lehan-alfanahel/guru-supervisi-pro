@@ -695,7 +695,7 @@ export default function TeacherSupervision() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded border-4 border-primary border-t-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -881,8 +881,8 @@ export default function TeacherSupervision() {
                         </div>
 
                         <div className="space-y-1">
-                          <div className="w-full bg-muted rounded h-1.5">
-                            <div className="bg-primary rounded h-1.5 transition-all" style={{ width: `${pct}%` }} />
+                          <div className="w-full bg-muted rounded-full h-1.5">
+                            <div className="bg-primary rounded-full h-1.5 transition-all" style={{ width: `${pct}%` }} />
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {ADMIN_FIELDS.filter(f => record[f.key as keyof AdministrationData]).length} dari {ADMIN_FIELDS.length} komponen terisi
