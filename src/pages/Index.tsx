@@ -4,44 +4,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { GraduationCap, School2, ClipboardList, TrendingUp, Menu } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const { user, loading } = useAuth();
+  const { user, userRole, loading } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Redirect berdasarkan userRole — tanpa DB query tambahan
   useEffect(() => {
-    if (!user?.id) return;
-
-    let cancelled = false;
-
-    const checkUserRole = async () => {
-      try {
-        const { data: teacherAccount } = await supabase
-          .from("teacher_accounts")
-          .select("id")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (cancelled) return;
-
-        if (teacherAccount) {
-          navigate("/teacher/dashboard", { replace: true });
-          return;
-        }
-
-        navigate("/dashboard", { replace: true });
-      } catch (error) {
-        console.error("Error checking user role:", error);
-        if (!cancelled) navigate("/dashboard", { replace: true });
-      }
-    };
-
-    checkUserRole();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]); // hanya re-run saat user ID berubah
+    if (loading || !user || !userRole) return;
+    if (userRole === "teacher") {
+      navigate("/teacher/dashboard", { replace: true });
+    } else if (userRole === "admin") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user?.id, userRole, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (

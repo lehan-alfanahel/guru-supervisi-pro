@@ -52,15 +52,17 @@ export default function Auth() {
     mode: "onSubmit",
   });
 
-  // Redirect berdasarkan userRole dari AuthContext — tanpa DB query tambahan
+  // Redirect setelah auth selesai loading
   useEffect(() => {
-    if (authLoading || !user || !userRole) return;
+    if (authLoading || !user) return;
 
     if (userRole === "teacher") {
       navigate("/teacher/dashboard", { replace: true });
     } else if (userRole === "admin") {
       navigate("/dashboard", { replace: true });
     }
+    // userRole null setelah loading selesai: kemungkinan admin baru belum setup sekolah
+    // Dashboard.tsx akan otomatis redirect ke /setup-school jika belum ada sekolah
   }, [user?.id, userRole, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
