@@ -150,6 +150,25 @@ export default function Supervisions() {
     return Math.round((score / SCORE_MAX) * 100);
   };
 
+  const openEdit = (s: any) => {
+    setEditingId(s.id);
+    setEditForm({
+      teacher_id: s.teacher_id,
+      supervision_date: s.supervision_date,
+      mata_pelajaran: s.mata_pelajaran || "",
+      notes: s.notes || "",
+      tindak_lanjut: s.tindak_lanjut || "",
+      scores: Object.fromEntries(
+        SUPERVISION_COMPONENTS.map((c) => [c.key, (Number(s[c.key]) || 0) as ScoreValue])
+      ),
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditScoreChange = (key: string, val: ScoreValue) => {
+    setEditForm((prev) => ({ ...prev, scores: { ...prev.scores, [key]: val } }));
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.teacher_id) return;
@@ -170,6 +189,31 @@ export default function Supervisions() {
       toast({ title: "✅ Supervisi berhasil disimpan!" });
       setDialogOpen(false);
       resetForm();
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        supervision_date: editForm.supervision_date,
+        mata_pelajaran: editForm.mata_pelajaran,
+        notes: editForm.notes,
+        tindak_lanjut: editForm.tindak_lanjut,
+        ...editForm.scores,
+      };
+      const { error } = await supabase.from("supervisions").update(payload).eq("id", editingId);
+      if (error) throw error;
+      toast({ title: "✅ Supervisi berhasil diperbarui!" });
+      setEditDialogOpen(false);
+      setEditingId(null);
       loadData();
     } catch (error: any) {
       toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
