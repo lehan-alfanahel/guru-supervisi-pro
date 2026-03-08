@@ -352,61 +352,106 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── HASIL PENILAIAN KEPALA SEKOLAH ── */}
-        <Card className="shadow-[var(--shadow-card)]">
-          <CardHeader className="pb-2 pt-4 px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-primary" />
-                <CardTitle className="text-base">Hasil Penilaian Kepala Sekolah</CardTitle>
+        <div className="flex items-center justify-between px-1">
+          <div className="flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" />
+            <h2 className="text-base font-bold">Hasil Penilaian Kepala Sekolah</h2>
+          </div>
+          <Badge variant={totalAllSupervisions > 0 ? "default" : "secondary"} className="text-xs">
+            {totalAllSupervisions} penilaian
+          </Badge>
+        </div>
+
+        {totalAllSupervisions === 0 ? (
+          <Card className="shadow-[var(--shadow-card)]">
+            <CardContent className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+              <ClipboardList className="w-12 h-12 text-muted-foreground/50" />
+              <div>
+                <p className="font-semibold text-sm">Belum ada hasil supervisi</p>
+                <p className="text-xs text-muted-foreground mt-1">Data akan muncul setelah kepala sekolah melakukan penilaian</p>
               </div>
-              <Badge variant={totalAllSupervisions > 0 ? "default" : "secondary"} className="text-xs">
-                {totalAllSupervisions} penilaian
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
-            {totalAllSupervisions === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
-                <ClipboardList className="w-12 h-12 text-muted-foreground/50" />
-                <div>
-                  <p className="font-semibold text-sm">Belum ada hasil supervisi</p>
-                  <p className="text-xs text-muted-foreground mt-1">Data akan muncul setelah kepala sekolah melakukan penilaian</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <Card className="shadow-[var(--shadow-card)]">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <CardTitle className="text-sm">Supervisi Administrasi</CardTitle>
+                  <Badge variant="outline" className="ml-auto text-xs">{allResults.administrasi.length}</Badge>
                 </div>
-              </div>
-            ) : (
-              <>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
                 <SupervisionTypeCard
-                  title="Supervisi Administrasi"
+                  title=""
                   items={allResults.administrasi}
                   emptyMsg="Belum ada penilaian administrasi"
                   icon={<FileText className="w-3.5 h-3.5" />}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-[var(--shadow-card)]">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <ClipboardList className="w-4 h-4 text-primary" />
+                  <CardTitle className="text-sm">Supervisi ATP</CardTitle>
+                  <Badge variant="outline" className="ml-auto text-xs">{allResults.atp.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
                 <SupervisionTypeCard
-                  title="Supervisi ATP"
+                  title=""
                   items={allResults.atp}
                   emptyMsg="Belum ada penilaian ATP"
                   icon={<ClipboardList className="w-3.5 h-3.5" />}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-[var(--shadow-card)]">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-primary" />
+                  <CardTitle className="text-sm">Telaah Modul Ajar</CardTitle>
+                  <Badge variant="outline" className="ml-auto text-xs">{allResults.modulAjar.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
                 <SupervisionTypeCard
-                  title="Telaah Modul Ajar"
+                  title=""
                   items={allResults.modulAjar}
                   emptyMsg="Belum ada telaah modul ajar"
                   icon={<BookOpen className="w-3.5 h-3.5" />}
                 />
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-[var(--shadow-card)]">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-primary" />
+                  <CardTitle className="text-sm">Supervisi Pelaksanaan Pembelajaran</CardTitle>
+                  <Badge variant="outline" className="ml-auto text-xs">{allResults.observasi.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
                 <SupervisionTypeCard
-                  title="Supervisi Pelaksanaan Pembelajaran"
+                  title=""
                   items={allResults.observasi}
                   emptyMsg="Belum ada observasi pelaksanaan"
                   icon={<Award className="w-3.5 h-3.5" />}
                 />
-                <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => navigate("/teacher/supervision")}>
-                  <ClipboardList className="w-3.5 h-3.5" />
-                  Lihat Semua Detail Penilaian
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+
+            <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => navigate("/teacher/supervision")}>
+              <ClipboardList className="w-3.5 h-3.5" />
+              Lihat Semua Detail Penilaian
+            </Button>
+          </>
+        )}
 
         {/* Quick Actions */}
         <div className="space-y-2">

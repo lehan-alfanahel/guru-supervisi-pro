@@ -656,7 +656,10 @@ export default function TeacherSupervision() {
             ) : null}
           </TabsContent>
 
-          {/* ── TAB 2 (sekarang): HASIL SUPERVISI PELAKSANAAN ── */}
+          {/* ── TAB 2: PELAKSANAAN ── */}
+          {/* (akan ditampilkan di bawah setelah ATP & Modul Ajar) */}
+
+          {/* ── TAB ATP ── */}
           <TabsContent value="atp" className="space-y-4 mt-4">
             <div>
               <h2 className="text-base font-bold">Hasil Supervisi ATP</h2>
@@ -764,7 +767,7 @@ export default function TeacherSupervision() {
             )}
           </TabsContent>
 
-          {/* ── TAB 4: HASIL SUPERVISI TELAAH MODUL AJAR ── */}
+          {/* ── TAB MODUL AJAR ── */}
           <TabsContent value="modul_ajar" className="space-y-4 mt-4">
             <div>
               <h2 className="text-base font-bold">Hasil Telaah Modul Ajar</h2>
@@ -872,7 +875,7 @@ export default function TeacherSupervision() {
             )}
           </TabsContent>
 
-          {/* ── TAB 5: HASIL SUPERVISI PELAKSANAAN PEMBELAJARAN ── */}
+          {/* ── TAB PELAKSANAAN ── */}
           <TabsContent value="pelaksanaan" className="space-y-4 mt-4">
             <div>
               <h2 className="text-base font-bold">Hasil Supervisi Pelaksanaan</h2>
