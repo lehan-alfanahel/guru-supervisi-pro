@@ -507,10 +507,7 @@ export default function TeacherHistory() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <TeacherHeader
-        teacherName={teacherInfo?.name || ""}
-        schoolName={teacherInfo?.schoolName || ""}
-      />
+      <TeacherHeader teacherName={teacherInfo?.name || ""} schoolName={teacherInfo?.schoolName || ""} />
 
       <div className="p-4 space-y-4">
         {/* Header */}
@@ -518,32 +515,26 @@ export default function TeacherHistory() {
           <div>
             <h2 className="text-xl font-bold">Riwayat</h2>
             <p className="text-xs text-muted-foreground">
-              {supervisions.length} supervisi · {coachings.length} coaching
+              {supervisions.length} supervisi · {observations.length} observasi · {coachings.length} coaching
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-1.5 text-xs h-8"
-            onClick={() => setSortOrder((p) => (p === "desc" ? "asc" : "desc"))}
-          >
+          <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8"
+            onClick={() => setSortOrder((p) => (p === "desc" ? "asc" : "desc"))}>
             <Calendar className="w-3 h-3" />
             {sortOrder === "desc" ? "Terbaru" : "Terlama"}
           </Button>
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {[
             { label: "Total", count: totalCount, color: "bg-muted" },
             { label: "Supervisi", count: supervisions.length, color: "bg-primary/10" },
+            { label: "Observasi", count: observations.length, color: "bg-accent/20" },
             { label: "Coaching", count: coachings.length, color: "bg-secondary/30" },
           ].map((stat) => (
-            <div
-              key={stat.label}
-              className={`${stat.color} rounded-xl p-3 text-center`}
-            >
-              <p className="text-2xl font-bold">{stat.count}</p>
+            <div key={stat.label} className={`${stat.color} rounded-xl p-3 text-center`}>
+              <p className="text-xl font-bold">{stat.count}</p>
               <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
@@ -552,42 +543,29 @@ export default function TeacherHistory() {
         {/* Filters */}
         <div className="space-y-2">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="semua">
-                Semua
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {totalCount}
-                </Badge>
+            <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="semua" className="text-xs">
+                Semua <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{totalCount}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="supervisi">
-                Supervisi
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {supervisions.length}
-                </Badge>
+              <TabsTrigger value="supervisi" className="text-xs">
+                Supervisi <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{supervisions.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="coaching">
-                Coaching
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {coachings.length}
-                </Badge>
+              <TabsTrigger value="observasi" className="text-xs">
+                Observasi <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{observations.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="coaching" className="text-xs">
+                Coaching <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{coachings.length}</Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="month"
-              className="pl-9 pr-9"
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-              placeholder="Filter bulan/tahun"
-            />
+            <Input type="month" className="pl-9 pr-9" value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)} placeholder="Filter bulan/tahun" />
             {searchDate && (
-              <button
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                onClick={() => setSearchDate("")}
-              >
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setSearchDate("")}>
                 <X className="w-4 h-4" />
               </button>
             )}
