@@ -65,8 +65,17 @@ export default function TeacherNotifications() {
     toast({ title: "Notifikasi dihapus" });
   };
 
-  const handleClick = async (id: string, isRead: boolean) => {
+  const getNavigationPath = (type: string) => {
+    if (type === "coaching") return "/teacher/coaching";
+    if (type === "observation") return "/teacher/supervision";
+    if (type === "atp_supervision") return "/teacher/supervision";
+    if (type === "modul_ajar_supervision") return "/teacher/supervision";
+    return "/teacher/supervision"; // default: supervisi administrasi
+  };
+
+  const handleClick = async (id: string, isRead: boolean, type: string) => {
     if (!isRead) await markAsRead(id);
+    navigate(getNavigationPath(type));
   };
 
   return (
