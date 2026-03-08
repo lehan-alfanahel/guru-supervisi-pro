@@ -35,8 +35,8 @@ const queryClient = new QueryClient({
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: ('admin' | 'teacher')[] }) {
   const { user, userRole, loading } = useAuth();
 
-  // Show spinner while auth OR role is still loading
-  if (loading || (user && userRole === null)) {
+  // Show spinner only while auth is loading
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
