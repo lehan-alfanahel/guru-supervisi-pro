@@ -889,7 +889,7 @@ export default function TeacherSupervision() {
                           </p>
                         </div>
 
-                        {!isExpanded && (
+                        {isExpanded ? null : (
                           <div className="grid grid-cols-2 gap-1 mt-3">
                             {ADMIN_FIELDS.slice(0, 6).map(f => {
                               const val = record[f.key as keyof AdministrationData];
@@ -905,7 +905,7 @@ export default function TeacherSupervision() {
                           </div>
                         )}
 
-                        {isExpanded && (
+                        {isExpanded ? (
                           <div className="mt-3 space-y-1.5 border-t pt-3">
                             {ADMIN_FIELDS.map((f, i) => {
                               const val = record[f.key as keyof AdministrationData];
@@ -929,7 +929,7 @@ export default function TeacherSupervision() {
                               );
                             })}
                           </div>
-                        )}
+                        ) : null}
                       </CardContent>
                     </Card>
                   );
