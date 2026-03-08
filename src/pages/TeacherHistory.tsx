@@ -10,15 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
-  ClipboardList,
-  Calendar,
-  Printer,
-  MessageSquare,
-  Search,
-  X,
-  ChevronDown,
-  ChevronUp,
+  ClipboardList, Calendar, Printer, MessageSquare,
+  Search, X, ChevronDown, ChevronUp, Eye,
 } from "lucide-react";
+import { OBSERVATION_SECTIONS, ALL_ITEM_KEYS } from "./SupervisionObservation";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 interface SupervisionRecord {
   id: string;
@@ -42,7 +39,18 @@ interface CoachingRecord {
   type: "coaching";
 }
 
-type HistoryRecord = SupervisionRecord | CoachingRecord;
+interface ObservationRecord {
+  id: string;
+  observation_date: string;
+  mata_pelajaran: string | null;
+  materi_topik: string | null;
+  scores: Record<string, number>;
+  notes: string | null;
+  tindak_lanjut: string | null;
+  type: "observation";
+}
+
+type HistoryRecord = SupervisionRecord | CoachingRecord | ObservationRecord;
 
 interface TeacherInfo {
   name: string;
@@ -247,15 +255,104 @@ function CoachingCard({ c }: { c: CoachingRecord }) {
   );
 }
 
+// Observation Card
+function ObservationCard({ obs }: { obs: ObservationRecord }) {
+  const [expanded, setExpanded] = useState(false);
+  const SCORE_MAX = ALL_ITEM_KEYS.length * 2;
+  const total = ALL_ITEM_KEYS.reduce((s, k) => s + (Number(obs.scores[k]) || 0), 0);
+  const pct = Math.round((total / SCORE_MAX) * 100);
+  const colors = pct >= 91 ? "text-green-600" : pct >= 81 ? "text-primary" : pct >= 71 ? "text-yellow-600" : "text-destructive";
+  const label = pct >= 91 ? "Sangat Baik" : pct >= 81 ? "Baik" : pct >= 71 ? "Cukup" : "Kurang";
+  const bgColor = pct >= 91 ? "bg-green-500" : pct >= 81 ? "bg-primary" : pct >= 71 ? "bg-yellow-500" : "bg-destructive";
+
+  return (
+    <Card className="border-l-4 border-l-accent">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Supervisi Pelaksanaan Pembelajaran</p>
+              {obs.mata_pelajaran && <p className="text-xs text-muted-foreground">Mapel: {obs.mata_pelajaran}</p>}
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {format(new Date(obs.observation_date), "dd MMMM yyyy", { locale: idLocale })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge className={`${bgColor} text-white border-0 text-xs`}>{label}</Badge>
+            <span className={`text-xs font-semibold ${colors}`}>{pct}%</span>
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setExpanded(!expanded)}>
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Nilai Akhir</span>
+            <span>{total}/{SCORE_MAX} = {pct}%</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-1.5">
+            <div className={`${bgColor} rounded-full h-1.5 transition-all`} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="space-y-2 pt-2 border-t text-xs">
+            {OBSERVATION_SECTIONS.map((sec) => (
+              <div key={sec.section}>
+                <p className="font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                {sec.groups.map((grp) => (
+                  <div key={grp.num} className="mb-2">
+                    <p className="font-semibold pl-2 mb-1">{grp.num}. {grp.title}</p>
+                    {grp.items.map((item) => {
+                      const val = Number(obs.scores[item.key]) || 0;
+                      const scoreColors = ["text-destructive", "text-yellow-600", "text-green-600"];
+                      const scoreLabels = ["Tidak Ada", "Kurang Sesuai", "Sesuai"];
+                      return (
+                        <div key={item.key} className="flex items-start justify-between gap-2 pl-4 py-0.5">
+                          <span className="text-muted-foreground flex-1">{item.label}</span>
+                          <Badge variant="outline" className={`${scoreColors[val]} flex-shrink-0 text-[10px]`}>{scoreLabels[val]}</Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))}
+            {obs.notes && (
+              <div className="p-2 bg-muted/50 rounded">
+                <p className="font-medium text-muted-foreground mb-0.5">Catatan:</p>
+                <p>{obs.notes}</p>
+              </div>
+            )}
+            {obs.tindak_lanjut && (
+              <div className="p-2 bg-muted/50 rounded">
+                <p className="font-medium text-muted-foreground mb-0.5">Tindak Lanjut:</p>
+                <p>{obs.tindak_lanjut}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function TeacherHistory() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [supervisions, setSupervisions] = useState<SupervisionRecord[]>([]);
   const [coachings, setCoachings] = useState<CoachingRecord[]>([]);
+  const [observations, setObservations] = useState<ObservationRecord[]>([]);
   const [teacherInfo, setTeacherInfo] = useState<TeacherInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState<"semua" | "supervisi" | "coaching">("semua");
+  const [activeTab, setActiveTab] = useState<"semua" | "supervisi" | "observasi" | "coaching">("semua");
   const [searchDate, setSearchDate] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
@@ -275,22 +372,11 @@ export default function TeacherHistory() {
       if (!ta?.teachers) return;
       const teacher = Array.isArray(ta.teachers) ? ta.teachers[0] : ta.teachers;
 
-      const [schoolRes, supsRes, coachRes] = await Promise.all([
-        supabase
-          .from("schools")
-          .select("name, principal_name")
-          .eq("id", teacher.school_id)
-          .single(),
-        supabase
-          .from("supervisions")
-          .select("*")
-          .eq("teacher_id", teacher.id)
-          .order("supervision_date", { ascending: false }),
-        supabase
-          .from("coaching_sessions")
-          .select("*")
-          .eq("teacher_id", teacher.id)
-          .order("coaching_date", { ascending: false }),
+      const [schoolRes, supsRes, coachRes, obsRes] = await Promise.all([
+        supabase.from("schools").select("name, principal_name").eq("id", teacher.school_id).single(),
+        supabase.from("supervisions").select("*").eq("teacher_id", teacher.id).order("supervision_date", { ascending: false }),
+        supabase.from("coaching_sessions").select("*").eq("teacher_id", teacher.id).order("coaching_date", { ascending: false }),
+        supabase.from("supervision_observations").select("*").eq("teacher_id", teacher.id).order("observation_date", { ascending: false }),
       ]);
 
       setTeacherInfo({
@@ -302,12 +388,9 @@ export default function TeacherHistory() {
         teacherId: teacher.id,
       });
 
-      setSupervisions(
-        (supsRes.data || []).map((s) => ({ ...s, type: "supervision" as const }))
-      );
-      setCoachings(
-        (coachRes.data || []).map((c) => ({ ...c, type: "coaching" as const }))
-      );
+      setSupervisions((supsRes.data || []).map((s) => ({ ...s, type: "supervision" as const })));
+      setCoachings((coachRes.data || []).map((c) => ({ ...c, type: "coaching" as const })));
+      setObservations((obsRes.data || []).map((o) => ({ ...o, scores: (o.scores as Record<string, number>) || {}, type: "observation" as const })));
     } catch (error) {
       console.error("Error loading history:", error);
     } finally {
@@ -315,27 +398,29 @@ export default function TeacherHistory() {
     }
   };
 
+  const getRecordDate = (r: HistoryRecord) => {
+    if (r.type === "supervision") return r.supervision_date;
+    if (r.type === "coaching") return r.coaching_date;
+    return r.observation_date;
+  };
+
   const allRecords = useMemo((): HistoryRecord[] => {
-    const mapped: HistoryRecord[] = [
-      ...supervisions,
-      ...coachings,
-    ];
+    const mapped: HistoryRecord[] = [...supervisions, ...coachings, ...observations];
     return mapped.sort((a, b) => {
-      const dateA = a.type === "supervision" ? a.supervision_date : a.coaching_date;
-      const dateB = b.type === "supervision" ? b.supervision_date : b.coaching_date;
-      return sortOrder === "desc"
-        ? dateB.localeCompare(dateA)
-        : dateA.localeCompare(dateB);
+      const dateA = getRecordDate(a);
+      const dateB = getRecordDate(b);
+      return sortOrder === "desc" ? dateB.localeCompare(dateA) : dateA.localeCompare(dateB);
     });
-  }, [supervisions, coachings, sortOrder]);
+  }, [supervisions, coachings, observations, sortOrder]);
 
   const filtered = useMemo(() => {
     return allRecords.filter((r) => {
-      const date = r.type === "supervision" ? r.supervision_date : r.coaching_date;
+      const date = getRecordDate(r);
       const matchType =
         activeTab === "semua" ||
         (activeTab === "supervisi" && r.type === "supervision") ||
-        (activeTab === "coaching" && r.type === "coaching");
+        (activeTab === "coaching" && r.type === "coaching") ||
+        (activeTab === "observasi" && r.type === "observation");
       const matchDate = searchDate ? date.includes(searchDate) : true;
       return matchType && matchDate;
     });
@@ -418,14 +503,11 @@ export default function TeacherHistory() {
     );
   }
 
-  const totalCount = supervisions.length + coachings.length;
+  const totalCount = supervisions.length + coachings.length + observations.length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <TeacherHeader
-        teacherName={teacherInfo?.name || ""}
-        schoolName={teacherInfo?.schoolName || ""}
-      />
+      <TeacherHeader teacherName={teacherInfo?.name || ""} schoolName={teacherInfo?.schoolName || ""} />
 
       <div className="p-4 space-y-4">
         {/* Header */}
@@ -433,32 +515,26 @@ export default function TeacherHistory() {
           <div>
             <h2 className="text-xl font-bold">Riwayat</h2>
             <p className="text-xs text-muted-foreground">
-              {supervisions.length} supervisi · {coachings.length} coaching
+              {supervisions.length} supervisi · {observations.length} observasi · {coachings.length} coaching
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-1.5 text-xs h-8"
-            onClick={() => setSortOrder((p) => (p === "desc" ? "asc" : "desc"))}
-          >
+          <Button size="sm" variant="outline" className="gap-1.5 text-xs h-8"
+            onClick={() => setSortOrder((p) => (p === "desc" ? "asc" : "desc"))}>
             <Calendar className="w-3 h-3" />
             {sortOrder === "desc" ? "Terbaru" : "Terlama"}
           </Button>
         </div>
 
         {/* Stats Summary */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {[
             { label: "Total", count: totalCount, color: "bg-muted" },
             { label: "Supervisi", count: supervisions.length, color: "bg-primary/10" },
+            { label: "Observasi", count: observations.length, color: "bg-accent/20" },
             { label: "Coaching", count: coachings.length, color: "bg-secondary/30" },
           ].map((stat) => (
-            <div
-              key={stat.label}
-              className={`${stat.color} rounded-xl p-3 text-center`}
-            >
-              <p className="text-2xl font-bold">{stat.count}</p>
+            <div key={stat.label} className={`${stat.color} rounded-xl p-3 text-center`}>
+              <p className="text-xl font-bold">{stat.count}</p>
               <p className="text-xs text-muted-foreground">{stat.label}</p>
             </div>
           ))}
@@ -467,42 +543,29 @@ export default function TeacherHistory() {
         {/* Filters */}
         <div className="space-y-2">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="semua">
-                Semua
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {totalCount}
-                </Badge>
+            <TabsList className="w-full grid grid-cols-4">
+              <TabsTrigger value="semua" className="text-xs">
+                Semua <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{totalCount}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="supervisi">
-                Supervisi
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {supervisions.length}
-                </Badge>
+              <TabsTrigger value="supervisi" className="text-xs">
+                Supervisi <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{supervisions.length}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="coaching">
-                Coaching
-                <Badge variant="secondary" className="ml-1.5 h-4 text-[10px] px-1">
-                  {coachings.length}
-                </Badge>
+              <TabsTrigger value="observasi" className="text-xs">
+                Observasi <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{observations.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="coaching" className="text-xs">
+                Coaching <Badge variant="secondary" className="ml-1 h-4 text-[10px] px-1">{coachings.length}</Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="month"
-              className="pl-9 pr-9"
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-              placeholder="Filter bulan/tahun"
-            />
+            <Input type="month" className="pl-9 pr-9" value={searchDate}
+              onChange={(e) => setSearchDate(e.target.value)} placeholder="Filter bulan/tahun" />
             {searchDate && (
-              <button
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                onClick={() => setSearchDate("")}
-              >
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setSearchDate("")}>
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -526,11 +589,9 @@ export default function TeacherHistory() {
           <div className="space-y-3">
             {filtered.map((record) =>
               record.type === "supervision" ? (
-                <SupervisionCard
-                  key={`sup-${record.id}`}
-                  s={record}
-                  onPrint={handlePrintSingle}
-                />
+                <SupervisionCard key={`sup-${record.id}`} s={record} onPrint={handlePrintSingle} />
+              ) : record.type === "observation" ? (
+                <ObservationCard key={`obs-${record.id}`} obs={record} />
               ) : (
                 <CoachingCard key={`coach-${record.id}`} c={record} />
               )
