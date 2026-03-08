@@ -52,14 +52,24 @@ export default function Auth() {
     mode: "onSubmit",
   });
 
-  // Redirect berdasarkan userRole dari AuthContext — tanpa DB query tambahan
+  // Redirect setelah auth selesai loading
   useEffect(() => {
-    if (authLoading || !user || !userRole) return;
+    if (authLoading || !user) return;
 
     if (userRole === "teacher") {
       navigate("/teacher/dashboard", { replace: true });
     } else if (userRole === "admin") {
       navigate("/dashboard", { replace: true });
+    } else {
+      // userRole null: bisa admin baru yg belum setup sekolah (role belum ada di DB)
+      // Cek apakah sudah punya sekolah untuk menentukan tujuan
+      import("@/integrations/supabase/client").then(({ supabase }) => {
+        supabase.from("schools").select("id").eq("owner_id", user.id).maybeSingle()
+          .then(({ data }) => {
+            navigate(data ? "/dashboard" : "/setup-school", { replace: true });
+          })
+          .catch(() => navigate("/setup-school", { replace: true }));
+      });
     }
   }, [user?.id, userRole, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
