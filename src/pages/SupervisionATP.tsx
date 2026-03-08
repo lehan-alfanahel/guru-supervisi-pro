@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ChevronDown, ChevronUp, Pencil, Trash2, Printer, ClipboardList, Calendar } from "lucide-react";
+import { ArrowLeft, Plus, ChevronDown, ChevronUp, Pencil, Trash2, Printer, ClipboardList, Calendar, LogOut } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
@@ -546,9 +546,10 @@ export default function SupervisionATP() {
               <p className="text-xs sm:text-sm opacity-90">{atpList.length} data</p>
             </div>
           </div>
-
-          {/* Create Dialog */}
-          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setForm(emptyForm()); }}>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+              <LogOut className="w-5 h-5" />
+            </Button>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
@@ -568,10 +569,13 @@ export default function SupervisionATP() {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
+        </div>
+      </header>
 
-          {/* Edit Dialog */}
-          <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
               <DialogHeader>
                 <DialogTitle>Edit Supervisi ATP</DialogTitle>

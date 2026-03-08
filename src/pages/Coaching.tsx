@@ -16,7 +16,7 @@ import {
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, MessageSquare, Calendar, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MessageSquare, Calendar, Printer, Trash2, LogOut } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,9 +51,12 @@ export default function Coaching() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleSignOut = async () => { await signOut(); navigate("/auth"); };
 
   const { register, handleSubmit: handleFormSubmit, formState: { errors }, reset, control } =
     useForm<z.infer<typeof coachingSchema>>({

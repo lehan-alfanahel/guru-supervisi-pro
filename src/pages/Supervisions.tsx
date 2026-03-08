@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil, Trash2, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
@@ -77,6 +77,7 @@ export default function Supervisions() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState<FormState>({
     teacher_id: "",
     supervision_date: new Date().toISOString().split("T")[0],
@@ -89,9 +90,14 @@ export default function Supervisions() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teacherAdminLinks, setTeacherAdminLinks] = useState<Record<string, string>>({});
   const [loadingLinks, setLoadingLinks] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   const [form, setForm] = useState<FormState>({
     teacher_id: "",
@@ -568,14 +574,18 @@ export default function Supervisions() {
             </div>
           </div>
 
-          {/* Create Dialog */}
-          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
-                <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+          {/* Right actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+              <LogOut className="w-5 h-5" />
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
+                  <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
               <DialogHeader>
                 <DialogTitle>Instrumen Supervisi Akademik</DialogTitle>
               </DialogHeader>
@@ -629,10 +639,13 @@ export default function Supervisions() {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
+        </div>
+      </header>
 
-          {/* Edit Dialog */}
-          <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
               <DialogHeader>
                 <DialogTitle>Edit Supervisi</DialogTitle>
@@ -676,8 +689,6 @@ export default function Supervisions() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-      </header>
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
@@ -808,6 +819,19 @@ export default function Supervisions() {
       </main>
 
       <AdminBottomNav />
+
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari Aplikasi?</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin keluar?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSignOut}>Keluar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

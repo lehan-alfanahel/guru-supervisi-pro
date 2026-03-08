@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil, Trash2, LogOut } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
@@ -570,7 +570,11 @@ export default function SupervisionObservation() {
               <p className="text-xs sm:text-sm opacity-90">{observations.length} data</p>
             </div>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+              <LogOut className="w-5 h-5" />
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
@@ -588,7 +592,8 @@ export default function SupervisionObservation() {
                 </div>
               </form>
             </DialogContent>
-          </Dialog>
+            </Dialog>
+          </div>
         </div>
       </header>
 
