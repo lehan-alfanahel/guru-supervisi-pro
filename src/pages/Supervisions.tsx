@@ -450,7 +450,7 @@ export default function Supervisions() {
   );
 
   return (
-    <div className="min-h-screen bg-background pb-28 md:pb-6">
+    <div className="min-h-screen bg-background pb-28 md:pb-24">
       {/* Header */}
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
