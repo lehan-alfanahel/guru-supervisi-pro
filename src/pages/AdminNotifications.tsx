@@ -181,6 +181,7 @@ export default function AdminNotifications() {
                         <p className={`text-sm leading-tight ${!notif.is_read ? "font-semibold text-foreground" : "font-medium text-foreground/80"}`}>
                           {notif.title}
                         </p>
+                        {!notif.is_read && (
                           <span className="w-2 h-2 rounded bg-primary flex-shrink-0" />
                         )}
                       </div>
