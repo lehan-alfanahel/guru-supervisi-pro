@@ -78,6 +78,7 @@ export default function Dashboard() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", npsn: "", address: "", phone: "", principal_name: "", principal_nip: "" });
   const [saving, setSaving] = useState(false);
+  const [profileCollapsed, setProfileCollapsed] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
