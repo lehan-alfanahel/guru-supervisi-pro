@@ -397,6 +397,301 @@ export default function TeacherSupervision() {
     win.print();
   };
 
+  const handlePrintATP = (row: any) => {
+    if (!teacherInfo) return;
+    const ATP_SCORE_MAX = ATP_ALL_KEYS.length * 2;
+    const total = ATP_ALL_KEYS.reduce((s: number, k: string) => s + (Number(row[k]) || 0), 0);
+    const pct = Math.round((total / ATP_SCORE_MAX) * 100);
+    const pred = pct >= 91 ? "Sangat Baik" : pct >= 81 ? "Baik" : pct >= 71 ? "Cukup" : "Kurang";
+    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const cityName = teacherInfo.schoolAddress ? teacherInfo.schoolAddress.split(",")[0].trim() : "............";
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Supervisi ATP - ${teacherInfo.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
+            h1, h2 { text-align: center; margin: 3px 0; }
+            h1 { font-size: 14px; }
+            h2 { font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+            td, th { padding: 6px 10px; border: 1px solid #999; }
+            th { background: #f0f0f0; text-align: center; font-size: 12px; }
+            .center { text-align: center; }
+            .section-title { background: #e8f0f8; font-weight: bold; }
+            .predikat-box { display:inline; padding:2px 8px; border:1px solid #333; font-weight:bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Instrumen Supervisi Akademik (Kurikulum Merdeka)</h1>
+          <h2>Penelaahan Alur Tujuan Pembelajaran (ATP)</h2>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;width:200px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
+            <tr><td style="border:none;">Nama Guru</td><td style="border:none;">: ${teacherInfo.name}</td></tr>
+            <tr><td style="border:none;">NIP Guru</td><td style="border:none;">: ${teacherInfo.nip}</td></tr>
+            <tr><td style="border:none;">Mata Pelajaran</td><td style="border:none;">: ${row.mata_pelajaran || ""}</td></tr>
+            <tr><td style="border:none;">Kelas/Semester</td><td style="border:none;">: ${row.kelas_semester || ""}</td></tr>
+            <tr><td style="border:none;">Tanggal Supervisi</td><td style="border:none;">: ${format(new Date(row.supervision_date), "dd MMMM yyyy", { locale: idLocale })}</td></tr>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">No</th>
+                <th>Komponen ATP</th>
+                <th style="width:12%;">Tidak Ada (0)</th>
+                <th style="width:14%;">Tidak Sesuai (1)</th>
+                <th style="width:10%;">Sesuai (2)</th>
+                <th style="width:20%;">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ATP_SECTIONS.map((sec) => `
+                <tr><td colspan="6" class="section-title">${sec.section}. ${sec.title}</td></tr>
+                ${sec.items.map((item) => {
+                  const v = Number(row[item.key]) || 0;
+                  return `<tr>
+                    <td class="center">${item.num}</td>
+                    <td>${item.label}</td>
+                    <td class="center">${v === 0 ? "✓" : ""}</td>
+                    <td class="center">${v === 1 ? "✓" : ""}</td>
+                    <td class="center">${v === 2 ? "✓" : ""}</td>
+                    <td></td>
+                  </tr>`;
+                }).join("")}
+              `).join("")}
+              <tr><td colspan="2" style="font-weight:bold;">Skor Total</td><td class="center" colspan="3" style="font-weight:bold;">${total} / ${ATP_SCORE_MAX}</td><td></td></tr>
+              <tr><td colspan="2" style="font-weight:bold;">Ketercapaian</td><td class="center" colspan="3" style="font-weight:bold;">${pct}% — <span class="predikat-box">${pred}</span></td><td></td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px;">Keterangan : Nilai Akhir = Skor Perolehan / ${ATP_SCORE_MAX} x 100%</p>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;">Catatan</td><td style="border:none;">: ${row.notes || "..................................................................................."}</td></tr>
+            <tr><td style="border:none;">Tindak Lanjut</td><td style="border:none;">: ${row.tindak_lanjut || "..................................................................................."}</td></tr>
+          </table>
+          <br/><br/>
+          <table style="border:none;width:100%;">
+            <tr>
+              <td style="border:none;width:50%;"></td>
+              <td style="border:none;text-align:center;">${cityName}, ${printDate}</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.principalName}</u><br/>NIP. ${teacherInfo.principalNip}</td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
+  const handlePrintModulAjar = (row: any) => {
+    if (!teacherInfo) return;
+    const MA_SCORE_MAX = MA_ALL_KEYS.length * 2;
+    const total = MA_ALL_KEYS.reduce((s: number, k: string) => s + (Number(row[k]) || 0), 0);
+    const pct = Math.round((total / MA_SCORE_MAX) * 100);
+    const pred = pct >= 91 ? "Sangat Baik" : pct >= 81 ? "Baik" : pct >= 71 ? "Cukup" : "Kurang";
+    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const cityName = teacherInfo.schoolAddress ? teacherInfo.schoolAddress.split(",")[0].trim() : "............";
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Telaah Modul Ajar - ${teacherInfo.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
+            h1, h2 { text-align: center; margin: 3px 0; }
+            h1 { font-size: 14px; }
+            h2 { font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+            td, th { padding: 6px 10px; border: 1px solid #999; }
+            th { background: #f0f0f0; text-align: center; font-size: 12px; }
+            .center { text-align: center; }
+            .section-title { background: #e8f0f8; font-weight: bold; }
+            .predikat-box { display:inline; padding:2px 8px; border:1px solid #333; font-weight:bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Instrumen Supervisi Akademik (Kurikulum Merdeka)</h1>
+          <h2>Telaah Modul Ajar</h2>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;width:200px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
+            <tr><td style="border:none;">Nama Guru</td><td style="border:none;">: ${teacherInfo.name}</td></tr>
+            <tr><td style="border:none;">NIP Guru</td><td style="border:none;">: ${teacherInfo.nip}</td></tr>
+            <tr><td style="border:none;">Mata Pelajaran</td><td style="border:none;">: ${row.mata_pelajaran || ""}</td></tr>
+            <tr><td style="border:none;">Kelas/Semester</td><td style="border:none;">: ${row.kelas_semester || ""}</td></tr>
+            <tr><td style="border:none;">Tanggal Supervisi</td><td style="border:none;">: ${format(new Date(row.supervision_date), "dd MMMM yyyy", { locale: idLocale })}</td></tr>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">No</th>
+                <th>Komponen Modul Ajar</th>
+                <th style="width:12%;">Tidak Ada (0)</th>
+                <th style="width:18%;">Kurang Lengkap/Sesuai (1)</th>
+                <th style="width:16%;">Sudah Lengkap/Sesuai (2)</th>
+                <th style="width:18%;">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${MODUL_AJAR_SECTIONS.filter((sec) => sec.items.length > 0).map((sec) => `
+                <tr><td colspan="6" class="section-title">${sec.section}. ${sec.title}</td></tr>
+                ${sec.items.map((item) => {
+                  const v = Number(row[item.key]) || 0;
+                  return `<tr>
+                    <td class="center">${item.num}</td>
+                    <td>${item.label}</td>
+                    <td class="center">${v === 0 ? "✓" : ""}</td>
+                    <td class="center">${v === 1 ? "✓" : ""}</td>
+                    <td class="center">${v === 2 ? "✓" : ""}</td>
+                    <td></td>
+                  </tr>`;
+                }).join("")}
+              `).join("")}
+              <tr><td colspan="2" style="font-weight:bold;">Skor Total</td><td class="center" colspan="3" style="font-weight:bold;">${total} / ${MA_SCORE_MAX}</td><td></td></tr>
+              <tr><td colspan="2" style="font-weight:bold;">Ketercapaian</td><td class="center" colspan="3" style="font-weight:bold;">${pct}% — <span class="predikat-box">${pred}</span></td><td></td></tr>
+            </tbody>
+          </table>
+          <p style="font-size:12px;">Keterangan : Nilai Akhir = Skor Perolehan / ${MA_SCORE_MAX} x 100%</p>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;">Catatan</td><td style="border:none;">: ${row.notes || "..................................................................................."}</td></tr>
+            <tr><td style="border:none;">Tindak Lanjut</td><td style="border:none;">: ${row.tindak_lanjut || "..................................................................................."}</td></tr>
+          </table>
+          <br/><br/>
+          <table style="border:none;width:100%;">
+            <tr>
+              <td style="border:none;width:50%;"></td>
+              <td style="border:none;text-align:center;">${cityName}, ${printDate}</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.principalName}</u><br/>NIP. ${teacherInfo.principalNip}</td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
+  const handlePrintObservation = (row: any) => {
+    if (!teacherInfo) return;
+    const OBS_SCORE_MAX = ALL_ITEM_KEYS.length * 2;
+    const scores = (row.scores as Record<string, number>) || {};
+    const total = ALL_ITEM_KEYS.reduce((s: number, k: string) => s + (Number(scores[k]) || 0), 0);
+    const pct = Math.round((total / OBS_SCORE_MAX) * 100);
+    const pred = pct >= 91 ? "Sangat Baik" : pct >= 81 ? "Baik" : pct >= 71 ? "Cukup" : "Kurang";
+    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const cityName = teacherInfo.schoolAddress ? teacherInfo.schoolAddress.split(",")[0].trim() : "............";
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>Supervisi Pelaksanaan - ${teacherInfo.name}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
+            h1, h2 { text-align: center; margin: 3px 0; }
+            h1 { font-size: 14px; }
+            h2 { font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+            td, th { padding: 6px 10px; border: 1px solid #999; }
+            th { background: #f0f0f0; text-align: center; font-size: 12px; }
+            .center { text-align: center; }
+            .section-title { background: #e8f0f8; font-weight: bold; }
+            .group-title { background: #f5f5f5; font-style: italic; }
+            .predikat-box { display:inline; padding:2px 8px; border:1px solid #333; font-weight:bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Instrumen Supervisi Akademik (Kurikulum Merdeka)</h1>
+          <h2>Supervisi Pelaksanaan Pembelajaran</h2>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;width:200px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
+            <tr><td style="border:none;">Nama Guru</td><td style="border:none;">: ${teacherInfo.name}</td></tr>
+            <tr><td style="border:none;">NIP Guru</td><td style="border:none;">: ${teacherInfo.nip}</td></tr>
+            <tr><td style="border:none;">Mata Pelajaran</td><td style="border:none;">: ${row.mata_pelajaran || ""}</td></tr>
+            <tr><td style="border:none;">Materi/Topik</td><td style="border:none;">: ${row.materi_topik || ""}</td></tr>
+            <tr><td style="border:none;">Tanggal Observasi</td><td style="border:none;">: ${format(new Date(row.observation_date), "dd MMMM yyyy", { locale: idLocale })}</td></tr>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:5%;">No</th>
+                <th>Komponen Pelaksanaan Pembelajaran</th>
+                <th style="width:12%;">Tidak Ada (0)</th>
+                <th style="width:14%;">Sebagian (1)</th>
+                <th style="width:10%;">Lengkap (2)</th>
+                <th style="width:18%;">Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${OBSERVATION_SECTIONS.map((sec) => `
+                <tr><td colspan="6" class="section-title">${sec.section}. ${sec.title}</td></tr>
+                ${sec.groups.map((group) => `
+                  <tr><td colspan="6" class="group-title">&nbsp;&nbsp;${group.num}. ${group.title}</td></tr>
+                  ${group.items.map((item) => {
+                    const v = Number(scores[item.key]) || 0;
+                    return `<tr>
+                      <td class="center">${item.key}</td>
+                      <td>&nbsp;&nbsp;&nbsp;${item.label}</td>
+                      <td class="center">${v === 0 ? "✓" : ""}</td>
+                      <td class="center">${v === 1 ? "✓" : ""}</td>
+                      <td class="center">${v === 2 ? "✓" : ""}</td>
+                      <td></td>
+                    </tr>`;
+                  }).join("")}
+                `).join("")}
+              `).join("")}
+              <tr><td colspan="2" style="font-weight:bold;">Skor Total</td><td class="center" colspan="3" style="font-weight:bold;">${total} / ${OBS_SCORE_MAX}</td><td></td></tr>
+              <tr><td colspan="2" style="font-weight:bold;">Ketercapaian</td><td class="center" colspan="3" style="font-weight:bold;">${pct}% — <span class="predikat-box">${pred}</span></td><td></td></tr>
+            </tbody>
+          </table>
+          <br/>
+          <table style="border:none;">
+            <tr><td style="border:none;">Catatan</td><td style="border:none;">: ${row.notes || "..................................................................................."}</td></tr>
+            <tr><td style="border:none;">Tindak Lanjut</td><td style="border:none;">: ${row.tindak_lanjut || "..................................................................................."}</td></tr>
+          </table>
+          <br/><br/>
+          <table style="border:none;width:100%;">
+            <tr>
+              <td style="border:none;width:50%;"></td>
+              <td style="border:none;text-align:center;">${cityName}, ${printDate}</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;">Guru yang di Observasi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.principalName}</u><br/>NIP. ${teacherInfo.principalNip}</td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.print();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -705,9 +1000,14 @@ export default function TeacherSupervision() {
                               {row.materi_topik && <span className="text-muted-foreground">· {row.materi_topik}</span>}
                             </div>
                           </div>
-                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedObsId(isExpanded ? null : row.id)}>
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintObservation(row)}>
+                              <Printer className="w-3 h-3" /> Cetak
+                            </Button>
+                            <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedObsId(isExpanded ? null : row.id)}>
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </Button>
+                          </div>
                         </div>
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs">
@@ -815,9 +1115,14 @@ export default function TeacherSupervision() {
                               {row.kelas_semester && <span className="text-muted-foreground">{row.kelas_semester}</span>}
                             </div>
                           </div>
-                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedAtpId(isExpanded ? null : row.id)}>
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintATP(row)}>
+                              <Printer className="w-3 h-3" /> Cetak
+                            </Button>
+                            <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedAtpId(isExpanded ? null : row.id)}>
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
@@ -923,9 +1228,14 @@ export default function TeacherSupervision() {
                               {row.kelas_semester && <span className="text-muted-foreground">{row.kelas_semester}</span>}
                             </div>
                           </div>
-                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedMaId(isExpanded ? null : row.id)}>
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintModulAjar(row)}>
+                              <Printer className="w-3 h-3" /> Cetak
+                            </Button>
+                            <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedMaId(isExpanded ? null : row.id)}>
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
