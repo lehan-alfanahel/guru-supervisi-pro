@@ -849,6 +849,114 @@ export default function TeacherSupervision() {
               </div>
             )}
           </TabsContent>
+
+          {/* ── TAB 4: HASIL SUPERVISI TELAAH MODUL AJAR ── */}
+          <TabsContent value="modul_ajar" className="space-y-4 mt-4">
+            <div>
+              <h2 className="text-base font-bold">Hasil Telaah Modul Ajar</h2>
+              <p className="text-xs text-muted-foreground">Supervisi Akademik Telaah Modul Ajar — {modulAjarSupervisions.length} penilaian</p>
+            </div>
+
+            {modulAjarSupervisions.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <BookOpen className="w-16 h-16 text-muted-foreground mb-4" />
+                  <p className="text-lg font-semibold mb-1">Belum ada hasil telaah modul ajar</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Data akan muncul setelah kepala sekolah melakukan penilaian
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {modulAjarSupervisions.map((row: any, index: number) => {
+                  const MA_SCORE_MAX = MA_ALL_KEYS.length * 2;
+                  const total = MA_ALL_KEYS.reduce((s: number, k: string) => s + (Number(row[k]) || 0), 0);
+                  const pct = Math.round((total / MA_SCORE_MAX) * 100);
+                  const getMaPredikat = (p: number) => {
+                    if (p >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+                    if (p >= 81) return { label: "Baik", color: "bg-primary" };
+                    if (p >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+                    return { label: "Kurang", color: "bg-destructive" };
+                  };
+                  const predikat = getMaPredikat(pct);
+                  const isExpanded = expandedMaId === row.id;
+                  return (
+                    <Card key={row.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
+                              {index === 0 && <Badge variant="outline" className="text-xs">Terbaru</Badge>}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(row.supervision_date), "dd MMMM yyyy")}
+                            </div>
+                            <div className="flex gap-2 text-xs mt-1">
+                              {row.mata_pelajaran && <span className="font-medium">{row.mata_pelajaran}</span>}
+                              {row.kelas_semester && <span className="text-muted-foreground">{row.kelas_semester}</span>}
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedMaId(isExpanded ? null : row.id)}>
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </Button>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Skor {total}/{MA_SCORE_MAX}</span>
+                            <span className="font-semibold">{pct}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="mt-3 border-t pt-3 space-y-2">
+                            {MODUL_AJAR_SECTIONS.map((sec) => (
+                              sec.items.length > 0 && (
+                                <div key={sec.section}>
+                                  <p className="text-xs font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                                  {sec.items.map((item) => {
+                                    const v = Number(row[item.key]) || 0;
+                                    const isLengkap = sec.type === "lengkap";
+                                    const badge = isLengkap
+                                      ? [{ text: "Tidak Ada", cls: "text-destructive" }, { text: "Kurang Lengkap", cls: "text-yellow-600" }, { text: "Sudah Lengkap", cls: "text-green-600" }][v]
+                                      : [{ text: "Tidak Sesuai", cls: "text-destructive" }, { text: "Sesuai Sebagian", cls: "text-yellow-600" }, { text: "Sesuai Seluruhnya", cls: "text-green-600" }][v];
+                                    return (
+                                      <div key={item.key} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                                        <span className="text-muted-foreground flex-1">{item.num}. {item.label}</span>
+                                        <span className={`font-medium shrink-0 ${badge.cls}`}>{badge.text}</span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )
+                            ))}
+                            {row.notes && (
+                              <div className="pt-2 border-t">
+                                <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
+                                <p className="text-sm">{row.notes}</p>
+                              </div>
+                            )}
+                            {row.tindak_lanjut && (
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
+                                <p className="text-sm">{row.tindak_lanjut}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
 
