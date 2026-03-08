@@ -611,11 +611,9 @@ export default function TeacherHistory() {
           <div className="space-y-3">
             {filtered.map((record) =>
               record.type === "supervision" ? (
-                <SupervisionCard
-                  key={`sup-${record.id}`}
-                  s={record}
-                  onPrint={handlePrintSingle}
-                />
+                <SupervisionCard key={`sup-${record.id}`} s={record} onPrint={handlePrintSingle} />
+              ) : record.type === "observation" ? (
+                <ObservationCard key={`obs-${record.id}`} obs={record} />
               ) : (
                 <CoachingCard key={`coach-${record.id}`} c={record} />
               )
