@@ -49,6 +49,7 @@ interface FormState {
   notes: string;
   tindak_lanjut: string;
   scores: Record<string, ScoreValue>;
+  remarks: Record<string, string>;
 }
 
 function getPredikat(pct: number) {
