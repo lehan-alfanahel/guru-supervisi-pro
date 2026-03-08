@@ -153,7 +153,7 @@ function SupervisionCard({
                   }`}
                 >
                   <div
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                       item.val
                         ? "bg-green-600 border-green-600"
                         : "border-muted-foreground"
