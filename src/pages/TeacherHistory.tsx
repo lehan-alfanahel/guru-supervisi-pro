@@ -128,9 +128,9 @@ function SupervisionCard({
             <span>Kelengkapan Perangkat</span>
             <span>{completeness}%</span>
           </div>
-          <div className="w-full bg-muted rounded h-1.5">
+          <div className="w-full bg-muted rounded-full h-1.5">
             <div
-              className="bg-primary rounded h-1.5 transition-all"
+              className="bg-primary rounded-full h-1.5 transition-all"
               style={{ width: `${completeness}%` }}
             />
           </div>
