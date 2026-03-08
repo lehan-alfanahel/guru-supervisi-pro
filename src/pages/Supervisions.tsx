@@ -610,10 +610,6 @@ export default function Supervisions() {
                       onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                   </div>
                   <div className="space-y-1.5">
-                    <Label>Mata Pelajaran</Label>
-                    <Input placeholder="Contoh: Matematika" value={editForm.mata_pelajaran}
-                      onChange={(e) => setEditForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
-                  </div>
                 </div>
 
                 <ScoreTable scores={editForm.scores} onChange={handleEditScoreChange} prefix="edit_" />
