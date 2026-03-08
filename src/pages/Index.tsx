@@ -12,34 +12,36 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const checkUserRole = async () => {
-      if (!user) return;
+    if (!user?.id) return;
 
+    let cancelled = false;
+
+    const checkUserRole = async () => {
       try {
-        // Check if user is a teacher
         const { data: teacherAccount } = await supabase
           .from("teacher_accounts")
           .select("id")
           .eq("user_id", user.id)
           .maybeSingle();
 
+        if (cancelled) return;
+
         if (teacherAccount) {
-          navigate("/teacher/dashboard");
+          navigate("/teacher/dashboard", { replace: true });
           return;
         }
 
-        // If not a teacher, redirect to dashboard (school owner)
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         console.error("Error checking user role:", error);
-        navigate("/dashboard");
+        if (!cancelled) navigate("/dashboard", { replace: true });
       }
     };
 
-    if (user) {
-      checkUserRole();
-    }
-  }, [user, navigate]);
+    checkUserRole();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // hanya re-run saat user ID berubah
 
   if (loading) {
     return (
