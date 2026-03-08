@@ -74,17 +74,17 @@ export default function TeacherNotifications() {
       <TeacherHeader teacherName={teacherInfo.name} schoolName={teacherInfo.schoolName} />
 
       {/* Sub-header with tabs */}
-      <div className="sticky top-[57px] z-20 bg-primary text-primary-foreground px-4 pt-3 pb-3 shadow-sm">
+      <div className="sticky top-[57px] z-20 bg-background border-b px-4 pt-3 pb-3 shadow-sm">
         <div className="flex items-center justify-between mb-2 max-w-lg mx-auto">
           <div>
-            <h1 className="text-base font-bold">Notifikasi</h1>
-            <p className="text-xs opacity-70">Riwayat pemberitahuan</p>
+            <h1 className="text-base font-bold text-foreground">Notifikasi</h1>
+            <p className="text-xs text-muted-foreground">Riwayat pemberitahuan</p>
           </div>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              className="text-primary-foreground/80 hover:bg-white/10 text-xs gap-1.5"
+              className="text-muted-foreground hover:text-foreground text-xs gap-1.5"
               onClick={markAllAsRead}
             >
               <CheckCheck className="w-4 h-4" />
@@ -94,20 +94,20 @@ export default function TeacherNotifications() {
         </div>
         <div className="max-w-lg mx-auto">
           <Tabs value={tab} onValueChange={(v) => setTab(v as "all" | "unread" | "read")}>
-            <TabsList className="bg-white/10 w-full h-9">
-              <TabsTrigger value="all" className="flex-1 text-xs text-primary-foreground data-[state=active]:bg-white data-[state=active]:text-primary">
+            <TabsList className="w-full h-9">
+              <TabsTrigger value="all" className="flex-1 text-xs">
                 Semua
-                <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 bg-white/20 text-primary-foreground">
+                <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">
                   {notifications.length}
                 </Badge>
               </TabsTrigger>
-              <TabsTrigger value="unread" className="flex-1 text-xs text-primary-foreground data-[state=active]:bg-white data-[state=active]:text-primary">
+              <TabsTrigger value="unread" className="flex-1 text-xs">
                 Belum Dibaca
                 {unreadCount > 0 && (
                   <Badge variant="destructive" className="ml-1.5 text-[10px] px-1.5 py-0">{unreadCount}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="read" className="flex-1 text-xs text-primary-foreground data-[state=active]:bg-white data-[state=active]:text-primary">
+              <TabsTrigger value="read" className="flex-1 text-xs">
                 Sudah Dibaca
               </TabsTrigger>
             </TabsList>
