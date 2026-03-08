@@ -446,21 +446,33 @@ export default function TeacherSupervision() {
 
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
-          <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="administrasi" className="text-xs">
+          <TabsList className="w-full grid grid-cols-5">
+            <TabsTrigger value="administrasi" className="text-[10px] px-1">
               Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="text-xs">
+            <TabsTrigger value="supervisi" className="text-[10px] px-1">
               Supervisi
               {supervisions.length > 0 && (
-                <Badge className="ml-1 bg-primary/20 text-primary border-0 text-xs">{supervisions.length}</Badge>
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{supervisions.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="atp" className="text-xs">
+            <TabsTrigger value="atp" className="text-[10px] px-1">
               ATP
+              {atpSupervisions.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{atpSupervisions.length}</Badge>
+              )}
             </TabsTrigger>
-            <TabsTrigger value="modul_ajar" className="text-xs">
+            <TabsTrigger value="modul_ajar" className="text-[10px] px-1">
               Modul Ajar
+              {modulAjarSupervisions.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{modulAjarSupervisions.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
+              Pelaksanaan
+              {observations.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
