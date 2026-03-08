@@ -443,7 +443,7 @@ export default function SupervisionATP() {
         <div className="space-y-1.5">
           <Label>Guru <span className="text-destructive">*</span></Label>
           <Select value={f.teacher_id} onValueChange={(v) => setF(p => ({ ...p, teacher_id: v }))}>
-            <SelectTrigger><SelectValue placeholder="Pilih guru" /></SelectTrigger>
+            <SelectTrigger className="text-left [&>span]:text-left [&>span]:truncate"><SelectValue placeholder="Pilih guru" /></SelectTrigger>
             <SelectContent>
               {teachers.map((t) => <SelectItem key={t.id} value={t.id}>{t.name} — {t.nip}</SelectItem>)}
             </SelectContent>
