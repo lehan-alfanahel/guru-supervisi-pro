@@ -330,7 +330,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-xs text-muted-foreground mt-0.5">NIP: {record.teachers?.nip}</p>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                              <span>{formatSemesterClass(record.semester_class) || record.semester_class} · {record.teaching_hours} jam/minggu</span>
+                              <span>{formatSemesterClass(record.semester_class) || record.semester_class}</span>
                               <span>{format(new Date(record.created_at), "dd MMM yyyy")}</span>
                             </div>
                           </div>
