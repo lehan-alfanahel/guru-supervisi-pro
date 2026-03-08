@@ -751,12 +751,18 @@ export default function TeacherSupervision() {
 
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
-          <TabsList className="w-full grid grid-cols-4">
+          <TabsList className="w-full grid grid-cols-5">
             <TabsTrigger value="administrasi" className="text-[10px] px-1">
-              Administrasi
+              Adm. Saya
+            </TabsTrigger>
+            <TabsTrigger value="hasil_adm" className="text-[10px] px-1">
+              Hasil Adm.
+              {supervisions.length > 0 && (
+                <Badge className="ml-0.5 bg-blue-600/20 text-blue-700 border-0 text-[9px] px-1">{supervisions.length}</Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
-              Pelaksanaan
+              Pelaks.
               {observations.length > 0 && (
                 <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
               )}
