@@ -397,13 +397,10 @@ export default function Dashboard() {
         {/* Coaching Terbaru */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-secondary" />
-                Coaching Terbaru
-              </CardTitle>
-              <Badge variant="secondary">{coachingRecords.length} sesi</Badge>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-secondary" />
+              Coaching Terbaru
+            </CardTitle>
             <p className="text-sm text-muted-foreground">Rekap sesi coaching guru yang telah dilakukan</p>
           </CardHeader>
           <CardContent>
