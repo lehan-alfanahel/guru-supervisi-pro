@@ -144,6 +144,7 @@ export default function Supervisions() {
       notes: "",
       tindak_lanjut: "",
       scores: { ...defaultScores },
+      remarks: {},
     });
   };
 
