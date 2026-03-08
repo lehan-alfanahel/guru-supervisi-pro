@@ -36,16 +36,14 @@ const ADMIN_FIELDS = [
   { key: "attendance_link", label: "Absensi Murid", icon: "👥" },
 ];
 
-const SUPERVISION_KEYS = [
-  "kalender_pendidikan","program_tahunan","program_semester","alur_tujuan_pembelajaran",
-  "modul_ajar","jadwal_tatap_muka","agenda_mengajar","daftar_nilai","kktp",
-  "absensi_siswa","buku_pegangan_guru","buku_teks_siswa",
-];
-const SCORE_MAX = SUPERVISION_KEYS.length * 2;
-
-function calcPct(s: any) {
-  const score = SUPERVISION_KEYS.reduce((sum, k) => sum + (Number(s[k]) || 0), 0);
-  return Math.round((score / SCORE_MAX) * 100);
+function formatSemesterClass(val: string | null | undefined): string {
+  if (!val) return "";
+  if (val.toLowerCase().startsWith("semester")) return val;
+  if (val.includes("/")) {
+    const [sem, kelas] = val.split("/").map((s) => s.trim());
+    return `Semester ${sem} / Kelas ${kelas}`;
+  }
+  return val;
 }
 
 export default function Dashboard() {
