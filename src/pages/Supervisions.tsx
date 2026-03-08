@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
@@ -66,6 +66,16 @@ export default function Supervisions() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<FormState>({
+    teacher_id: "",
+    supervision_date: new Date().toISOString().split("T")[0],
+    mata_pelajaran: "",
+    notes: "",
+    tindak_lanjut: "",
+    scores: { ...defaultScores },
+  });
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -140,6 +150,25 @@ export default function Supervisions() {
     return Math.round((score / SCORE_MAX) * 100);
   };
 
+  const openEdit = (s: any) => {
+    setEditingId(s.id);
+    setEditForm({
+      teacher_id: s.teacher_id,
+      supervision_date: s.supervision_date,
+      mata_pelajaran: s.mata_pelajaran || "",
+      notes: s.notes || "",
+      tindak_lanjut: s.tindak_lanjut || "",
+      scores: Object.fromEntries(
+        SUPERVISION_COMPONENTS.map((c) => [c.key, (Number(s[c.key]) || 0) as ScoreValue])
+      ),
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleEditScoreChange = (key: string, val: ScoreValue) => {
+    setEditForm((prev) => ({ ...prev, scores: { ...prev.scores, [key]: val } }));
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.teacher_id) return;
@@ -160,6 +189,31 @@ export default function Supervisions() {
       toast({ title: "✅ Supervisi berhasil disimpan!" });
       setDialogOpen(false);
       resetForm();
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingId) return;
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        supervision_date: editForm.supervision_date,
+        mata_pelajaran: editForm.mata_pelajaran,
+        notes: editForm.notes,
+        tindak_lanjut: editForm.tindak_lanjut,
+        ...editForm.scores,
+      };
+      const { error } = await supabase.from("supervisions").update(payload).eq("id", editingId);
+      if (error) throw error;
+      toast({ title: "✅ Supervisi berhasil diperbarui!" });
+      setEditDialogOpen(false);
+      setEditingId(null);
       loadData();
     } catch (error: any) {
       toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
@@ -440,6 +494,101 @@ export default function Supervisions() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Edit Dialog */}
+          <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Supervisi</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={onUpdate} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Tanggal Supervisi</Label>
+                    <Input type="date" value={editForm.supervision_date}
+                      onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Mata Pelajaran</Label>
+                    <Input placeholder="Contoh: Matematika" value={editForm.mata_pelajaran}
+                      onChange={(e) => setEditForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
+                  </p>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50">
+                        <tr>
+                          <th className="p-2 text-left border-b w-8">No</th>
+                          <th className="p-2 text-left border-b">Komponen</th>
+                          <th className="p-2 text-center border-b w-12">0</th>
+                          <th className="p-2 text-center border-b w-12">1</th>
+                          <th className="p-2 text-center border-b w-12">2</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SUPERVISION_COMPONENTS.map((c, i) => (
+                          <tr key={c.key} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                            <td className="p-2 text-center text-muted-foreground border-b">{i + 1}</td>
+                            <td className="p-2 border-b">{c.label}</td>
+                            {([0, 1, 2] as ScoreValue[]).map((val) => (
+                              <td key={val} className="p-2 text-center border-b">
+                                <input
+                                  type="radio"
+                                  name={`edit_${c.key}`}
+                                  value={val}
+                                  checked={editForm.scores[c.key] === val}
+                                  onChange={() => handleEditScoreChange(c.key, val)}
+                                  className="accent-primary w-4 h-4 cursor-pointer"
+                                />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {(() => {
+                    const total = Object.values(editForm.scores).reduce((s, v) => s + v, 0);
+                    const pct = Math.round((total / SCORE_MAX) * 100);
+                    const predikat = getPredikat(pct);
+                    return (
+                      <div className="mt-3 p-3 bg-muted/30 rounded-lg flex items-center justify-between text-sm">
+                        <span>Skor: <strong>{total}/{SCORE_MAX}</strong></span>
+                        <span>Nilai: <strong>{pct}%</strong></span>
+                        <Badge className={`${predikat.color} text-white border-0`}>{predikat.label}</Badge>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Catatan</Label>
+                    <Textarea placeholder="Catatan hasil observasi..." rows={2}
+                      value={editForm.notes} onChange={(e) => setEditForm((p) => ({ ...p, notes: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Tindak Lanjut</Label>
+                    <Textarea placeholder="Rencana tindak lanjut..." rows={2}
+                      value={editForm.tindak_lanjut} onChange={(e) => setEditForm((p) => ({ ...p, tindak_lanjut: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
+                  <Button type="submit" className="flex-1" disabled={submitting}>
+                    {submitting ? "Menyimpan..." : "Simpan Perubahan"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
@@ -479,6 +628,9 @@ export default function Supervisions() {
                       </div>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
+                      <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => openEdit(s)}>
+                        <Pencil className="w-3 h-3" /> Edit
+                      </Button>
                       <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintSingle(s)}>
                         <Printer className="w-3 h-3" /> Cetak
                       </Button>
