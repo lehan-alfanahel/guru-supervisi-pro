@@ -320,6 +320,7 @@ export type Database = {
           notes: string | null
           program_semester: number | null
           program_tahunan: number | null
+          remarks: Json | null
           school_id: string
           student_attendance: boolean | null
           supervision_date: string
@@ -349,6 +350,7 @@ export type Database = {
           notes?: string | null
           program_semester?: number | null
           program_tahunan?: number | null
+          remarks?: Json | null
           school_id: string
           student_attendance?: boolean | null
           supervision_date?: string
@@ -378,6 +380,7 @@ export type Database = {
           notes?: string | null
           program_semester?: number | null
           program_tahunan?: number | null
+          remarks?: Json | null
           school_id?: string
           student_attendance?: boolean | null
           supervision_date?: string
