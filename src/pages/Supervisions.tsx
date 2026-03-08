@@ -304,8 +304,8 @@ export default function Supervisions() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
-            h1 { font-size: 16px; }
-            h2 { font-size: 15px; }
+            h1 { font-size: 18px; }
+            h2 { font-size: 17px; }
             .info-table { width: 100%; margin-bottom: 14px; }
             .info-table td { padding: 3px 6px; }
             .info-table td:first-child { width: 200px; }
