@@ -34,6 +34,7 @@ export type Database = {
           kelas_semester: string | null
           mata_pelajaran: string | null
           notes: string | null
+          remarks: Json | null
           school_id: string
           supervision_date: string
           teacher_id: string
@@ -59,6 +60,7 @@ export type Database = {
           kelas_semester?: string | null
           mata_pelajaran?: string | null
           notes?: string | null
+          remarks?: Json | null
           school_id: string
           supervision_date?: string
           teacher_id: string
@@ -84,6 +86,7 @@ export type Database = {
           kelas_semester?: string | null
           mata_pelajaran?: string | null
           notes?: string | null
+          remarks?: Json | null
           school_id?: string
           supervision_date?: string
           teacher_id?: string
@@ -196,6 +199,7 @@ export type Database = {
           m9: number
           mata_pelajaran: string | null
           notes: string | null
+          remarks: Json | null
           school_id: string
           supervision_date: string
           teacher_id: string
@@ -233,6 +237,7 @@ export type Database = {
           m9?: number
           mata_pelajaran?: string | null
           notes?: string | null
+          remarks?: Json | null
           school_id: string
           supervision_date?: string
           teacher_id: string
@@ -270,6 +275,7 @@ export type Database = {
           m9?: number
           mata_pelajaran?: string | null
           notes?: string | null
+          remarks?: Json | null
           school_id?: string
           supervision_date?: string
           teacher_id?: string

@@ -154,6 +154,7 @@ interface FormState {
   notes: string;
   tindak_lanjut: string;
   scores: Record<string, ScoreVal>;
+  remarks: Record<string, string>;
 }
 
 function emptyForm(): FormState {
@@ -165,18 +166,21 @@ function emptyForm(): FormState {
     notes: "",
     tindak_lanjut: "",
     scores: defaultScores(),
+    remarks: {},
   };
 }
 
 // ─── Score Table ─────────────────────────────────────────────────────────────
-function MAScoreTable({ scores, prefix = "", onChange }: {
+function MAScoreTable({ scores, remarks = {}, prefix = "", onChange, onRemarkChange }: {
   scores: Record<string, ScoreVal>;
+  remarks?: Record<string, string>;
   prefix?: string;
   onChange: (key: string, val: ScoreVal) => void;
+  onRemarkChange?: (key: string, val: string) => void;
 }) {
   return (
     <div className="border rounded-lg overflow-x-auto">
-      <table className="w-full text-sm min-w-[400px]">
+      <table className="w-full text-sm min-w-[500px]">
         <thead className="bg-muted/50">
           <tr>
             <th className="p-2 text-center border-b w-8 text-xs">No</th>
@@ -184,13 +188,14 @@ function MAScoreTable({ scores, prefix = "", onChange }: {
             <th className="p-2 text-center border-b text-xs w-14">0</th>
             <th className="p-2 text-center border-b text-xs w-14">1</th>
             <th className="p-2 text-center border-b text-xs w-14">2</th>
+            <th className="p-2 text-left border-b text-xs">Keterangan</th>
           </tr>
         </thead>
         <tbody>
           {MODUL_AJAR_SECTIONS.map((sec) => (
             <>
               <tr key={`sec-${sec.section}`} className="bg-primary/10">
-                <td colSpan={5} className="p-2 font-bold text-xs text-primary border-b">
+                <td colSpan={6} className="p-2 font-bold text-xs text-primary border-b">
                   {sec.section}. {sec.title}
                   {sec.items.length > 0 && (
                     <span className="ml-2 font-normal text-muted-foreground">
@@ -199,32 +204,49 @@ function MAScoreTable({ scores, prefix = "", onChange }: {
                   )}
                 </td>
               </tr>
-              {sec.items.map((item, idx) => (
-                <>
-                  <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                    <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
-                    <td className="p-2 text-xs border-b font-medium">{item.label}</td>
-                    {([0, 1, 2] as ScoreVal[]).map((val) => (
-                      <td key={val} className="p-2 text-center border-b">
-                        <input
-                          type="radio"
-                          name={`${prefix}${item.key}`}
-                          value={val}
-                          checked={scores[item.key] === val}
-                          onChange={() => onChange(item.key, val)}
-                          className="accent-primary w-4 h-4 cursor-pointer"
-                        />
+              {sec.items.map((item, idx) => {
+                const score = scores[item.key] ?? 0;
+                const showRemark = score !== 2;
+                return (
+                  <>
+                    <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                      <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
+                      <td className="p-2 text-xs border-b font-medium">{item.label}</td>
+                      {([0, 1, 2] as ScoreVal[]).map((val) => (
+                        <td key={val} className="p-2 text-center border-b">
+                          <input
+                            type="radio"
+                            name={`${prefix}${item.key}`}
+                            value={val}
+                            checked={score === val}
+                            onChange={() => onChange(item.key, val)}
+                            className="accent-primary w-4 h-4 cursor-pointer"
+                          />
+                        </td>
+                      ))}
+                      <td className="p-2 border-b min-w-[120px]">
+                        {showRemark && onRemarkChange ? (
+                          <input
+                            type="text"
+                            placeholder="Tulis keterangan..."
+                            value={remarks[item.key] || ""}
+                            onChange={(e) => onRemarkChange(item.key, e.target.value)}
+                            className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{remarks[item.key] || "—"}</span>
+                        )}
                       </td>
-                    ))}
-                  </tr>
-                  {"subItems" in item && (item as any).subItems?.map((sub: string) => (
-                    <tr key={sub} className="bg-muted/10">
-                      <td className="border-b"></td>
-                      <td className="pl-6 pr-2 py-1 text-[11px] text-muted-foreground border-b italic" colSpan={4}>{sub}</td>
                     </tr>
-                  ))}
-                </>
-              ))}
+                    {"subItems" in item && (item as any).subItems?.map((sub: string) => (
+                      <tr key={sub} className="bg-muted/10">
+                        <td className="border-b"></td>
+                        <td className="pl-6 pr-2 py-1 text-[11px] text-muted-foreground border-b italic" colSpan={5}>{sub}</td>
+                      </tr>
+                    ))}
+                  </>
+                );
+              })}
             </>
           ))}
         </tbody>
@@ -297,6 +319,14 @@ export default function SupervisionModulAjar() {
       })
     );
 
+  const rowToRemarks = (row: any): Record<string, string> => {
+    if (!row.remarks) return {};
+    if (typeof row.remarks === "string") {
+      try { return JSON.parse(row.remarks); } catch { return {}; }
+    }
+    return row.remarks as Record<string, string>;
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.teacher_id) { toast({ title: "Pilih guru terlebih dahulu", variant: "destructive" }); return; }
@@ -306,6 +336,7 @@ export default function SupervisionModulAjar() {
         school_id: schoolId, teacher_id: form.teacher_id, created_by: user!.id,
         supervision_date: form.supervision_date, mata_pelajaran: form.mata_pelajaran,
         kelas_semester: form.kelas_semester, notes: form.notes, tindak_lanjut: form.tindak_lanjut,
+        remarks: form.remarks,
         ...form.scores,
       };
       const { error } = await supabase.from("modul_ajar_supervisions" as any).insert(payload);
@@ -324,6 +355,7 @@ export default function SupervisionModulAjar() {
       mata_pelajaran: row.mata_pelajaran || "", kelas_semester: row.kelas_semester || "",
       notes: row.notes || "", tindak_lanjut: row.tindak_lanjut || "",
       scores: rowToScores(row),
+      remarks: rowToRemarks(row),
     });
     setEditDialogOpen(true);
   };
@@ -336,7 +368,9 @@ export default function SupervisionModulAjar() {
       const payload: any = {
         supervision_date: editForm.supervision_date, mata_pelajaran: editForm.mata_pelajaran,
         kelas_semester: editForm.kelas_semester, notes: editForm.notes,
-        tindak_lanjut: editForm.tindak_lanjut, ...editForm.scores,
+        tindak_lanjut: editForm.tindak_lanjut,
+        remarks: editForm.remarks,
+        ...editForm.scores,
       };
       const { error } = await supabase.from("modul_ajar_supervisions" as any).update(payload).eq("id", editingId);
       if (error) throw error;
@@ -357,6 +391,7 @@ export default function SupervisionModulAjar() {
 
   const handlePrint = (row: any) => {
     const scores = rowToScores(row);
+    const remarks = rowToRemarks(row);
     const total = calcTotal(scores);
     const pct = Math.round((total / MA_SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
@@ -369,6 +404,7 @@ export default function SupervisionModulAjar() {
       bodyRows += `<tr><td colspan="6" style="background:#e8f4fd;font-weight:bold;padding:6px 8px;font-size:11px;">${sec.section}. ${sec.title}</td></tr>`;
       for (const item of sec.items) {
         const v = scores[item.key] ?? 0;
+        const ket = remarks[item.key] || "";
         const subItemsHtml = "subItems" in item
           ? (item as any).subItems.map((s: string) => `<div style="color:#666;font-size:10px;margin-left:8px;margin-top:2px;">${s}</div>`).join("")
           : "";
@@ -378,7 +414,7 @@ export default function SupervisionModulAjar() {
           <td style="text-align:center;">${v === 0 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 1 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 2 ? "✓" : ""}</td>
-          <td></td>
+          <td style="font-size:10px;color:#555;">${ket}</td>
         </tr>`;
       }
     }
@@ -419,7 +455,7 @@ export default function SupervisionModulAjar() {
               <th rowspan="2" style="width:4%;">No</th>
               <th rowspan="2">Komponen Modul Ajar</th>
               <th colspan="3">Hasil Telaah &amp; Skor</th>
-              <th rowspan="2" style="width:15%;">Catatan</th>
+              <th rowspan="2" style="width:18%;">Keterangan</th>
             </tr>
             <tr>
               <th style="width:9%;">0</th>
@@ -523,12 +559,14 @@ export default function SupervisionModulAjar() {
       <div>
         <p className="text-sm font-semibold mb-1">Komponen / Indikator Modul Ajar</p>
         <p className="text-xs text-muted-foreground mb-2">
-          Lengkap: 2 = Sudah Lengkap / Sesuai Seluruhnya &nbsp;|&nbsp; 1 = Kurang Lengkap / Sesuai Sebagian &nbsp;|&nbsp; 0 = Tidak Ada / Tidak Sesuai
+          Lengkap: 2 = Sudah Lengkap / Sesuai Seluruhnya &nbsp;|&nbsp; 1 = Kurang Lengkap / Sesuai Sebagian &nbsp;|&nbsp; 0 = Tidak Ada / Tidak Sesuai &nbsp;·&nbsp; <span className="italic">Keterangan muncul jika nilai bukan 2</span>
         </p>
         <MAScoreTable
           scores={f.scores}
+          remarks={f.remarks}
           prefix={prefix}
           onChange={(key, val) => setF(p => ({ ...p, scores: { ...p.scores, [key]: val } }))}
+          onRemarkChange={(key, val) => setF(p => ({ ...p, remarks: { ...p.remarks, [key]: val } }))}
         />
         {(() => {
           const total = calcTotal(f.scores);
@@ -631,6 +669,7 @@ export default function SupervisionModulAjar() {
         ) : (
           list.map((row) => {
             const scores = rowToScores(row);
+            const remarks = rowToRemarks(row);
             const total = calcTotal(scores);
             const pct = Math.round((total / MA_SCORE_MAX) * 100);
             const pred = getPredikat(pct);
@@ -678,11 +717,15 @@ export default function SupervisionModulAjar() {
                           <div className="space-y-1">
                             {sec.items.map((item) => {
                               const v = scores[item.key] ?? 0;
+                              const ket = remarks[item.key] || "";
                               const labels = SCORE_LABELS[sec.type];
                               const colorMap: Record<number, string> = { 2: "bg-green-500", 1: "bg-yellow-500", 0: "bg-destructive" };
                               return (
                                 <div key={item.key} className="flex items-start justify-between gap-2 text-xs">
-                                  <span className="text-muted-foreground flex-1">{item.num}. {item.label}</span>
+                                  <div className="flex-1">
+                                    <span className="text-muted-foreground">{item.num}. {item.label}</span>
+                                    {ket && <p className="text-[11px] text-muted-foreground italic mt-0.5">Ket: {ket}</p>}
+                                  </div>
                                   <Badge className={`${colorMap[v]} text-white border-0 shrink-0 text-[10px]`}>{labels[v as 0 | 1 | 2]}</Badge>
                                 </div>
                               );
