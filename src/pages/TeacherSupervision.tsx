@@ -25,6 +25,7 @@ interface TeacherInfo {
   rank: string;
   schoolId: string;
   schoolName: string;
+  schoolAddress: string;
   teacherAccountId: string;
   principalName: string;
   principalNip: string;
