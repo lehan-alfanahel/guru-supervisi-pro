@@ -132,7 +132,7 @@ export default function TeacherSupervision() {
 
       const { data: school } = await supabase
         .from("schools")
-        .select("name, principal_name, principal_nip")
+        .select("name, address, principal_name, principal_nip")
         .eq("id", teacher.school_id)
         .single();
 
@@ -143,6 +143,7 @@ export default function TeacherSupervision() {
         rank: teacher.rank,
         schoolId: teacher.school_id,
         schoolName: school?.name || "",
+        schoolAddress: (school as any)?.address || "",
         teacherAccountId: teacherAccount.id,
         principalName: school?.principal_name || "",
         principalNip: school?.principal_nip || "",
