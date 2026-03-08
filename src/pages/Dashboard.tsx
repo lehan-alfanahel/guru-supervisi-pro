@@ -320,12 +320,6 @@ export default function Dashboard() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <p className="font-semibold text-sm">{record.teachers?.name}</p>
-                              <Badge
-                                variant={pct === 100 ? "default" : pct >= 60 ? "secondary" : "destructive"}
-                                className="text-xs"
-                              >
-                                {pct}% Lengkap
-                              </Badge>
                             </div>
                             <p className="text-xs text-muted-foreground mt-0.5">NIP: {record.teachers?.nip}</p>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
