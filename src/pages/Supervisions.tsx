@@ -598,7 +598,14 @@ export default function Supervisions() {
                   </div>
                 </div>
 
-                <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" showLinks={true} />
+                <ScoreTable
+                  scores={form.scores}
+                  onChange={handleScoreChange}
+                  prefix="new_"
+                  showLinks={true}
+                  remarks={form.remarks}
+                  onRemarkChange={(key, val) => setForm(p => ({ ...p, remarks: { ...p.remarks, [key]: val } }))}
+                />
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
