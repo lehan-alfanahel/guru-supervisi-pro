@@ -889,7 +889,7 @@ export default function TeacherSupervision() {
                           </p>
                         </div>
 
-                        {!isExpanded && (
+                        {isExpanded ? null : (
                           <div className="grid grid-cols-2 gap-1 mt-3">
                             {ADMIN_FIELDS.slice(0, 6).map(f => {
                               const val = record[f.key as keyof AdministrationData];
