@@ -249,7 +249,6 @@ export default function Dashboard() {
                 <TrendingUp className="w-5 h-5 text-primary" />
                 Perkembangan Nilai Supervisi
               </CardTitle>
-              <Badge variant="outline">{supervisions.length} data</Badge>
             </div>
             <p className="text-sm text-muted-foreground">Persentase nilai supervisi administrasi per guru (6 sesi terakhir)</p>
           </CardHeader>
@@ -296,7 +295,7 @@ export default function Dashboard() {
                 <BookOpen className="w-5 h-5 text-primary" />
                 Administrasi Guru
               </CardTitle>
-              <Badge variant="secondary">{adminRecords.length} data</Badge>
+              
             </div>
             <p className="text-sm text-muted-foreground">Hasil isian instrumen administrasi oleh guru (link Google Drive)</p>
           </CardHeader>
@@ -398,13 +397,10 @@ export default function Dashboard() {
         {/* Coaching Terbaru */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-secondary" />
-                Coaching Terbaru
-              </CardTitle>
-              <Badge variant="secondary">{coachingRecords.length} sesi</Badge>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-secondary" />
+              Coaching Terbaru
+            </CardTitle>
             <p className="text-sm text-muted-foreground">Rekap sesi coaching guru yang telah dilakukan</p>
           </CardHeader>
           <CardContent>
