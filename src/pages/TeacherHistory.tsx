@@ -270,7 +270,7 @@ function ObservationCard({ obs }: { obs: ObservationRecord }) {
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-accent/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
               <Eye className="w-4 h-4 text-accent" />
             </div>
             <div>
