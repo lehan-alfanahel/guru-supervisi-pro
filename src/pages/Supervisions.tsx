@@ -352,13 +352,14 @@ export default function Supervisions() {
             <tbody>
               ${SUPERVISION_COMPONENTS.map((c, i) => {
                 const val = Number(s[c.key]) || 0;
+                const remark = (s.remarks as Record<string, string>)?.[c.key] || "";
                 return `<tr>
                   <td class="center">${i + 1}</td>
                   <td>${c.label}</td>
                   <td class="center">${val === 0 ? "✓" : ""}</td>
                   <td class="center">${val === 1 ? "✓" : ""}</td>
                   <td class="center">${val === 2 ? "✓" : ""}</td>
-                  <td></td>
+                  <td>${remark}</td>
                 </tr>`;
               }).join("")}
               <tr>
