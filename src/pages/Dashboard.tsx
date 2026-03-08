@@ -46,6 +46,18 @@ function formatSemesterClass(val: string | null | undefined): string {
   return val;
 }
 
+const SUPERVISION_KEYS = [
+  "kalender_pendidikan","program_tahunan","program_semester","alur_tujuan_pembelajaran",
+  "modul_ajar","jadwal_tatap_muka","agenda_mengajar","daftar_nilai","kktp",
+  "absensi_siswa","buku_pegangan_guru","buku_teks_siswa",
+];
+const SCORE_MAX_DASH = SUPERVISION_KEYS.length * 2;
+
+function calcPct(s: any) {
+  const score = SUPERVISION_KEYS.reduce((sum, k) => sum + (Number(s[k]) || 0), 0);
+  return Math.round((score / SCORE_MAX_DASH) * 100);
+}
+
 export default function Dashboard() {
   const [school, setSchool] = useState<School | null>(null);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
