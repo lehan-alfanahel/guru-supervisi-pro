@@ -364,94 +364,96 @@ export default function TeacherDashboard() {
           </Badge>
         </div>
 
-        {/* Supervisi Administrasi — always shown */}
-        <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-blue-50 to-blue-100/60">
-          <CardHeader className="pb-2 pt-3 px-4">
-            <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-600" />
-              <CardTitle className="text-sm text-blue-800">Supervisi Administrasi</CardTitle>
-              <Badge className="ml-auto text-xs bg-blue-600 text-white border-0">{allResults.administrasi.length}</Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <SupervisionTypeCard
-              title=""
-              items={allResults.administrasi}
-              emptyMsg="Belum ada penilaian administrasi dari kepala sekolah"
-              icon={<FileText className="w-3.5 h-3.5" />}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Other supervision types — only shown if there is data */}
-        {(allResults.atp.length > 0 || allResults.modulAjar.length > 0 || allResults.observasi.length > 0) && (
+        {totalAllSupervisions === 0 ? (
+          <Card className="shadow-[var(--shadow-card)]">
+            <CardContent className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+              <ClipboardList className="w-12 h-12 text-muted-foreground/50" />
+              <div>
+                <p className="font-semibold text-sm">Belum ada hasil supervisi</p>
+                <p className="text-xs text-muted-foreground mt-1">Data akan muncul setelah kepala sekolah melakukan penilaian</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
           <>
-            {allResults.atp.length > 0 && (
-              <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-violet-50 to-violet-100/60">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <ClipboardList className="w-4 h-4 text-violet-600" />
-                    <CardTitle className="text-sm text-violet-800">Supervisi ATP</CardTitle>
-                    <Badge className="ml-auto text-xs bg-violet-600 text-white border-0">{allResults.atp.length}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <SupervisionTypeCard
-                    title=""
-                    items={allResults.atp}
-                    emptyMsg="Belum ada penilaian ATP"
-                    icon={<ClipboardList className="w-3.5 h-3.5" />}
-                  />
-                </CardContent>
-              </Card>
-            )}
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-blue-50 to-blue-100/60">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                  <CardTitle className="text-sm text-blue-800">Supervisi Administrasi</CardTitle>
+                  <Badge className="ml-auto text-xs bg-blue-600 text-white border-0">{allResults.administrasi.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                <SupervisionTypeCard
+                  title=""
+                  items={allResults.administrasi}
+                  emptyMsg="Belum ada penilaian administrasi"
+                  icon={<FileText className="w-3.5 h-3.5" />}
+                />
+              </CardContent>
+            </Card>
 
-            {allResults.modulAjar.length > 0 && (
-              <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-emerald-50 to-emerald-100/60">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-emerald-600" />
-                    <CardTitle className="text-sm text-emerald-800">Telaah Modul Ajar</CardTitle>
-                    <Badge className="ml-auto text-xs bg-emerald-600 text-white border-0">{allResults.modulAjar.length}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <SupervisionTypeCard
-                    title=""
-                    items={allResults.modulAjar}
-                    emptyMsg="Belum ada telaah modul ajar"
-                    icon={<BookOpen className="w-3.5 h-3.5" />}
-                  />
-                </CardContent>
-              </Card>
-            )}
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-violet-50 to-violet-100/60">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <ClipboardList className="w-4 h-4 text-violet-600" />
+                  <CardTitle className="text-sm text-violet-800">Supervisi ATP</CardTitle>
+                  <Badge className="ml-auto text-xs bg-violet-600 text-white border-0">{allResults.atp.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                <SupervisionTypeCard
+                  title=""
+                  items={allResults.atp}
+                  emptyMsg="Belum ada penilaian ATP"
+                  icon={<ClipboardList className="w-3.5 h-3.5" />}
+                />
+              </CardContent>
+            </Card>
 
-            {allResults.observasi.length > 0 && (
-              <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-amber-50 to-amber-100/60">
-                <CardHeader className="pb-2 pt-3 px-4">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-amber-600" />
-                    <CardTitle className="text-sm text-amber-800">Supervisi Pelaksanaan Pembelajaran</CardTitle>
-                    <Badge className="ml-auto text-xs bg-amber-600 text-white border-0">{allResults.observasi.length}</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-4 pb-3">
-                  <SupervisionTypeCard
-                    title=""
-                    items={allResults.observasi}
-                    emptyMsg="Belum ada observasi pelaksanaan"
-                    icon={<Award className="w-3.5 h-3.5" />}
-                  />
-                </CardContent>
-              </Card>
-            )}
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-emerald-50 to-emerald-100/60">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-emerald-600" />
+                  <CardTitle className="text-sm text-emerald-800">Telaah Modul Ajar</CardTitle>
+                  <Badge className="ml-auto text-xs bg-emerald-600 text-white border-0">{allResults.modulAjar.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                <SupervisionTypeCard
+                  title=""
+                  items={allResults.modulAjar}
+                  emptyMsg="Belum ada telaah modul ajar"
+                  icon={<BookOpen className="w-3.5 h-3.5" />}
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-[var(--shadow-card)] bg-gradient-to-br from-amber-50 to-amber-100/60">
+              <CardHeader className="pb-2 pt-3 px-4">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-amber-600" />
+                  <CardTitle className="text-sm text-amber-800">Supervisi Pelaksanaan Pembelajaran</CardTitle>
+                  <Badge className="ml-auto text-xs bg-amber-600 text-white border-0">{allResults.observasi.length}</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-3">
+                <SupervisionTypeCard
+                  title=""
+                  items={allResults.observasi}
+                  emptyMsg="Belum ada observasi pelaksanaan"
+                  icon={<Award className="w-3.5 h-3.5" />}
+                />
+              </CardContent>
+            </Card>
+
+            <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => navigate("/teacher/supervision")}>
+              <ClipboardList className="w-3.5 h-3.5" />
+              Lihat Semua Detail Penilaian
+            </Button>
           </>
         )}
-
-        <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => navigate("/teacher/supervision")}>
-          <ClipboardList className="w-3.5 h-3.5" />
-          Lihat Semua Detail Penilaian
-        </Button>
 
         {/* Quick Actions */}
         <div className="space-y-2">
