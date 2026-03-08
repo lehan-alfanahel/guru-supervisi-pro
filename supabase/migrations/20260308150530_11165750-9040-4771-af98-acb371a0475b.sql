@@ -1,0 +1,1 @@
+ALTER TABLE public.supervisions ADD COLUMN IF NOT EXISTS remarks jsonb DEFAULT '{}'::jsonb;
