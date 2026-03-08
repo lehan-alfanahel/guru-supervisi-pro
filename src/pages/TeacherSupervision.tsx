@@ -82,6 +82,16 @@ const SUPERVISION_COMPONENTS = [
 ];
 const SCORE_MAX = SUPERVISION_COMPONENTS.length * 2;
 
+function formatSemesterClass(val: string | null | undefined): string {
+  if (!val) return "";
+  if (val.toLowerCase().startsWith("semester")) return val;
+  if (val.includes("/")) {
+    const [sem, kelas] = val.split("/").map((s) => s.trim());
+    return `Semester ${sem} / Kelas ${kelas}`;
+  }
+  return val;
+}
+
 function getPredikat(pct: number) {
   if (pct >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
   if (pct >= 81) return { label: "Baik", color: "bg-primary" };
@@ -867,7 +877,7 @@ export default function TeacherSupervision() {
                               {format(new Date(record.created_at), "dd MMM yyyy, HH:mm")}
                             </div>
                             <p className="text-sm font-medium mt-1">
-                              {record.semester_class} · Waktu {record.teaching_hours}
+                              {formatSemesterClass(record.semester_class)} · Waktu {record.teaching_hours}
                             </p>
                           </div>
                           <div className="flex gap-1 flex-shrink-0">

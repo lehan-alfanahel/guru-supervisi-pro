@@ -36,16 +36,26 @@ const ADMIN_FIELDS = [
   { key: "attendance_link", label: "Absensi Murid", icon: "👥" },
 ];
 
+function formatSemesterClass(val: string | null | undefined): string {
+  if (!val) return "";
+  if (val.toLowerCase().startsWith("semester")) return val;
+  if (val.includes("/")) {
+    const [sem, kelas] = val.split("/").map((s) => s.trim());
+    return `Semester ${sem} / Kelas ${kelas}`;
+  }
+  return val;
+}
+
 const SUPERVISION_KEYS = [
   "kalender_pendidikan","program_tahunan","program_semester","alur_tujuan_pembelajaran",
   "modul_ajar","jadwal_tatap_muka","agenda_mengajar","daftar_nilai","kktp",
   "absensi_siswa","buku_pegangan_guru","buku_teks_siswa",
 ];
-const SCORE_MAX = SUPERVISION_KEYS.length * 2;
+const SCORE_MAX_DASH = SUPERVISION_KEYS.length * 2;
 
 function calcPct(s: any) {
   const score = SUPERVISION_KEYS.reduce((sum, k) => sum + (Number(s[k]) || 0), 0);
-  return Math.round((score / SCORE_MAX) * 100);
+  return Math.round((score / SCORE_MAX_DASH) * 100);
 }
 
 export default function Dashboard() {
@@ -320,7 +330,7 @@ export default function Dashboard() {
                             </div>
                             <p className="text-xs text-muted-foreground mt-0.5">NIP: {record.teachers?.nip}</p>
                             <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                              <span>{record.semester_class} · {record.teaching_hours} jam/minggu</span>
+                              <span>{formatSemesterClass(record.semester_class) || record.semester_class} · {record.teaching_hours} jam/minggu</span>
                               <span>{format(new Date(record.created_at), "dd MMM yyyy")}</span>
                             </div>
                           </div>
