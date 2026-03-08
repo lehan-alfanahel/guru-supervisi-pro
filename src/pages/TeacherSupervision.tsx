@@ -446,14 +446,14 @@ export default function TeacherSupervision() {
 
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
-          <TabsList className="w-full grid grid-cols-5">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="administrasi" className="text-[10px] px-1">
               Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="text-[10px] px-1">
-              Supervisi
-              {supervisions.length > 0 && (
-                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{supervisions.length}</Badge>
+            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
+              Pelaksanaan
+              {observations.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="atp" className="text-[10px] px-1">
@@ -466,12 +466,6 @@ export default function TeacherSupervision() {
               Modul Ajar
               {modulAjarSupervisions.length > 0 && (
                 <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{modulAjarSupervisions.length}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
-              Pelaksanaan
-              {observations.length > 0 && (
-                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
               )}
             </TabsTrigger>
           </TabsList>
@@ -662,35 +656,39 @@ export default function TeacherSupervision() {
             ) : null}
           </TabsContent>
 
-          {/* ── TAB 2: HASIL SUPERVISI DARI KEPALA SEKOLAH ── */}
-          <TabsContent value="supervisi" className="space-y-4 mt-4">
+          {/* ── TAB PELAKSANAAN ── */}
+          <TabsContent value="pelaksanaan" className="space-y-4 mt-4">
             <div>
-              <h2 className="text-base font-bold">Hasil Supervisi</h2>
-              <p className="text-xs text-muted-foreground">{supervisions.length} penilaian dari kepala sekolah</p>
+              <h2 className="text-base font-bold">Hasil Supervisi Pelaksanaan</h2>
+              <p className="text-xs text-muted-foreground">Supervisi Akademik Pelaksanaan Pembelajaran — {observations.length} penilaian</p>
             </div>
-
-            {supervisions.length === 0 ? (
+            {observations.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
-                  <p className="text-lg font-semibold mb-1">Belum ada hasil supervisi</p>
+                  <p className="text-lg font-semibold mb-1">Belum ada hasil supervisi pelaksanaan</p>
                   <p className="text-sm text-muted-foreground text-center">
-                    Data akan muncul setelah kepala sekolah melakukan penilaian
+                    Data akan muncul setelah kepala sekolah melakukan observasi pembelajaran
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-3">
-                {supervisions.map((s, index) => {
-                  const score = calculateSupScore(s);
-                  const pct = Math.round((score / SCORE_MAX) * 100);
-                  const predikat = getPredikat(pct);
-                  const isExpanded = expandedSupId === s.id;
-                  const componentColors = ["text-destructive", "text-yellow-600", "text-green-600"];
-                  const componentLabels = ["Tidak Ada", "Ada, tdk sesuai", "Ada & sesuai"];
-
+                {observations.map((row: any, index: number) => {
+                  const OBS_SCORE_MAX = ALL_ITEM_KEYS.length * 2;
+                  const scores = (row.scores as Record<string, number>) || {};
+                  const total = ALL_ITEM_KEYS.reduce((s, k) => s + (Number(scores[k]) || 0), 0);
+                  const pct = Math.round((total / OBS_SCORE_MAX) * 100);
+                  const getObsPredikat = (p: number) => {
+                    if (p >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+                    if (p >= 81) return { label: "Baik", color: "bg-primary" };
+                    if (p >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+                    return { label: "Kurang", color: "bg-destructive" };
+                  };
+                  const predikat = getObsPredikat(pct);
+                  const isExpanded = expandedObsId === row.id;
                   return (
-                    <Card key={s.id} className="shadow-[var(--shadow-card)]">
+                    <Card key={row.id}>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-2 mb-3">
                           <div>
@@ -700,55 +698,62 @@ export default function TeacherSupervision() {
                             </div>
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
                               <Clock className="w-3 h-3" />
-                              {format(new Date(s.supervision_date), "dd MMMM yyyy")}
+                              {format(new Date(row.observation_date), "dd MMMM yyyy")}
                             </div>
-                            {s.mata_pelajaran && (
-                              <p className="text-sm font-medium mt-1">Mapel: {s.mata_pelajaran}</p>
-                            )}
+                            <div className="flex gap-2 text-xs mt-1">
+                              {row.mata_pelajaran && <span className="font-medium">{row.mata_pelajaran}</span>}
+                              {row.materi_topik && <span className="text-muted-foreground">· {row.materi_topik}</span>}
+                            </div>
                           </div>
-                          <div className="flex gap-1 flex-shrink-0">
-                            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintSupervision(s)}>
-                              <Printer className="w-3 h-3" /> Cetak
-                            </Button>
-                            <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedSupId(isExpanded ? null : s.id)}>
-                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </Button>
-                          </div>
+                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedObsId(isExpanded ? null : row.id)}>
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </Button>
                         </div>
-
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Skor {score}/{SCORE_MAX}</span>
+                            <span className="text-muted-foreground">Skor {total}/{OBS_SCORE_MAX}</span>
                             <span className="font-semibold">{pct}%</span>
                           </div>
                           <div className="w-full bg-muted rounded-full h-2">
                             <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
                           </div>
                         </div>
-
                         {isExpanded && (
-                          <div className="mt-3 border-t pt-3 space-y-1.5">
-                            {SUPERVISION_COMPONENTS.map((c, i) => {
-                              const val = Number(s[c.key]) || 0;
-                              return (
-                                <div key={c.key} className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground">{i + 1}. {c.label}</span>
-                                  <Badge variant="outline" className={`text-xs ${componentColors[val]}`}>
-                                    {val} — {componentLabels[val]}
-                                  </Badge>
-                                </div>
-                              );
-                            })}
-                            {s.notes && (
+                          <div className="mt-3 border-t pt-3 space-y-3">
+                            {OBSERVATION_SECTIONS.map((sec) => (
+                              <div key={sec.section}>
+                                <p className="text-xs font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                                {sec.groups.map((group) => (
+                                  <div key={group.num} className="mb-1.5">
+                                    <p className="text-xs font-medium text-muted-foreground mb-0.5">{group.num}. {group.title}</p>
+                                    {group.items.map((item) => {
+                                      const v = Number(scores[item.key]) || 0;
+                                      const badge = [
+                                        { text: "Tidak Ada", cls: "text-destructive" },
+                                        { text: "Sebagian", cls: "text-yellow-600" },
+                                        { text: "Lengkap", cls: "text-green-600" },
+                                      ][v];
+                                      return (
+                                        <div key={item.key} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                                          <span className="text-muted-foreground flex-1">{item.label}</span>
+                                          <span className={`font-medium shrink-0 ${badge.cls}`}>{badge.text}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                            {row.notes && (
                               <div className="pt-2 border-t">
                                 <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
-                                <p className="text-sm">{s.notes}</p>
+                                <p className="text-sm">{row.notes}</p>
                               </div>
                             )}
-                            {s.tindak_lanjut && (
+                            {row.tindak_lanjut && (
                               <div>
                                 <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
-                                <p className="text-sm">{s.tindak_lanjut}</p>
+                                <p className="text-sm">{row.tindak_lanjut}</p>
                               </div>
                             )}
                           </div>
@@ -761,7 +766,7 @@ export default function TeacherSupervision() {
             )}
           </TabsContent>
 
-          {/* ── TAB 3: HASIL SUPERVISI ATP ── */}
+          {/* ── TAB ATP ── */}
           <TabsContent value="atp" className="space-y-4 mt-4">
             <div>
               <h2 className="text-base font-bold">Hasil Supervisi ATP</h2>
@@ -869,7 +874,7 @@ export default function TeacherSupervision() {
             )}
           </TabsContent>
 
-          {/* ── TAB 4: HASIL SUPERVISI TELAAH MODUL AJAR ── */}
+          {/* ── TAB MODUL AJAR ── */}
           <TabsContent value="modul_ajar" className="space-y-4 mt-4">
             <div>
               <h2 className="text-base font-bold">Hasil Telaah Modul Ajar</h2>
@@ -977,118 +982,6 @@ export default function TeacherSupervision() {
             )}
           </TabsContent>
 
-          {/* ── TAB 5: HASIL SUPERVISI PELAKSANAAN PEMBELAJARAN ── */}
-          <TabsContent value="pelaksanaan" className="space-y-4 mt-4">
-            <div>
-              <h2 className="text-base font-bold">Hasil Supervisi Pelaksanaan</h2>
-              <p className="text-xs text-muted-foreground">Supervisi Akademik Pelaksanaan Pembelajaran — {observations.length} penilaian</p>
-            </div>
-
-            {observations.length === 0 ? (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
-                  <p className="text-lg font-semibold mb-1">Belum ada hasil supervisi pelaksanaan</p>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Data akan muncul setelah kepala sekolah melakukan observasi pembelajaran
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {observations.map((row: any, index: number) => {
-                  const OBS_SCORE_MAX = ALL_ITEM_KEYS.length * 2;
-                  const scores = (row.scores as Record<string, number>) || {};
-                  const total = ALL_ITEM_KEYS.reduce((s, k) => s + (Number(scores[k]) || 0), 0);
-                  const pct = Math.round((total / OBS_SCORE_MAX) * 100);
-                  const getObsPredikat = (p: number) => {
-                    if (p >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
-                    if (p >= 81) return { label: "Baik", color: "bg-primary" };
-                    if (p >= 71) return { label: "Cukup", color: "bg-yellow-500" };
-                    return { label: "Kurang", color: "bg-destructive" };
-                  };
-                  const predikat = getObsPredikat(pct);
-                  const isExpanded = expandedObsId === row.id;
-                  return (
-                    <Card key={row.id}>
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-2 mb-3">
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
-                              {index === 0 && <Badge variant="outline" className="text-xs">Terbaru</Badge>}
-                            </div>
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
-                              <Clock className="w-3 h-3" />
-                              {format(new Date(row.observation_date), "dd MMMM yyyy")}
-                            </div>
-                            <div className="flex gap-2 text-xs mt-1">
-                              {row.mata_pelajaran && <span className="font-medium">{row.mata_pelajaran}</span>}
-                              {row.materi_topik && <span className="text-muted-foreground">· {row.materi_topik}</span>}
-                            </div>
-                          </div>
-                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedObsId(isExpanded ? null : row.id)}>
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
-                        </div>
-
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Skor {total}/{OBS_SCORE_MAX}</span>
-                            <span className="font-semibold">{pct}%</span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-
-                        {isExpanded && (
-                          <div className="mt-3 border-t pt-3 space-y-3">
-                            {OBSERVATION_SECTIONS.map((sec) => (
-                              <div key={sec.section}>
-                                <p className="text-xs font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
-                                {sec.groups.map((group) => (
-                                  <div key={group.num} className="mb-1.5">
-                                    <p className="text-xs font-medium text-muted-foreground mb-0.5">{group.num}. {group.title}</p>
-                                    {group.items.map((item) => {
-                                      const v = Number(scores[item.key]) || 0;
-                                      const badge = [
-                                        { text: "Tidak Ada", cls: "text-destructive" },
-                                        { text: "Sebagian", cls: "text-yellow-600" },
-                                        { text: "Lengkap", cls: "text-green-600" },
-                                      ][v];
-                                      return (
-                                        <div key={item.key} className="flex items-start justify-between gap-2 text-xs py-0.5">
-                                          <span className="text-muted-foreground flex-1">{item.label}</span>
-                                          <span className={`font-medium shrink-0 ${badge.cls}`}>{badge.text}</span>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                ))}
-                              </div>
-                            ))}
-                            {row.notes && (
-                              <div className="pt-2 border-t">
-                                <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
-                                <p className="text-sm">{row.notes}</p>
-                              </div>
-                            )}
-                            {row.tindak_lanjut && (
-                              <div>
-                                <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
-                                <p className="text-sm">{row.tindak_lanjut}</p>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
         </Tabs>
       </div>
 
