@@ -1228,9 +1228,14 @@ export default function TeacherSupervision() {
                               {row.kelas_semester && <span className="text-muted-foreground">{row.kelas_semester}</span>}
                             </div>
                           </div>
-                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedMaId(isExpanded ? null : row.id)}>
-                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                          </Button>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintModulAjar(row)}>
+                              <Printer className="w-3 h-3" /> Cetak
+                            </Button>
+                            <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedMaId(isExpanded ? null : row.id)}>
+                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
