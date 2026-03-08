@@ -546,9 +546,10 @@ export default function SupervisionATP() {
               <p className="text-xs sm:text-sm opacity-90">{atpList.length} data</p>
             </div>
           </div>
-
-          {/* Create Dialog */}
-          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setForm(emptyForm()); }}>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+              <LogOut className="w-5 h-5" />
+            </Button>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5 flex-shrink-0">
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
