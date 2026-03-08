@@ -66,6 +66,16 @@ export default function Supervisions() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<FormState>({
+    teacher_id: "",
+    supervision_date: new Date().toISOString().split("T")[0],
+    mata_pelajaran: "",
+    notes: "",
+    tindak_lanjut: "",
+    scores: { ...defaultScores },
+  });
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
