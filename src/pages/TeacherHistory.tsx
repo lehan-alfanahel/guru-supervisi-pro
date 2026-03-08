@@ -81,7 +81,7 @@ function SupervisionCard({
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
               <ClipboardList className="w-4 h-4 text-primary" />
             </div>
             <div>
