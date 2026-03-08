@@ -10,15 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
-  ClipboardList,
-  Calendar,
-  Printer,
-  MessageSquare,
-  Search,
-  X,
-  ChevronDown,
-  ChevronUp,
+  ClipboardList, Calendar, Printer, MessageSquare,
+  Search, X, ChevronDown, ChevronUp, Eye,
 } from "lucide-react";
+import { OBSERVATION_SECTIONS, ALL_ITEM_KEYS } from "./SupervisionObservation";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 
 interface SupervisionRecord {
   id: string;
