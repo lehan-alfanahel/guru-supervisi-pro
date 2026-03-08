@@ -23,7 +23,7 @@ import TeacherSupervision from "./pages/TeacherSupervision";
 import TeacherHistory from "./pages/TeacherHistory";
 import TeacherCoaching from "./pages/TeacherCoaching";
 import TeacherNotifications from "./pages/TeacherNotifications";
-import SupervisionModulAjar from "./pages/SupervisionModulAjar";
+import AdminNotifications from "./pages/AdminNotifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
