@@ -17,6 +17,7 @@ import {
   Printer, CheckCircle2, XCircle, Clock, BookOpen,
   Link2, PlusCircle, ChevronDown, ChevronUp, ClipboardList, ExternalLink
 } from "lucide-react";
+import { ATP_SECTIONS, ATP_ALL_KEYS } from "@/pages/SupervisionATP";
 
 interface TeacherInfo {
   id: string;
