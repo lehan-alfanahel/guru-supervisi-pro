@@ -296,8 +296,8 @@ function ObservationCard({ obs }: { obs: ObservationRecord }) {
             <span>Nilai Akhir</span>
             <span>{total}/{SCORE_MAX} = {pct}%</span>
           </div>
-          <div className="w-full bg-muted rounded-full h-1.5">
-            <div className={`${bgColor} rounded-full h-1.5 transition-all`} style={{ width: `${pct}%` }} />
+          <div className="w-full bg-muted rounded h-1.5">
+            <div className={`${bgColor} rounded h-1.5 transition-all`} style={{ width: `${pct}%` }} />
           </div>
         </div>
 
