@@ -59,15 +59,18 @@ export default function Dashboard() {
       if (!schoolData) { navigate("/setup-school"); return; }
       setSchool(schoolData);
 
-      const [teachersData, { data: supervisionsData }, { data: adminData }] = await Promise.all([
+      const [teachersData, { data: supervisionsData }, { data: adminData }, { data: teachersList }] = await Promise.all([
         getTeachers(schoolData.id),
         supabase.from("supervisions").select("*, teachers(name, nip)")
           .eq("school_id", schoolData.id)
           .order("supervision_date", { ascending: false }),
         supabase.from("teaching_administration")
-          .select("*, teachers(name, nip, rank)")
+          .select("*")
           .eq("school_id", schoolData.id)
           .order("created_at", { ascending: false }),
+        supabase.from("teachers")
+          .select("id, name, nip, rank")
+          .eq("school_id", schoolData.id),
       ]);
 
       setTeachers(teachersData);
