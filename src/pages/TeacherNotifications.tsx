@@ -65,8 +65,17 @@ export default function TeacherNotifications() {
     toast({ title: "Notifikasi dihapus" });
   };
 
-  const handleClick = async (id: string, isRead: boolean) => {
+  const getNavigationPath = (type: string) => {
+    if (type === "coaching") return "/teacher/coaching";
+    if (type === "observation") return "/teacher/supervision";
+    if (type === "atp_supervision") return "/teacher/supervision";
+    if (type === "modul_ajar_supervision") return "/teacher/supervision";
+    return "/teacher/supervision"; // default: supervisi administrasi
+  };
+
+  const handleClick = async (id: string, isRead: boolean, type: string) => {
     if (!isRead) await markAsRead(id);
+    navigate(getNavigationPath(type));
   };
 
   return (
@@ -138,8 +147,8 @@ export default function TeacherNotifications() {
             {filtered.map((notif) => (
               <li
                 key={notif.id}
-                className={`flex gap-3 px-4 py-4 transition-colors cursor-pointer ${!notif.is_read ? "bg-primary/5" : "bg-background"}`}
-                onClick={() => handleClick(notif.id, notif.is_read)}
+              className={`flex gap-3 px-4 py-4 transition-colors cursor-pointer hover:bg-muted/40 ${!notif.is_read ? "bg-primary/5" : "bg-background"}`}
+                onClick={() => handleClick(notif.id, notif.is_read, notif.type)}
               >
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`}>
                   {getIcon(notif.type)}
