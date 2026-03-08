@@ -576,9 +576,9 @@ export default function TeacherSupervision() {
                               const val = record[f.key as keyof AdministrationData];
                               return (
                                 <div key={f.key} className={`flex items-center gap-1.5 text-xs ${val ? "text-green-700" : "text-muted-foreground"}`}>
-                                  {val
-                                    ? <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                                    : <XCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
+                                   {val
+                                     ? <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                                     : <XCircle className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />}
                                   <span className="truncate">{f.label.split(" ").slice(0, 2).join(" ")}</span>
                                 </div>
                               );
