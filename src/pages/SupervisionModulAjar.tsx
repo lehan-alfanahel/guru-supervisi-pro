@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ChevronDown, ChevronUp, Pencil, Trash2, Printer, BookOpen, Calendar } from "lucide-react";
+import { ArrowLeft, Plus, ChevronDown, ChevronUp, Pencil, Trash2, Printer, BookOpen, Calendar, LogOut } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";

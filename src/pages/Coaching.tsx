@@ -16,7 +16,7 @@ import {
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, MessageSquare, Calendar, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MessageSquare, Calendar, Printer, Trash2, LogOut } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
