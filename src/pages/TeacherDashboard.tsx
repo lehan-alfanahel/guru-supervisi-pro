@@ -82,6 +82,7 @@ export default function TeacherDashboard() {
   const [supervisionSummary, setSupervisionSummary] = useState<SupervisionSummary>({ total: 0, latest: null });
   const [coachingSummary, setCoachingSummary] = useState<CoachingSummary>({ total: 0, latestTopic: null, latestDate: null });
   const [adminSummary, setAdminSummary] = useState<AdminSummary>({ total: 0, latestDate: null });
+  const [allResults, setAllResults] = useState<AllSupervisionResults>({ administrasi: [], atp: [], modulAjar: [], observasi: [] });
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -103,14 +104,20 @@ export default function TeacherDashboard() {
         ? teacherAccount.teachers[0]
         : teacherAccount.teachers;
 
-      const [schoolRes, supervisionRes, coachingRes, adminRes] = await Promise.all([
+      const [schoolRes, supervisionRes, coachingRes, adminRes, atpRes, maRes, obsRes] = await Promise.all([
         supabase.from("schools").select("name").eq("id", teacher.school_id).single(),
-        supabase.from("supervisions").select("supervision_date, lesson_plan, syllabus, assessment_tools, teaching_materials, student_attendance")
+        supabase.from("supervisions").select("*")
           .eq("teacher_id", teacher.id).order("supervision_date", { ascending: false }),
         supabase.from("coaching_sessions").select("coaching_date, topic")
           .eq("teacher_id", teacher.id).order("coaching_date", { ascending: false }),
         supabase.from("teaching_administration").select("created_at")
           .eq("teacher_account_id", teacherAccount.id).order("created_at", { ascending: false }),
+        supabase.from("atp_supervisions" as any).select("*")
+          .eq("teacher_id", teacher.id).order("supervision_date", { ascending: false }),
+        supabase.from("modul_ajar_supervisions" as any).select("*")
+          .eq("teacher_id", teacher.id).order("supervision_date", { ascending: false }),
+        supabase.from("supervision_observations").select("*")
+          .eq("teacher_id", teacher.id).order("observation_date", { ascending: false }),
       ]);
 
       setTeacherData({
@@ -123,16 +130,15 @@ export default function TeacherDashboard() {
         email: teacherAccount.email,
       });
 
-      // Supervision summary
+      // Supervision summary (administrasi)
       const sups = supervisionRes.data || [];
       let latestSup = null;
       if (sups.length > 0) {
         const s = sups[0];
-        const items = [s.lesson_plan, s.syllabus, s.assessment_tools, s.teaching_materials, s.student_attendance];
-        latestSup = {
-          date: s.supervision_date,
-          completeness: Math.round((items.filter(Boolean).length / 5) * 100),
-        };
+        const score = SUPERVISION_COMPONENTS_KEYS.reduce((sum, k) => sum + (Number((s as any)[k]) || 0), 0);
+        const pct = Math.round((score / (SUPERVISION_COMPONENTS_KEYS.length * 2)) * 100);
+        const pred = calcPredikat(pct);
+        latestSup = { date: s.supervision_date, score, scoreMax: SUPERVISION_COMPONENTS_KEYS.length * 2, predikat: pred.label };
       }
       setSupervisionSummary({ total: sups.length, latest: latestSup });
 
@@ -150,6 +156,41 @@ export default function TeacherDashboard() {
         total: admins.length,
         latestDate: admins[0]?.created_at || null,
       });
+
+      // All supervision results
+      const adminResults = sups.map((s: any) => {
+        const score = SUPERVISION_COMPONENTS_KEYS.reduce((sum, k) => sum + (Number(s[k]) || 0), 0);
+        const pct = Math.round((score / (SUPERVISION_COMPONENTS_KEYS.length * 2)) * 100);
+        const pred = calcPredikat(pct);
+        return { date: s.supervision_date, pct, predikat: pred.label, color: pred.color, mapel: s.mata_pelajaran };
+      });
+
+      const atpList = (atpRes.data || []) as any[];
+      const atpResults = atpList.map((r) => {
+        const score = ATP_KEYS.reduce((sum, k) => sum + (Number(r[k]) || 0), 0);
+        const pct = Math.round((score / (ATP_KEYS.length * 2)) * 100);
+        const pred = calcPredikat(pct);
+        return { date: r.supervision_date, pct, predikat: pred.label, color: pred.color, mapel: r.mata_pelajaran };
+      });
+
+      const maList = (maRes.data || []) as any[];
+      const maResults = maList.map((r) => {
+        const score = MA_KEYS.reduce((sum, k) => sum + (Number(r[k]) || 0), 0);
+        const pct = Math.round((score / (MA_KEYS.length * 2)) * 100);
+        const pred = calcPredikat(pct);
+        return { date: r.supervision_date, pct, predikat: pred.label, color: pred.color, mapel: r.mata_pelajaran };
+      });
+
+      const obsList = (obsRes.data || []) as any[];
+      const obsResults = obsList.map((r) => {
+        const scores = r.scores as Record<string, number> || {};
+        const score = Object.values(scores).reduce((s: number, v: any) => s + (Number(v) || 0), 0);
+        const pct = Math.round((score / 76) * 100); // 38 items × 2
+        const pred = calcPredikat(pct);
+        return { date: r.observation_date, pct, predikat: pred.label, color: pred.color, mapel: r.mata_pelajaran };
+      });
+
+      setAllResults({ administrasi: adminResults, atp: atpResults, modulAjar: maResults, observasi: obsResults });
     } catch (error) {
       console.error("Error loading teacher data:", error);
     } finally {
@@ -194,6 +235,48 @@ export default function TeacherDashboard() {
 
   const needsFillAdmin = adminSummary.total === 0;
   const hasNewCoaching = coachingSummary.total > 0;
+  const totalAllSupervisions = allResults.administrasi.length + allResults.atp.length + allResults.modulAjar.length + allResults.observasi.length;
+
+  const SupervisionTypeCard = ({ title, items, emptyMsg, icon }: {
+    title: string;
+    items: { date: string; pct: number; predikat: string; color: string; mapel?: string }[];
+    emptyMsg: string;
+    icon: React.ReactNode;
+  }) => (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{title}</p>
+        <Badge variant="outline" className="text-xs">{items.length}</Badge>
+      </div>
+      {items.length === 0 ? (
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-xs text-muted-foreground">
+          {icon}
+          <span>{emptyMsg}</span>
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {items.slice(0, 2).map((item, i) => (
+            <div key={i} className="flex items-center justify-between p-2.5 rounded-lg border bg-card">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs text-muted-foreground">{format(new Date(item.date + "T00:00:00"), "dd MMM yyyy")}</span>
+                  {item.mapel && <span className="text-xs text-foreground font-medium truncate">· {item.mapel}</span>}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-xs font-bold">{item.pct}%</span>
+                <Badge className={`${item.color} text-white border-0 text-[10px] px-1.5`}>{item.predikat}</Badge>
+              </div>
+            </div>
+          ))}
+          {items.length > 2 && (
+            <p className="text-xs text-muted-foreground text-center">+{items.length - 2} penilaian lainnya</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -250,7 +333,7 @@ export default function TeacherDashboard() {
         <div className="grid grid-cols-3 gap-3">
           <Card className="shadow-[var(--shadow-card)]">
             <CardContent className="p-3 text-center">
-              <p className="text-2xl font-bold text-primary">{supervisionSummary.total}</p>
+              <p className="text-2xl font-bold text-primary">{totalAllSupervisions}</p>
               <p className="text-xs text-muted-foreground mt-0.5">Supervisi</p>
             </CardContent>
           </Card>
@@ -268,40 +351,59 @@ export default function TeacherDashboard() {
           </Card>
         </div>
 
-        {/* Supervision Status Card */}
+        {/* ── HASIL PENILAIAN KEPALA SEKOLAH ── */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader className="pb-2 pt-4 px-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Status Supervisi Terakhir</CardTitle>
-              {supervisionSummary.latest && (
-                <Badge variant={supervisionSummary.latest.completeness === 100 ? "default" : "secondary"}>
-                  {supervisionSummary.latest.completeness}%
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-primary" />
+                <CardTitle className="text-base">Hasil Penilaian Kepala Sekolah</CardTitle>
+              </div>
+              <Badge variant={totalAllSupervisions > 0 ? "default" : "secondary"} className="text-xs">
+                {totalAllSupervisions} penilaian
+              </Badge>
             </div>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
-            {supervisionSummary.latest ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Clock className="w-3.5 h-3.5" />
-                  {format(new Date(supervisionSummary.latest.date), "dd MMM yyyy")}
+          <CardContent className="px-4 pb-4 space-y-4">
+            {totalAllSupervisions === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+                <ClipboardList className="w-12 h-12 text-muted-foreground/50" />
+                <div>
+                  <p className="font-semibold text-sm">Belum ada hasil supervisi</p>
+                  <p className="text-xs text-muted-foreground mt-1">Data akan muncul setelah kepala sekolah melakukan penilaian</p>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                  <div
-                    className="bg-primary rounded-full h-2.5 transition-all"
-                    style={{ width: `${supervisionSummary.latest.completeness}%` }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Kelengkapan perangkat: {supervisionSummary.latest.completeness}%
-                </p>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <AlertCircle className="w-4 h-4 text-orange-400" />
-                Belum ada data supervisi dari kepala sekolah
-              </div>
+              <>
+                <SupervisionTypeCard
+                  title="Supervisi Administrasi"
+                  items={allResults.administrasi}
+                  emptyMsg="Belum ada penilaian administrasi"
+                  icon={<FileText className="w-3.5 h-3.5" />}
+                />
+                <SupervisionTypeCard
+                  title="Supervisi ATP"
+                  items={allResults.atp}
+                  emptyMsg="Belum ada penilaian ATP"
+                  icon={<ClipboardList className="w-3.5 h-3.5" />}
+                />
+                <SupervisionTypeCard
+                  title="Telaah Modul Ajar"
+                  items={allResults.modulAjar}
+                  emptyMsg="Belum ada telaah modul ajar"
+                  icon={<BookOpen className="w-3.5 h-3.5" />}
+                />
+                <SupervisionTypeCard
+                  title="Supervisi Pelaksanaan Pembelajaran"
+                  items={allResults.observasi}
+                  emptyMsg="Belum ada observasi pelaksanaan"
+                  icon={<Award className="w-3.5 h-3.5" />}
+                />
+                <Button variant="outline" size="sm" className="w-full text-xs gap-1.5" onClick={() => navigate("/teacher/supervision")}>
+                  <ClipboardList className="w-3.5 h-3.5" />
+                  Lihat Semua Detail Penilaian
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>
@@ -325,9 +427,9 @@ export default function TeacherDashboard() {
             {
               icon: <History className="w-5 h-5 text-primary" />,
               title: "Riwayat Supervisi",
-              desc: supervisionSummary.total === 0
+              desc: totalAllSupervisions === 0
                 ? "Belum ada supervisi"
-                : `${supervisionSummary.total} supervisi tercatat`,
+                : `${totalAllSupervisions} supervisi tercatat`,
               badge: null,
               path: "/teacher/history",
               urgent: false,
