@@ -144,6 +144,48 @@ export default function Supervisions() {
     });
   };
 
+  // Map komponen key -> field di teaching_administration
+  const COMPONENT_LINK_MAP: Record<string, string> = {
+    kalender_pendidikan: "calendar_link",
+    program_tahunan: "annual_program_link",
+    program_semester: "assessment_use_link",
+    alur_tujuan_pembelajaran: "learning_flow_link",
+    modul_ajar: "teaching_module_link",
+    jadwal_tatap_muka: "schedule_link",
+    agenda_mengajar: "daily_agenda_link",
+    daftar_nilai: "grade_list_link",
+    kktp: "assessment_program_link",
+    absensi_siswa: "attendance_link",
+    buku_pegangan_guru: "teaching_material_link",
+    buku_teks_siswa: "teaching_material_link",
+  };
+
+  const fetchTeacherLinks = useCallback(async (teacherId: string) => {
+    if (!teacherId) { setTeacherAdminLinks({}); return; }
+    setLoadingLinks(true);
+    try {
+      const { data } = await supabase
+        .from("teaching_administration")
+        .select("*")
+        .eq("teacher_id", teacherId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) {
+        const links: Record<string, string> = {};
+        for (const [compKey, fieldKey] of Object.entries(COMPONENT_LINK_MAP)) {
+          const val = (data as any)[fieldKey];
+          if (val) links[compKey] = val;
+        }
+        setTeacherAdminLinks(links);
+      } else {
+        setTeacherAdminLinks({});
+      }
+    } finally {
+      setLoadingLinks(false);
+    }
+  }, []);
+
   const handleScoreChange = (key: string, val: ScoreValue) => {
     setForm((prev) => ({ ...prev, scores: { ...prev.scores, [key]: val } }));
   };
