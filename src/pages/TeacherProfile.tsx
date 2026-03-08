@@ -25,13 +25,14 @@ export default function TeacherProfile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       navigate("/auth");
       return;
     }
 
     loadProfile();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadProfile = async () => {
     try {
