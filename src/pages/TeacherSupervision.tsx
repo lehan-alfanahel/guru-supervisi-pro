@@ -473,8 +473,8 @@ export default function TeacherSupervision() {
                           required />
                       </div>
                       <div className="space-y-1.5">
-                        <Label htmlFor="semesterClass" className="text-sm">Semester/Kelas</Label>
-                        <Input id="semesterClass" placeholder="Smt 1 / Kelas 5"
+                         <Label htmlFor="semesterClass" className="text-sm">Semester - Kelas</Label>
+                        <Input id="semesterClass" placeholder="Semester 1 - Kelas 5"
                           value={formData.semesterClass}
                           onChange={(e) => setFormData({ ...formData, semesterClass: e.target.value })}
                           required />
