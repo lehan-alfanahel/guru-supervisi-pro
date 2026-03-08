@@ -23,12 +23,20 @@ import TeacherHistory from "./pages/TeacherHistory";
 import TeacherCoaching from "./pages/TeacherCoaching";
 import TeacherNotifications from "./pages/TeacherNotifications";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+    },
+  },
+});
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: ('admin' | 'teacher')[] }) {
   const { user, userRole, loading } = useAuth();
 
-  if (loading) {
+  // Show spinner while auth OR role is still loading
+  if (loading || (user && userRole === null)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
@@ -40,9 +48,8 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
     return <Navigate to="/auth" replace />;
   }
 
-  // Check role-based access
+  // Check role-based access only after role is resolved
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
-    // Redirect to appropriate dashboard based on role
     if (userRole === 'admin') {
       return <Navigate to="/dashboard" replace />;
     } else {
