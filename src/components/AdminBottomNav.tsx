@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, ClipboardList, User, MessageSquare, BookOpen, Eye, ChevronUp, Bell } from "lucide-react";
+import { Home, Users, ClipboardList, MessageSquare, BookOpen, Eye, ChevronUp, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications } from "@/hooks/use-notifications";
 import { useAuth } from "@/contexts/AuthContext";
