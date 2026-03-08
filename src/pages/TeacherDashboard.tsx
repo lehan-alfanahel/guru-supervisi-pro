@@ -244,10 +244,12 @@ export default function TeacherDashboard() {
     icon: React.ReactNode;
   }) => (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{title}</p>
-        <Badge variant="outline" className="text-xs">{items.length}</Badge>
-      </div>
+      {title && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{title}</p>
+          <Badge variant="outline" className="text-xs">{items.length}</Badge>
+        </div>
+      )}
       {items.length === 0 ? (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 text-xs text-muted-foreground">
           {icon}
