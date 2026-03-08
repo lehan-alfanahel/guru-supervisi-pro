@@ -401,7 +401,7 @@ export default function Supervisions() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/>
