@@ -85,6 +85,8 @@ export default function Supervisions() {
     scores: { ...defaultScores },
   });
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [teacherAdminLinks, setTeacherAdminLinks] = useState<Record<string, string>>({});
+  const [loadingLinks, setLoadingLinks] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
