@@ -323,10 +323,8 @@ export default function Supervisions() {
           <br/>
           <table class="info-table" style="border:none;">
             <tr><td>Nama Sekolah</td><td>: ${schoolName}</td></tr>
-            <tr><td>Alamat Sekolah</td><td>: ${schoolAddress || "-"}</td></tr>
             <tr><td>Nama Guru</td><td>: ${s.teachers?.name || ""}</td></tr>
             <tr><td>NIP Guru</td><td>: ${s.teachers?.nip || "-"}</td></tr>
-            
             <tr><td>Tanggal Supervisi</td><td>: ${formatPrintDate(s.supervision_date)}</td></tr>
           </table>
 
@@ -403,7 +401,7 @@ export default function Supervisions() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/>
