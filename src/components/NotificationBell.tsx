@@ -121,7 +121,7 @@ export function NotificationBell() {
                       className={`flex gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-accent ${
                         !notif.is_read ? "bg-primary/5" : ""
                       }`}
-                      onClick={() => handleNotificationClick(notif.id, notif.is_read)}
+                      onClick={() => handleNotificationClick(notif.id, notif.is_read, notif.type)}
                     >
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`} // design tokens used in helper fn
