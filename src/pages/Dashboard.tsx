@@ -75,6 +75,9 @@ export default function Dashboard() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [expandedAdmin, setExpandedAdmin] = useState<string | null>(null);
   const [expandedCoaching, setExpandedCoaching] = useState<string | null>(null);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", npsn: "", address: "", phone: "", principal_name: "", principal_nip: "" });
+  const [saving, setSaving] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
