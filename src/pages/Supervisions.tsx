@@ -84,6 +84,7 @@ export default function Supervisions() {
     notes: "",
     tindak_lanjut: "",
     scores: { ...defaultScores },
+    remarks: {},
   });
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teacherAdminLinks, setTeacherAdminLinks] = useState<Record<string, string>>({});
