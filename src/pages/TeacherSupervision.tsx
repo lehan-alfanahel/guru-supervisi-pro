@@ -877,7 +877,7 @@ export default function TeacherSupervision() {
                               {format(new Date(record.created_at), "dd MMM yyyy, HH:mm")}
                             </div>
                             <p className="text-sm font-medium mt-1">
-                              {record.semester_class} · Waktu {record.teaching_hours}
+                              {formatSemesterClass(record.semester_class)} · Waktu {record.teaching_hours}
                             </p>
                           </div>
                           <div className="flex gap-1 flex-shrink-0">
