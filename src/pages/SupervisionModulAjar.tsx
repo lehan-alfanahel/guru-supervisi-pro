@@ -275,7 +275,7 @@ export default function SupervisionModulAjar() {
   const [form, setForm] = useState<FormState>(emptyForm());
   const [editForm, setEditForm] = useState<FormState>(emptyForm());
 
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
