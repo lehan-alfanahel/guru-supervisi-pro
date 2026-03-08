@@ -435,16 +435,30 @@ export default function Supervisions() {
     scores,
     onChange,
     prefix = "",
+    showLinks = false,
   }: {
     scores: Record<string, ScoreValue>;
     onChange: (key: string, val: ScoreValue) => void;
     prefix?: string;
+    showLinks?: boolean;
   }) => (
     <div>
       <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
       <p className="text-xs text-muted-foreground mb-3">
         0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
       </p>
+      {showLinks && Object.keys(teacherAdminLinks).length > 0 && (
+        <div className="mb-3 p-2.5 bg-primary/5 border border-primary/20 rounded-lg">
+          <p className="text-xs font-semibold text-primary mb-1">
+            📎 Link Google Drive isian guru tersedia — klik ikon di kolom Link untuk membuka
+          </p>
+        </div>
+      )}
+      {showLinks && !loadingLinks && Object.keys(teacherAdminLinks).length === 0 && form.teacher_id && (
+        <div className="mb-3 p-2.5 bg-muted/40 border rounded-lg">
+          <p className="text-xs text-muted-foreground">ℹ️ Guru ini belum mengisi instrumen administrasi.</p>
+        </div>
+      )}
       <div className="border rounded-lg overflow-x-auto">
         <table className="w-full text-sm min-w-[320px]">
           <thead className="bg-muted/50">
@@ -454,6 +468,7 @@ export default function Supervisions() {
               <th className="p-2 text-center border-b w-10">0</th>
               <th className="p-2 text-center border-b w-10">1</th>
               <th className="p-2 text-center border-b w-10">2</th>
+              {showLinks && <th className="p-2 text-center border-b w-14 text-xs">Link</th>}
             </tr>
           </thead>
           <tbody>
@@ -473,6 +488,23 @@ export default function Supervisions() {
                     />
                   </td>
                 ))}
+                {showLinks && (
+                  <td className="p-2 text-center border-b">
+                    {teacherAdminLinks[c.key] ? (
+                      <a
+                        href={teacherAdminLinks[c.key]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        title={`Buka: ${teacherAdminLinks[c.key]}`}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">—</span>
+                    )}
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
