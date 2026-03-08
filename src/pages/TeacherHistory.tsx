@@ -503,7 +503,7 @@ export default function TeacherHistory() {
     );
   }
 
-  const totalCount = supervisions.length + coachings.length;
+  const totalCount = supervisions.length + coachings.length + observations.length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
