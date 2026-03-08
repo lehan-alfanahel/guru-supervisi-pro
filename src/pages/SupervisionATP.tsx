@@ -459,8 +459,8 @@ export default function SupervisionATP() {
           <Input placeholder="Contoh: Matematika" value={f.mata_pelajaran} onChange={(e) => setF(p => ({ ...p, mata_pelajaran: e.target.value }))} />
         </div>
         <div className="space-y-1.5">
-          <Label>Kelas / Semester</Label>
-          <Input placeholder="Contoh: X / Ganjil" value={f.kelas_semester} onChange={(e) => setF(p => ({ ...p, kelas_semester: e.target.value }))} />
+          <Label>Kelas - Semester</Label>
+          <Input placeholder="Semester 1 - Kelas 5" value={f.kelas_semester} onChange={(e) => setF(p => ({ ...p, kelas_semester: e.target.value }))} />
         </div>
       </div>
 
