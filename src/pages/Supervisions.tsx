@@ -610,9 +610,6 @@ export default function Supervisions() {
                        onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                    </div>
                  </div>
-                  </div>
-                  <div className="space-y-1.5">
-                </div>
 
                 <ScoreTable scores={editForm.scores} onChange={handleEditScoreChange} prefix="edit_" />
 
