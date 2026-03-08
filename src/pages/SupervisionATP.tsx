@@ -91,6 +91,7 @@ interface FormState {
   notes: string;
   tindak_lanjut: string;
   scores: Record<string, ScoreVal>;
+  remarks: Record<string, string>;
 }
 
 function emptyForm(): FormState {
@@ -102,57 +103,79 @@ function emptyForm(): FormState {
     notes: "",
     tindak_lanjut: "",
     scores: defaultScores(),
+    remarks: {},
   };
 }
 
 // ─── Score Table Component ────────────────────────────────────────────────────
-function ATPScoreTable({ scores, prefix = "", onChange }: {
+function ATPScoreTable({ scores, remarks = {}, prefix = "", onChange, onRemarkChange }: {
   scores: Record<string, ScoreVal>;
+  remarks?: Record<string, string>;
   prefix?: string;
   onChange: (key: string, val: ScoreVal) => void;
+  onRemarkChange?: (key: string, val: string) => void;
 }) {
   return (
     <div className="border rounded-lg overflow-x-auto">
-      <table className="w-full text-sm min-w-[380px]">
+      <table className="w-full text-sm min-w-[480px]">
         <thead className="bg-muted/50">
           <tr>
             <th className="p-2 text-center border-b w-8 text-xs">No</th>
             <th className="p-2 text-left border-b text-xs">Komponen / Indikator</th>
             <th colSpan={3} className="p-2 text-center border-b text-xs">Penilaian</th>
+            <th className="p-2 text-left border-b text-xs">Keterangan</th>
           </tr>
           <tr className="bg-muted/30">
             <th className="p-1 border-b" colSpan={2}></th>
             <th className="p-1 text-center border-b text-[10px] text-muted-foreground w-14">Sesuai<br/>(2)</th>
             <th className="p-1 text-center border-b text-[10px] text-muted-foreground w-16">Tidak Sesuai<br/>(1)</th>
             <th className="p-1 text-center border-b text-[10px] text-muted-foreground w-12">Tidak<br/>(0)</th>
+            <th className="p-1 border-b"></th>
           </tr>
         </thead>
         <tbody>
           {ATP_SECTIONS.map((sec) => (
             <>
               <tr key={`sec-${sec.section}`} className="bg-primary/10">
-                <td colSpan={5} className="p-2 font-bold text-xs text-primary border-b">
+                <td colSpan={6} className="p-2 font-bold text-xs text-primary border-b">
                   {sec.section}. {sec.title}
                 </td>
               </tr>
-              {sec.items.map((item, idx) => (
-                <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                  <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
-                  <td className="p-2 text-xs border-b">{item.label}</td>
-                  {([2, 1, 0] as ScoreVal[]).map((val) => (
-                    <td key={val} className="p-2 text-center border-b">
-                      <input
-                        type="radio"
-                        name={`${prefix}${item.key}`}
-                        value={val}
-                        checked={scores[item.key] === val}
-                        onChange={() => onChange(item.key, val)}
-                        className="accent-primary w-4 h-4 cursor-pointer"
-                      />
+              {sec.items.map((item, idx) => {
+                const score = scores[item.key] ?? 0;
+                const showRemark = score !== 2;
+                return (
+                  <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                    <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
+                    <td className="p-2 text-xs border-b">{item.label}</td>
+                    {([2, 1, 0] as ScoreVal[]).map((val) => (
+                      <td key={val} className="p-2 text-center border-b">
+                        <input
+                          type="radio"
+                          name={`${prefix}${item.key}`}
+                          value={val}
+                          checked={score === val}
+                          onChange={() => onChange(item.key, val)}
+                          className="accent-primary w-4 h-4 cursor-pointer"
+                        />
+                      </td>
+                    ))}
+                    <td className="p-2 border-b min-w-[120px]">
+                      {showRemark && onRemarkChange ? (
+                        <input
+                          type="text"
+                          placeholder="Tulis keterangan..."
+                          value={remarks[item.key] || ""}
+                          onChange={(e) => onRemarkChange(item.key, e.target.value)}
+                          className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">{remarks[item.key] || "—"}</span>
+                      )}
                     </td>
-                  ))}
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </>
           ))}
         </tbody>
@@ -226,6 +249,14 @@ export default function SupervisionATP() {
     );
   };
 
+  const rowToRemarks = (row: any): Record<string, string> => {
+    if (!row.remarks) return {};
+    if (typeof row.remarks === "string") {
+      try { return JSON.parse(row.remarks); } catch { return {}; }
+    }
+    return row.remarks as Record<string, string>;
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.teacher_id) { toast({ title: "Pilih guru terlebih dahulu", variant: "destructive" }); return; }
@@ -240,6 +271,7 @@ export default function SupervisionATP() {
         kelas_semester: form.kelas_semester,
         notes: form.notes,
         tindak_lanjut: form.tindak_lanjut,
+        remarks: form.remarks,
         ...form.scores,
       };
       const { error } = await supabase.from("atp_supervisions" as any).insert(payload);
@@ -265,6 +297,7 @@ export default function SupervisionATP() {
       notes: row.notes || "",
       tindak_lanjut: row.tindak_lanjut || "",
       scores: rowToScores(row),
+      remarks: rowToRemarks(row),
     });
     setEditDialogOpen(true);
   };
@@ -280,6 +313,7 @@ export default function SupervisionATP() {
         kelas_semester: editForm.kelas_semester,
         notes: editForm.notes,
         tindak_lanjut: editForm.tindak_lanjut,
+        remarks: editForm.remarks,
         ...editForm.scores,
       };
       const { error } = await supabase.from("atp_supervisions" as any).update(payload).eq("id", editingId);
@@ -306,6 +340,7 @@ export default function SupervisionATP() {
 
   const handlePrint = (row: any) => {
     const scores = rowToScores(row);
+    const remarks = rowToRemarks(row);
     const total = calcTotal(scores);
     const pct = Math.round((total / ATP_SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
@@ -317,13 +352,14 @@ export default function SupervisionATP() {
       bodyRows += `<tr><td colspan="6" style="background:#e8f4fd;font-weight:bold;padding:6px 8px;font-size:11px;">${sec.section}. ${sec.title}</td></tr>`;
       for (const item of sec.items) {
         const v = scores[item.key] ?? 0;
+        const ket = remarks[item.key] || "";
         bodyRows += `<tr>
           <td style="text-align:center;padding:5px 8px;">${item.num}</td>
           <td style="padding:5px 8px;font-size:11px;">${item.label}</td>
           <td style="text-align:center;">${v === 2 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 1 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 0 ? "✓" : ""}</td>
-          <td></td>
+          <td style="font-size:10px;color:#555;">${ket}</td>
         </tr>`;
       }
     }
@@ -361,14 +397,14 @@ export default function SupervisionATP() {
               <th rowspan="3" style="width:5%;">No</th>
               <th rowspan="3">Komponen/ Indikator</th>
               <th colspan="3">Penilaian</th>
-              <th rowspan="3" style="width:15%;">Catatan</th>
+              <th rowspan="3" style="width:18%;">Keterangan</th>
             </tr>
             <tr>
               <th colspan="2">Ya</th>
-              <th rowspan="2">Tidak (2)</th>
+              <th rowspan="2">Tidak (0)</th>
             </tr>
             <tr>
-              <th style="width:10%;">Sesuai (0)</th>
+              <th style="width:10%;">Sesuai (2)</th>
               <th style="width:12%;">Tidak Sesuai (1)</th>
             </tr>
           </thead>
@@ -461,11 +497,13 @@ export default function SupervisionATP() {
 
       <div>
         <p className="text-sm font-semibold mb-1">Komponen / Indikator ATP</p>
-        <p className="text-xs text-muted-foreground mb-2">2 = Sesuai &nbsp;|&nbsp; 1 = Tidak Sesuai &nbsp;|&nbsp; 0 = Tidak Ada</p>
+        <p className="text-xs text-muted-foreground mb-2">2 = Sesuai &nbsp;|&nbsp; 1 = Tidak Sesuai &nbsp;|&nbsp; 0 = Tidak Ada &nbsp;·&nbsp; <span className="italic">Kolom keterangan muncul jika nilai bukan 2</span></p>
         <ATPScoreTable
           scores={f.scores}
+          remarks={f.remarks}
           prefix={prefix}
           onChange={(key, val) => setF(p => ({ ...p, scores: { ...p.scores, [key]: val } }))}
+          onRemarkChange={(key, val) => setF(p => ({ ...p, remarks: { ...p.remarks, [key]: val } }))}
         />
         {(() => {
           const total = calcTotal(f.scores);
@@ -575,6 +613,7 @@ export default function SupervisionATP() {
         ) : (
           atpList.map((row) => {
             const scores = rowToScores(row);
+            const remarks = rowToRemarks(row);
             const total = calcTotal(scores);
             const pct = Math.round((total / ATP_SCORE_MAX) * 100);
             const pred = getPredikat(pct);
@@ -625,6 +664,7 @@ export default function SupervisionATP() {
                           <div className="space-y-1">
                             {sec.items.map((item) => {
                               const v = scores[item.key] ?? 0;
+                              const ket = remarks[item.key] || "";
                               const labels: Record<number, { text: string; color: string }> = {
                                 2: { text: "Sesuai", color: "bg-green-500" },
                                 1: { text: "Tidak Sesuai", color: "bg-yellow-500" },
@@ -633,7 +673,10 @@ export default function SupervisionATP() {
                               const badge = labels[v];
                               return (
                                 <div key={item.key} className="flex items-start justify-between gap-2 text-xs">
-                                  <span className="text-muted-foreground flex-1">{item.num}. {item.label}</span>
+                                  <div className="flex-1">
+                                    <span className="text-muted-foreground">{item.num}. {item.label}</span>
+                                    {ket && <p className="text-[11px] text-muted-foreground italic mt-0.5">Ket: {ket}</p>}
+                                  </div>
                                   <Badge className={`${badge.color} text-white border-0 shrink-0 text-[10px]`}>{badge.text}</Badge>
                                 </div>
                               );
