@@ -1,274 +1,301 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSchool, getTeachers, getSupervisions, createSupervision, Teacher } from "@/lib/supabase";
+import { getSchool, getTeachers, Teacher } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { getUserFriendlyError } from "@/lib/errorHandler";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, ClipboardList, Calendar, Printer } from "lucide-react";
+import { ArrowLeft, Plus, ClipboardList, Calendar, Printer, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { format } from "date-fns";
 
-const supervisionSchema = z.object({
-  teacher_id: z.string().min(1, "Pilih guru"),
-  supervision_date: z.string().min(1, "Tanggal supervisi harus diisi"),
-  lesson_plan: z.boolean().default(false),
-  syllabus: z.boolean().default(false),
-  assessment_tools: z.boolean().default(false),
-  teaching_materials: z.boolean().default(false),
-  student_attendance: z.boolean().default(false),
-  notes: z.string().max(5000, "Catatan maksimal 5000 karakter").optional(),
-});
+const SUPERVISION_COMPONENTS = [
+  { key: "kalender_pendidikan", label: "Kalender Pendidikan" },
+  { key: "program_tahunan", label: "Program Tahunan" },
+  { key: "program_semester", label: "Program Semester" },
+  { key: "alur_tujuan_pembelajaran", label: "Alur Tujuan Pembelajaran" },
+  { key: "modul_ajar", label: "Modul Ajar" },
+  { key: "jadwal_tatap_muka", label: "Jadwal Tatap Muka" },
+  { key: "agenda_mengajar", label: "Agenda Mengajar" },
+  { key: "daftar_nilai", label: "Daftar Nilai" },
+  { key: "kktp", label: "KKTP" },
+  { key: "absensi_siswa", label: "Absensi Siswa" },
+  { key: "buku_pegangan_guru", label: "Buku Pegangan Guru" },
+  { key: "buku_teks_siswa", label: "Buku Teks Siswa" },
+];
+
+const SCORE_MAX = SUPERVISION_COMPONENTS.length * 2; // 24
+
+type ScoreValue = 0 | 1 | 2;
+
+interface FormState {
+  teacher_id: string;
+  supervision_date: string;
+  mata_pelajaran: string;
+  notes: string;
+  tindak_lanjut: string;
+  scores: Record<string, ScoreValue>;
+}
+
+function getPredikat(pct: number) {
+  if (pct >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+  if (pct >= 81) return { label: "Baik", color: "bg-primary" };
+  if (pct >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+  return { label: "Kurang", color: "bg-destructive" };
+}
+
+const defaultScores: Record<string, ScoreValue> = Object.fromEntries(
+  SUPERVISION_COMPONENTS.map((c) => [c.key, 0])
+);
 
 export default function Supervisions() {
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [schoolId, setSchoolId] = useState<string>("");
-  const [schoolName, setSchoolName] = useState<string>("");
-  const [principalName, setPrincipalName] = useState<string>("");
+  const [schoolId, setSchoolId] = useState("");
+  const [schoolName, setSchoolName] = useState("");
+  const [principalName, setPrincipalName] = useState("");
+  const [principalNip, setPrincipalNip] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const {
-    register,
-    handleSubmit: handleFormSubmit,
-    formState: { errors },
-    reset,
-    control,
-    watch,
-  } = useForm<z.infer<typeof supervisionSchema>>({
-    resolver: zodResolver(supervisionSchema),
-    defaultValues: {
-      teacher_id: "",
-      supervision_date: new Date().toISOString().split('T')[0],
-      lesson_plan: false,
-      syllabus: false,
-      assessment_tools: false,
-      teaching_materials: false,
-      student_attendance: false,
-      notes: "",
-    },
+  const [form, setForm] = useState<FormState>({
+    teacher_id: "",
+    supervision_date: new Date().toISOString().split("T")[0],
+    mata_pelajaran: "",
+    notes: "",
+    tindak_lanjut: "",
+    scores: { ...defaultScores },
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) { navigate("/auth"); return; }
     loadData();
   }, [user, navigate]);
 
   const loadData = async () => {
     if (!user) return;
-
     try {
       const school = await getSchool(user.id);
-      if (!school) {
-        navigate("/setup-school");
-        return;
-      }
-
+      if (!school) { navigate("/setup-school"); return; }
       setSchoolId(school.id);
       setSchoolName(school.name);
       setPrincipalName(school.principal_name);
-      const [teachersData, supervisionsData] = await Promise.all([
+      setPrincipalNip(school.principal_nip);
+
+      const [teachersData, { data: supervisionsData }] = await Promise.all([
         getTeachers(school.id),
-        getSupervisions(school.id),
+        supabase
+          .from("supervisions")
+          .select("*, teachers(name, nip, rank)")
+          .eq("school_id", school.id)
+          .order("supervision_date", { ascending: false }),
       ]);
-
       setTeachers(teachersData);
-      setSupervisions(supervisionsData);
+      setSupervisions(supervisionsData || []);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: getUserFriendlyError(error),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onSubmit = async (data: z.infer<typeof supervisionSchema>) => {
-    if (!user) return;
-
-    setLoading(true);
-
-    try {
-      await createSupervision({
-        teacher_id: data.teacher_id,
-        supervision_date: data.supervision_date,
-        lesson_plan: data.lesson_plan || false,
-        syllabus: data.syllabus || false,
-        assessment_tools: data.assessment_tools || false,
-        teaching_materials: data.teaching_materials || false,
-        student_attendance: data.student_attendance || false,
-        notes: data.notes || "",
-        school_id: schoolId,
-        created_by: user.id,
-      });
-
-      toast({ title: "Berhasil!", description: "Supervisi berhasil disimpan" });
-      setDialogOpen(false);
-      resetForm();
-      loadData();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: getUserFriendlyError(error),
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    reset({
+    setForm({
       teacher_id: "",
-      supervision_date: new Date().toISOString().split('T')[0],
-      lesson_plan: false,
-      syllabus: false,
-      assessment_tools: false,
-      teaching_materials: false,
-      student_attendance: false,
+      supervision_date: new Date().toISOString().split("T")[0],
+      mata_pelajaran: "",
       notes: "",
+      tindak_lanjut: "",
+      scores: { ...defaultScores },
     });
   };
 
-  const calculateCompleteness = (supervision: any) => {
-    const total = 5;
-    const completed = [
-      supervision.lesson_plan,
-      supervision.syllabus,
-      supervision.assessment_tools,
-      supervision.teaching_materials,
-      supervision.student_attendance,
-    ].filter(Boolean).length;
-    return Math.round((completed / total) * 100);
+  const handleScoreChange = (key: string, val: ScoreValue) => {
+    setForm((prev) => ({ ...prev, scores: { ...prev.scores, [key]: val } }));
   };
 
-  const handlePrintAll = () => {
+  const calculateScore = (supervision: any) => {
+    const total = SUPERVISION_COMPONENTS.reduce(
+      (sum, c) => sum + (Number(supervision[c.key]) || 0),
+      0
+    );
+    return total;
+  };
+
+  const calculatePct = (supervision: any) => {
+    const score = calculateScore(supervision);
+    return Math.round((score / SCORE_MAX) * 100);
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.teacher_id) return;
+    setSubmitting(true);
+    try {
+      const payload: any = {
+        school_id: schoolId,
+        teacher_id: form.teacher_id,
+        supervision_date: form.supervision_date,
+        mata_pelajaran: form.mata_pelajaran,
+        notes: form.notes,
+        tindak_lanjut: form.tindak_lanjut,
+        created_by: user!.id,
+        ...form.scores,
+      };
+      const { error } = await supabase.from("supervisions").insert(payload);
+      if (error) throw error;
+      toast({ title: "✅ Supervisi berhasil disimpan!" });
+      setDialogOpen(false);
+      resetForm();
+      loadData();
+    } catch (error: any) {
+      toast({ title: "Error", description: getUserFriendlyError(error), variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handlePrintSingle = (s: any) => {
+    const score = calculateScore(s);
+    const pct = Math.round((score / SCORE_MAX) * 100);
+    const predikat = getPredikat(pct);
     const win = window.open("", "_blank");
     if (!win) return;
     win.document.write(`
       <html>
         <head>
-          <title>Laporan Supervisi - ${schoolName}</title>
+          <title>Instrumen Supervisi - ${s.teachers?.name}</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1, h2 { text-align: center; margin: 4px 0; }
-            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 16px; }
-            .session { border: 1px solid #ccc; border-radius: 4px; padding: 12px; margin-bottom: 12px; page-break-inside: avoid; }
-            .teacher { font-weight: bold; font-size: 15px; }
-            .meta { color: #666; font-size: 12px; margin-bottom: 8px; }
-            .items { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; }
-            .item-ok { color: green; }
-            .item-no { color: #999; }
+            body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
+            h1, h2 { text-align: center; margin: 3px 0; }
+            h1 { font-size: 14px; }
+            h2 { font-size: 13px; }
+            .info-table { width: 100%; margin-bottom: 14px; }
+            .info-table td { padding: 3px 6px; }
+            .info-table td:first-child { width: 180px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+            td, th { padding: 6px 10px; border: 1px solid #999; }
+            th { background: #f0f0f0; text-align: center; font-size: 12px; }
+            .center { text-align: center; }
+            .score-cell { text-align: center; font-weight: bold; }
+            .footer-row { display: flex; justify-content: space-between; margin-top: 16px; }
+            .sign-block { width: 45%; text-align: center; }
+            .sign-space { height: 60px; }
+            .sign-line { border-top: 1px solid #333; margin-top: 4px; padding-top: 2px; font-size: 12px; }
+            .summary-table { width: 100%; border-collapse: collapse; }
+            .summary-table td { padding: 5px 10px; border: 1px solid #999; font-size: 12px; }
+            .predikat-box { display:inline-block; padding:2px 8px; border:1px solid #333; font-weight:bold; }
           </style>
         </head>
         <body>
-          <div class="header">
-            <h1>LAPORAN SUPERVISI PEMBELAJARAN</h1>
-            <h2>${schoolName}</h2>
-            <h2>Kepala Sekolah: ${principalName}</h2>
-          </div>
-          ${supervisions.map(s => {
-            const c = calculateCompleteness(s);
-            return `
-              <div class="session">
-                <div class="teacher">${s.teachers?.name}</div>
-                <div class="meta">NIP: ${s.teachers?.nip} | Tanggal: ${new Date(s.supervision_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })} | Kelengkapan: ${c}%</div>
-                <div class="items">
-                  <span class="${s.lesson_plan ? "item-ok" : "item-no"}">${s.lesson_plan ? "✓" : "✗"} RPP</span>
-                  <span class="${s.syllabus ? "item-ok" : "item-no"}">${s.syllabus ? "✓" : "✗"} Silabus</span>
-                  <span class="${s.assessment_tools ? "item-ok" : "item-no"}">${s.assessment_tools ? "✓" : "✗"} Penilaian</span>
-                  <span class="${s.teaching_materials ? "item-ok" : "item-no"}">${s.teaching_materials ? "✓" : "✗"} Bahan Ajar</span>
-                  <span class="${s.student_attendance ? "item-ok" : "item-no"}">${s.student_attendance ? "✓" : "✗"} Daftar Hadir</span>
-                </div>
-                ${s.notes ? `<div style="margin-top:8px;font-size:12px;color:#555;">Catatan: ${s.notes}</div>` : ""}
-              </div>`;
-          }).join("")}
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.print();
-  };
+          <h1>Instrumen Supervisi Akademik (Kurikulum Merdeka)</h1>
+          <h2>Administrasi Pembelajaran</h2>
+          <br/>
+          <table class="info-table" style="border:none;">
+            <tr><td>Nama Sekolah</td><td>: ${schoolName}</td></tr>
+            <tr><td>Nama Guru</td><td>: ${s.teachers?.name || ""}</td></tr>
+            <tr><td>Mata Pelajaran</td><td>: ${s.mata_pelajaran || ""}</td></tr>
+            <tr><td>Jumlah Jam Tatap Muka</td><td>: ${s.teaching_hours || ""}</td></tr>
+          </table>
 
-  const handlePrintSingle = (supervision: any) => {
-    const items = [
-      { label: "RPP (Rencana Pelaksanaan Pembelajaran)", value: supervision.lesson_plan },
-      { label: "Silabus", value: supervision.syllabus },
-      { label: "Instrumen Penilaian", value: supervision.assessment_tools },
-      { label: "Bahan Ajar", value: supervision.teaching_materials },
-      { label: "Daftar Hadir Siswa", value: supervision.student_attendance },
-    ];
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(`
-      <html>
-        <head>
-          <title>Instrumen Supervisi - ${supervision.teachers?.name}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 30px; color: #333; }
-            h1, h2 { text-align: center; margin: 4px 0; }
-            .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-            td, th { padding: 8px 12px; border: 1px solid #ccc; font-size: 13px; }
-            th { background: #f5f5f5; font-weight: bold; }
-            .check { color: green; font-weight: bold; }
-            .uncheck { color: red; }
-            .footer { margin-top: 40px; display: flex; justify-content: space-between; font-size: 13px; }
-            .sign-box { text-align: center; }
-            .sign-line { margin-top: 60px; border-top: 1px solid #333; padding-top: 4px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h1>INSTRUMEN SUPERVISI PEMBELAJARAN</h1>
-            <h2>${schoolName}</h2>
-          </div>
           <table>
-            <tr><td style="width:35%;background:#f5f5f5;font-weight:bold;">Nama Guru</td><td>${supervision.teachers?.name}</td></tr>
-            <tr><td style="background:#f5f5f5;font-weight:bold;">NIP</td><td>${supervision.teachers?.nip}</td></tr>
-            <tr><td style="background:#f5f5f5;font-weight:bold;">Tanggal Supervisi</td><td>${new Date(supervision.supervision_date).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</td></tr>
+            <thead>
+              <tr>
+                <th rowspan="2" style="width:5%;">No</th>
+                <th rowspan="2">Komponen Administrasi Pembelajaran</th>
+                <th colspan="3">Kondisi</th>
+                <th rowspan="2" style="width:20%;">Keterangan</th>
+              </tr>
+              <tr>
+                <th style="width:8%;">Tidak Ada (0)</th>
+                <th style="width:8%;">Ada tetapi tidak sesuai (1)</th>
+                <th style="width:8%;">Ada dan sesuai (2)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${SUPERVISION_COMPONENTS.map((c, i) => {
+                const val = Number(s[c.key]) || 0;
+                return `<tr>
+                  <td class="center">${i + 1}</td>
+                  <td>${c.label}</td>
+                  <td class="center">${val === 0 ? "✓" : ""}</td>
+                  <td class="center">${val === 1 ? "✓" : ""}</td>
+                  <td class="center">${val === 2 ? "✓" : ""}</td>
+                  <td></td>
+                </tr>`;
+              }).join("")}
+              <tr>
+                <td colspan="2" style="font-weight:bold;">Jumlah</td>
+                <td class="center">${SUPERVISION_COMPONENTS.filter(c => Number(s[c.key]) === 0).length}</td>
+                <td class="center">${SUPERVISION_COMPONENTS.filter(c => Number(s[c.key]) === 1).length}</td>
+                <td class="center">${SUPERVISION_COMPONENTS.filter(c => Number(s[c.key]) === 2).length}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2" style="font-weight:bold;">Skor Total</td>
+                <td class="center score-cell" colspan="3">${score}</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="2" style="font-weight:bold;">Ketercapaian</td>
+                <td class="center score-cell" colspan="3">${pct}% — <span class="predikat-box">${predikat.label}</span></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="font-size:12px;">Keterangan : Nilai Akhir = <u>Skor Perolehan</u> x 100 % &nbsp;&nbsp;&nbsp; Skor Maksimal (${SCORE_MAX})</p>
+          <br/>
+          <table style="border:none;width:100%;font-size:12px;">
+            <tr><td style="border:none;width:30%;">Ketercapaian :</td><td style="border:none;">91% - 100% = Sangat Baik &nbsp;&nbsp;&nbsp; 71% - 80% = Cukup</td></tr>
+            <tr><td style="border:none;"></td><td style="border:none;">81% - 90% = Baik &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dibawah 71% = Kurang</td></tr>
           </table>
           <br/>
-          <table>
-            <tr><th style="width:5%;">No</th><th>Komponen Supervisi</th><th style="width:15%;">Ada</th><th style="width:15%;">Tidak Ada</th></tr>
-            ${items.map((item, i) => `
-              <tr>
-                <td style="text-align:center;">${i + 1}</td>
-                <td>${item.label}</td>
-                <td style="text-align:center;">${item.value ? '<span class="check">✓</span>' : ''}</td>
-                <td style="text-align:center;">${!item.value ? '<span class="uncheck">✗</span>' : ''}</td>
-              </tr>
-            `).join("")}
+          <table style="border:none;">
+            <tr>
+              <td style="border:none;">Catatan</td>
+              <td style="border:none;">: ${s.notes || "..................................................................................."}</td>
+            </tr>
+            <tr>
+              <td style="border:none;">Tindak Lanjut</td>
+              <td style="border:none;">: ${s.tindak_lanjut || "..................................................................................."}</td>
+            </tr>
           </table>
-          ${supervision.notes ? `<div style="margin-top:16px;padding:10px;border:1px solid #ccc;"><strong>Catatan Observasi:</strong><br/>${supervision.notes}</div>` : ""}
-          <div class="footer">
-            <div class="sign-box">
-              <p>Kepala Sekolah,</p>
-              <div class="sign-line">${principalName}</div>
-            </div>
-            <div class="sign-box">
-              <p>Guru,</p>
-              <div class="sign-line">${supervision.teachers?.name || ""}</div>
-            </div>
-          </div>
+          <br/><br/>
+          <table style="border:none;width:100%;">
+            <tr>
+              <td style="border:none;width:50%;"></td>
+              <td style="border:none;text-align:center;">
+                ............, .............................<br/><br/><br/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;">Guru yang di Supervisi</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi</td>
+            </tr>
+            <tr>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/>
+                <u>${s.teachers?.name || ""}</u>
+              </td>
+              <td style="border:none;text-align:center;"><br/><br/><br/><br/>
+                <u>${principalName}</u><br/>
+                NIP. ${principalNip}
+              </td>
+            </tr>
+          </table>
         </body>
       </html>
     `);
@@ -279,10 +306,7 @@ export default function Supervisions() {
   if (loading && supervisions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Memuat...</p>
-        </div>
+        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -293,293 +317,225 @@ export default function Supervisions() {
       <header className="bg-primary text-primary-foreground border-b shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10 gap-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/dashboard")} className="hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
               <h1 className="text-lg font-bold">Supervisi</h1>
-              <p className="text-sm opacity-90">{supervisions.length} supervisi</p>
+              <p className="text-sm opacity-90">{supervisions.length} data</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {supervisions.length > 0 && (
-              <Button size="sm" variant="ghost" className="hover:bg-white/10 gap-1.5" onClick={handlePrintAll}>
-                <Printer className="w-4 h-4" />
-                <span className="hidden sm:inline">Cetak Semua</span>
-              </Button>
-            )}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
             <DialogTrigger asChild>
-              <Button size="sm" onClick={resetForm} className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
-                <Plus className="w-4 h-4" />
-                Buat
+              <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
+                <Plus className="w-4 h-4" /> Buat
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Buat Supervisi Baru</DialogTitle>
+                <DialogTitle>Instrumen Supervisi Akademik</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleFormSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="teacher">Guru</Label>
-                  <Controller
-                    name="teacher_id"
-                    control={control}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih guru" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {teachers.map((teacher) => (
-                            <SelectItem key={teacher.id} value={teacher.id}>
-                              {teacher.name} - {teacher.nip}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.teacher_id && (
-                    <p className="text-sm text-destructive">{String(errors.teacher_id.message)}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date">Tanggal Supervisi</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    {...register("supervision_date")}
-                  />
-                  {errors.supervision_date && (
-                    <p className="text-sm text-destructive">{String(errors.supervision_date.message)}</p>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <Label>Kelengkapan Perangkat Pembelajaran</Label>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="lesson_plan"
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id="lesson_plan"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <label htmlFor="lesson_plan" className="text-sm cursor-pointer">
-                      RPP (Rencana Pelaksanaan Pembelajaran)
-                    </label>
+              <form onSubmit={onSubmit} className="space-y-5">
+                {/* Basic Info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Guru <span className="text-destructive">*</span></Label>
+                    <Select value={form.teacher_id} onValueChange={(v) => setForm((p) => ({ ...p, teacher_id: v }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih guru" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {teachers.map((t) => (
+                          <SelectItem key={t.id} value={t.id}>{t.name} — {t.nip}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="syllabus"
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id="syllabus"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <label htmlFor="syllabus" className="text-sm cursor-pointer">
-                      Silabus
-                    </label>
+                  <div className="space-y-1.5">
+                    <Label>Tanggal Supervisi</Label>
+                    <Input type="date" value={form.supervision_date}
+                      onChange={(e) => setForm((p) => ({ ...p, supervision_date: e.target.value }))} />
                   </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="assessment_tools"
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id="assessment_tools"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <label htmlFor="assessment_tools" className="text-sm cursor-pointer">
-                      Instrumen Penilaian
-                    </label>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="teaching_materials"
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id="teaching_materials"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <label htmlFor="teaching_materials" className="text-sm cursor-pointer">
-                      Bahan Ajar
-                    </label>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="student_attendance"
-                      control={control}
-                      render={({ field }) => (
-                        <Checkbox
-                          id="student_attendance"
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <label htmlFor="student_attendance" className="text-sm cursor-pointer">
-                      Daftar Hadir Siswa
-                    </label>
+                  <div className="space-y-1.5">
+                    <Label>Mata Pelajaran</Label>
+                    <Input placeholder="Contoh: Matematika" value={form.mata_pelajaran}
+                      onChange={(e) => setForm((p) => ({ ...p, mata_pelajaran: e.target.value }))} />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Catatan Observasi (maks. 5000 karakter)</Label>
-                  <Textarea
-                    id="notes"
-                    {...register("notes")}
-                    placeholder="Tulis catatan hasil observasi, saran, atau rekomendasi..."
-                    rows={4}
-                  />
-                  {errors.notes && (
-                    <p className="text-sm text-destructive">{String(errors.notes.message)}</p>
-                  )}
+                {/* Scoring Table */}
+                <div>
+                  <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    0 = Tidak Ada &nbsp;|&nbsp; 1 = Ada tetapi tidak sesuai &nbsp;|&nbsp; 2 = Ada dan sesuai
+                  </p>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50">
+                        <tr>
+                          <th className="p-2 text-left border-b w-8">No</th>
+                          <th className="p-2 text-left border-b">Komponen</th>
+                          <th className="p-2 text-center border-b w-12">0</th>
+                          <th className="p-2 text-center border-b w-12">1</th>
+                          <th className="p-2 text-center border-b w-12">2</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SUPERVISION_COMPONENTS.map((c, i) => (
+                          <tr key={c.key} className={i % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                            <td className="p-2 text-center text-muted-foreground border-b">{i + 1}</td>
+                            <td className="p-2 border-b">{c.label}</td>
+                            {([0, 1, 2] as ScoreValue[]).map((val) => (
+                              <td key={val} className="p-2 text-center border-b">
+                                <input
+                                  type="radio"
+                                  name={c.key}
+                                  value={val}
+                                  checked={form.scores[c.key] === val}
+                                  onChange={() => handleScoreChange(c.key, val)}
+                                  className="accent-primary w-4 h-4 cursor-pointer"
+                                />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Score summary */}
+                  {(() => {
+                    const total = Object.values(form.scores).reduce((s, v) => s + v, 0);
+                    const pct = Math.round((total / SCORE_MAX) * 100);
+                    const predikat = getPredikat(pct);
+                    return (
+                      <div className="mt-3 p-3 bg-muted/30 rounded-lg flex items-center justify-between text-sm">
+                        <span>Skor: <strong>{total}/{SCORE_MAX}</strong></span>
+                        <span>Nilai: <strong>{pct}%</strong></span>
+                        <Badge className={`${predikat.color} text-white border-0`}>{predikat.label}</Badge>
+                      </div>
+                    );
+                  })()}
                 </div>
 
-                <div className="flex gap-1.5">
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="flex-1">
-                    Batal
-                  </Button>
-                  <Button type="submit" disabled={loading} className="flex-1">
-                    {loading ? "Menyimpan..." : "Simpan"}
+                {/* Catatan & Tindak Lanjut */}
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="space-y-1.5">
+                    <Label>Catatan</Label>
+                    <Textarea placeholder="Catatan hasil observasi..." rows={2}
+                      value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Tindak Lanjut</Label>
+                    <Textarea placeholder="Rencana tindak lanjut..." rows={2}
+                      value={form.tindak_lanjut} onChange={(e) => setForm((p) => ({ ...p, tindak_lanjut: e.target.value }))} />
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
+                  <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
+                    {submitting ? "Menyimpan..." : "Simpan Supervisi"}
                   </Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
-          </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-4">
+      {/* Content */}
+      <main className="max-w-4xl mx-auto p-4 space-y-4">
         {supervisions.length === 0 ? (
-          <Card className="shadow-[var(--shadow-card)]">
+          <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
               <p className="text-lg font-medium mb-2">Belum ada supervisi</p>
-              <p className="text-sm text-muted-foreground mb-4">Buat supervisi pertama Anda</p>
+              <p className="text-sm text-muted-foreground mb-4">Mulai buat instrumen supervisi pertama</p>
               <Button onClick={() => setDialogOpen(true)} className="gap-1.5">
-                <Plus className="w-4 h-4" />
-                Buat Supervisi
+                <Plus className="w-4 h-4" /> Buat Supervisi
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid gap-4">
-            {supervisions.map((supervision) => {
-              const completeness = calculateCompleteness(supervision);
-              return (
-                <Card key={supervision.id} className="shadow-[var(--shadow-card)]">
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg">{supervision.teachers?.name}</h3>
-                          <p className="text-sm text-muted-foreground">NIP: {supervision.teachers?.nip}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                            <Calendar className="w-4 h-4" />
-                            {new Date(supervision.supervision_date).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </div>
-                          <Button size="sm" variant="outline" className="gap-1" onClick={() => handlePrintSingle(supervision)}>
-                            <Printer className="w-3 h-3" /> Cetak
-                          </Button>
-                        </div>
+          supervisions.map((s) => {
+            const score = calculateScore(s);
+            const pct = calculatePct(s);
+            const predikat = getPredikat(pct);
+            const isExpanded = expandedId === s.id;
+            return (
+              <Card key={s.id} className="shadow-[var(--shadow-card)]">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold">{s.teachers?.name}</h3>
+                        <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
                       </div>
-
-                      {/* Progress Bar */}
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Kelengkapan</span>
-                          <span className="font-semibold">{completeness}%</span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-2">
-                          <div
-                            className="bg-primary rounded-full h-2 transition-all"
-                            style={{ width: `${completeness}%` }}
-                          />
-                        </div>
+                      <p className="text-xs text-muted-foreground">NIP: {s.teachers?.nip}</p>
+                      {s.mata_pelajaran && <p className="text-xs text-muted-foreground">Mapel: {s.mata_pelajaran}</p>}
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(s.supervision_date), "dd MMM yyyy")}
                       </div>
+                    </div>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintSingle(s)}>
+                        <Printer className="w-3 h-3" /> Cetak
+                      </Button>
+                      <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedId(isExpanded ? null : s.id)}>
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </div>
 
-                      {/* Checklist Summary */}
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className={`flex items-center gap-1 ${supervision.lesson_plan ? 'text-green-600' : 'text-muted-foreground'}`}>
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${supervision.lesson_plan ? 'bg-green-600 border-green-600' : 'border-muted-foreground'}`}>
-                            {supervision.lesson_plan && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <span>RPP</span>
-                        </div>
-                        <div className={`flex items-center gap-1 ${supervision.syllabus ? 'text-green-600' : 'text-muted-foreground'}`}>
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${supervision.syllabus ? 'bg-green-600 border-green-600' : 'border-muted-foreground'}`}>
-                            {supervision.syllabus && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <span>Silabus</span>
-                        </div>
-                        <div className={`flex items-center gap-1 ${supervision.assessment_tools ? 'text-green-600' : 'text-muted-foreground'}`}>
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${supervision.assessment_tools ? 'bg-green-600 border-green-600' : 'border-muted-foreground'}`}>
-                            {supervision.assessment_tools && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <span>Penilaian</span>
-                        </div>
-                        <div className={`flex items-center gap-1 ${supervision.teaching_materials ? 'text-green-600' : 'text-muted-foreground'}`}>
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${supervision.teaching_materials ? 'bg-green-600 border-green-600' : 'border-muted-foreground'}`}>
-                            {supervision.teaching_materials && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <span>Bahan Ajar</span>
-                        </div>
-                        <div className={`flex items-center gap-1 ${supervision.student_attendance ? 'text-green-600' : 'text-muted-foreground'}`}>
-                          <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${supervision.student_attendance ? 'bg-green-600 border-green-600' : 'border-muted-foreground'}`}>
-                            {supervision.student_attendance && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <span>Daftar Hadir</span>
-                        </div>
+                  {/* Score bar */}
+                  <div className="mt-3 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Skor {score}/{SCORE_MAX}</span>
+                      <span className="font-semibold">{pct}%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+
+                  {/* Expanded detail */}
+                  {isExpanded && (
+                    <div className="mt-3 border-t pt-3 space-y-2">
+                      <div className="grid grid-cols-1 gap-1">
+                        {SUPERVISION_COMPONENTS.map((c, i) => {
+                          const val = Number(s[c.key]) || 0;
+                          const colors = ["text-destructive", "text-yellow-600", "text-green-600"];
+                          const labels = ["Tidak Ada", "Ada, tidak sesuai", "Ada dan sesuai"];
+                          return (
+                            <div key={c.key} className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">{i + 1}. {c.label}</span>
+                              <Badge variant="outline" className={`text-xs ${colors[val]}`}>{labels[val]}</Badge>
+                            </div>
+                          );
+                        })}
                       </div>
-
-                      {supervision.notes && (
-                        <div className="pt-2 border-t">
-                          <p className="text-xs text-muted-foreground mb-1">Catatan:</p>
-                          <p className="text-sm">{supervision.notes}</p>
+                      {s.notes && (
+                        <div className="pt-2">
+                          <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
+                          <p className="text-sm">{s.notes}</p>
+                        </div>
+                      )}
+                      {s.tindak_lanjut && (
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
+                          <p className="text-sm">{s.tindak_lanjut}</p>
                         </div>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })
         )}
       </main>
 
-      {/* Bottom Navigation */}
       <AdminBottomNav />
     </div>
   );
