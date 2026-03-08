@@ -118,6 +118,9 @@ export default function TeacherSupervision() {
   // Modul Ajar Supervisions from principal
   const [modulAjarSupervisions, setModulAjarSupervisions] = useState<any[]>([]);
   const [expandedMaId, setExpandedMaId] = useState<string | null>(null);
+  // Observation (Pelaksanaan) from principal
+  const [observations, setObservations] = useState<any[]>([]);
+  const [expandedObsId, setExpandedObsId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
