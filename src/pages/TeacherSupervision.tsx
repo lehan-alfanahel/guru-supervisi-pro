@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ATP_SECTIONS, ATP_ALL_KEYS } from "@/pages/SupervisionATP";
 import { MODUL_AJAR_SECTIONS, MA_ALL_KEYS } from "@/pages/SupervisionModulAjar";
+import { OBSERVATION_SECTIONS, ALL_ITEM_KEYS } from "@/pages/SupervisionObservation";
 
 interface TeacherInfo {
   id: string;
