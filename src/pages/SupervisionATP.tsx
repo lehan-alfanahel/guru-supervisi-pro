@@ -572,7 +572,7 @@ export default function SupervisionATP() {
 
           {/* Edit Dialog */}
           <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingId(null); }}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
               <DialogHeader>
                 <DialogTitle>Edit Supervisi ATP</DialogTitle>
               </DialogHeader>
