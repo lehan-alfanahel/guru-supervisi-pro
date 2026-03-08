@@ -446,14 +446,14 @@ export default function TeacherSupervision() {
 
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
-          <TabsList className="w-full grid grid-cols-5">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="administrasi" className="text-[10px] px-1">
               Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="text-[10px] px-1">
-              Supervisi
-              {supervisions.length > 0 && (
-                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{supervisions.length}</Badge>
+            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
+              Pelaksanaan
+              {observations.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="atp" className="text-[10px] px-1">
@@ -466,12 +466,6 @@ export default function TeacherSupervision() {
               Modul Ajar
               {modulAjarSupervisions.length > 0 && (
                 <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{modulAjarSupervisions.length}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
-              Pelaksanaan
-              {observations.length > 0 && (
-                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
               )}
             </TabsTrigger>
           </TabsList>
