@@ -555,7 +555,7 @@ export default function Supervisions() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label>Guru <span className="text-destructive">*</span></Label>
-                    <Select value={form.teacher_id} onValueChange={(v) => setForm((p) => ({ ...p, teacher_id: v }))}>
+                    <Select value={form.teacher_id} onValueChange={(v) => { setForm((p) => ({ ...p, teacher_id: v })); fetchTeacherLinks(v); }}>
                       <SelectTrigger><SelectValue placeholder="Pilih guru" /></SelectTrigger>
                       <SelectContent>
                         {teachers.map((t) => (
