@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ATP_SECTIONS, ATP_ALL_KEYS } from "@/pages/SupervisionATP";
 import { MODUL_AJAR_SECTIONS, MA_ALL_KEYS } from "@/pages/SupervisionModulAjar";
+import { OBSERVATION_SECTIONS, ALL_ITEM_KEYS } from "@/pages/SupervisionObservation";
 
 interface TeacherInfo {
   id: string;
@@ -117,6 +118,9 @@ export default function TeacherSupervision() {
   // Modul Ajar Supervisions from principal
   const [modulAjarSupervisions, setModulAjarSupervisions] = useState<any[]>([]);
   const [expandedMaId, setExpandedMaId] = useState<string | null>(null);
+  // Observation (Pelaksanaan) from principal
+  const [observations, setObservations] = useState<any[]>([]);
+  const [expandedObsId, setExpandedObsId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -157,7 +161,7 @@ export default function TeacherSupervision() {
         principalNip: school?.principal_nip || "",
       });
 
-      const [{ data: records }, { data: sups }, { data: atpData }, { data: maData }] = await Promise.all([
+      const [{ data: records }, { data: sups }, { data: atpData }, { data: maData }, { data: obsData }] = await Promise.all([
         supabase.from("teaching_administration").select("*")
           .eq("teacher_account_id", teacherAccount.id)
           .order("created_at", { ascending: false }),
@@ -170,12 +174,16 @@ export default function TeacherSupervision() {
         supabase.from("modul_ajar_supervisions" as any).select("*")
           .eq("teacher_id", teacher.id)
           .order("supervision_date", { ascending: false }),
+        supabase.from("supervision_observations").select("*")
+          .eq("teacher_id", teacher.id)
+          .order("observation_date", { ascending: false }),
       ]);
 
       setAdministrationRecords(records || []);
       setSupervisions(sups || []);
       setAtpSupervisions(atpData || []);
       setModulAjarSupervisions(maData || []);
+      setObservations(obsData || []);
       if (!records || records.length === 0) setShowForm(true);
     } catch (error) {
       console.error("Error loading data:", error);
@@ -438,21 +446,33 @@ export default function TeacherSupervision() {
 
         {/* Tabs */}
         <Tabs defaultValue="administrasi">
-          <TabsList className="w-full grid grid-cols-4">
-            <TabsTrigger value="administrasi" className="text-xs">
+          <TabsList className="w-full grid grid-cols-5">
+            <TabsTrigger value="administrasi" className="text-[10px] px-1">
               Administrasi
             </TabsTrigger>
-            <TabsTrigger value="supervisi" className="text-xs">
+            <TabsTrigger value="supervisi" className="text-[10px] px-1">
               Supervisi
               {supervisions.length > 0 && (
-                <Badge className="ml-1 bg-primary/20 text-primary border-0 text-xs">{supervisions.length}</Badge>
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{supervisions.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="atp" className="text-xs">
+            <TabsTrigger value="atp" className="text-[10px] px-1">
               ATP
+              {atpSupervisions.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{atpSupervisions.length}</Badge>
+              )}
             </TabsTrigger>
-            <TabsTrigger value="modul_ajar" className="text-xs">
+            <TabsTrigger value="modul_ajar" className="text-[10px] px-1">
               Modul Ajar
+              {modulAjarSupervisions.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{modulAjarSupervisions.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="pelaksanaan" className="text-[10px] px-1">
+              Pelaksanaan
+              {observations.length > 0 && (
+                <Badge className="ml-0.5 bg-primary/20 text-primary border-0 text-[9px] px-1">{observations.length}</Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -934,6 +954,119 @@ export default function TeacherSupervision() {
                                   })}
                                 </div>
                               )
+                            ))}
+                            {row.notes && (
+                              <div className="pt-2 border-t">
+                                <p className="text-xs font-medium text-muted-foreground">Catatan:</p>
+                                <p className="text-sm">{row.notes}</p>
+                              </div>
+                            )}
+                            {row.tindak_lanjut && (
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground">Tindak Lanjut:</p>
+                                <p className="text-sm">{row.tindak_lanjut}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ── TAB 5: HASIL SUPERVISI PELAKSANAAN PEMBELAJARAN ── */}
+          <TabsContent value="pelaksanaan" className="space-y-4 mt-4">
+            <div>
+              <h2 className="text-base font-bold">Hasil Supervisi Pelaksanaan</h2>
+              <p className="text-xs text-muted-foreground">Supervisi Akademik Pelaksanaan Pembelajaran — {observations.length} penilaian</p>
+            </div>
+
+            {observations.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <ClipboardList className="w-16 h-16 text-muted-foreground mb-4" />
+                  <p className="text-lg font-semibold mb-1">Belum ada hasil supervisi pelaksanaan</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Data akan muncul setelah kepala sekolah melakukan observasi pembelajaran
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {observations.map((row: any, index: number) => {
+                  const OBS_SCORE_MAX = ALL_ITEM_KEYS.length * 2;
+                  const scores = (row.scores as Record<string, number>) || {};
+                  const total = ALL_ITEM_KEYS.reduce((s, k) => s + (Number(scores[k]) || 0), 0);
+                  const pct = Math.round((total / OBS_SCORE_MAX) * 100);
+                  const getObsPredikat = (p: number) => {
+                    if (p >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+                    if (p >= 81) return { label: "Baik", color: "bg-primary" };
+                    if (p >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+                    return { label: "Kurang", color: "bg-destructive" };
+                  };
+                  const predikat = getObsPredikat(pct);
+                  const isExpanded = expandedObsId === row.id;
+                  return (
+                    <Card key={row.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-2 mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge className={`${predikat.color} text-white border-0 text-xs`}>{predikat.label}</Badge>
+                              {index === 0 && <Badge variant="outline" className="text-xs">Terbaru</Badge>}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(row.observation_date), "dd MMMM yyyy")}
+                            </div>
+                            <div className="flex gap-2 text-xs mt-1">
+                              {row.mata_pelajaran && <span className="font-medium">{row.mata_pelajaran}</span>}
+                              {row.materi_topik && <span className="text-muted-foreground">· {row.materi_topik}</span>}
+                            </div>
+                          </div>
+                          <Button size="sm" variant="ghost" className="px-2" onClick={() => setExpandedObsId(isExpanded ? null : row.id)}>
+                            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          </Button>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Skor {total}/{OBS_SCORE_MAX}</span>
+                            <span className="font-semibold">{pct}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+
+                        {isExpanded && (
+                          <div className="mt-3 border-t pt-3 space-y-3">
+                            {OBSERVATION_SECTIONS.map((sec) => (
+                              <div key={sec.section}>
+                                <p className="text-xs font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                                {sec.groups.map((group) => (
+                                  <div key={group.num} className="mb-1.5">
+                                    <p className="text-xs font-medium text-muted-foreground mb-0.5">{group.num}. {group.title}</p>
+                                    {group.items.map((item) => {
+                                      const v = Number(scores[item.key]) || 0;
+                                      const badge = [
+                                        { text: "Tidak Ada", cls: "text-destructive" },
+                                        { text: "Sebagian", cls: "text-yellow-600" },
+                                        { text: "Lengkap", cls: "text-green-600" },
+                                      ][v];
+                                      return (
+                                        <div key={item.key} className="flex items-start justify-between gap-2 text-xs py-0.5">
+                                          <span className="text-muted-foreground flex-1">{item.label}</span>
+                                          <span className={`font-medium shrink-0 ${badge.cls}`}>{badge.text}</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                ))}
+                              </div>
                             ))}
                             {row.notes && (
                               <div className="pt-2 border-t">
