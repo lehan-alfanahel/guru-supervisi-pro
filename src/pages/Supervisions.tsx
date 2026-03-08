@@ -459,7 +459,7 @@ export default function Supervisions() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold">Supervisi</h1>
+              <h1 className="text-base sm:text-lg font-bold">Supervisi Administrasi</h1>
               <p className="text-xs sm:text-sm opacity-90">{supervisions.length} data</p>
             </div>
           </div>
