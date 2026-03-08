@@ -603,11 +603,13 @@ export default function Supervisions() {
                 <DialogTitle>Edit Supervisi</DialogTitle>
               </DialogHeader>
               <form onSubmit={onUpdate} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label>Tanggal Supervisi</Label>
-                    <Input type="date" value={editForm.supervision_date}
-                      onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div className="space-y-1.5">
+                     <Label>Tanggal Supervisi</Label>
+                     <Input type="date" value={editForm.supervision_date}
+                       onChange={(e) => setEditForm((p) => ({ ...p, supervision_date: e.target.value }))} />
+                   </div>
+                 </div>
                   </div>
                   <div className="space-y-1.5">
                 </div>
