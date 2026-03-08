@@ -78,7 +78,7 @@ export default function Dashboard() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", npsn: "", address: "", phone: "", principal_name: "", principal_nip: "" });
   const [saving, setSaving] = useState(false);
-  const [profileCollapsed, setProfileCollapsed] = useState(false);
+  const [profileCollapsed, setProfileCollapsed] = useState(true);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -516,7 +516,10 @@ export default function Dashboard() {
         {supervisions.length > 0 && (
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader>
-              <CardTitle>Supervisi Terbaru</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-primary" />
+                Supervisi Terbaru
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
