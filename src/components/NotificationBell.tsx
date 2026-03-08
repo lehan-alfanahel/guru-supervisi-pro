@@ -152,6 +152,17 @@ export function NotificationBell() {
                 </ul>
               )}
             </div>
+            {/* Footer: Lihat Semua */}
+            <div className="border-t px-4 py-2.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-primary hover:text-primary hover:bg-primary/5"
+                onClick={() => { setOpen(false); navigate("/admin/notifications"); }}
+              >
+                Lihat semua notifikasi
+              </Button>
+            </div>
           </div>
         </>
       )}
