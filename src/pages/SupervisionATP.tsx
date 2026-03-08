@@ -309,7 +309,7 @@ export default function SupervisionATP() {
     const total = calcTotal(scores);
     const pct = Math.round((total / ATP_SCORE_MAX) * 100);
     const predikat = getPredikat(pct);
-    const printDate = format(new Date(), "dd MMMM yyyy", { locale: idLocale });
+    const printDate = format(new Date(row.supervision_date + "T00:00:00"), "dd MMMM yyyy", { locale: idLocale });
     const cityName = schoolAddress.split(",")[0] || schoolName;
 
     let bodyRows = "";
