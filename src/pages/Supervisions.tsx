@@ -576,7 +576,7 @@ export default function Supervisions() {
                   </div>
                 </div>
 
-                <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" />
+                <ScoreTable scores={form.scores} onChange={handleScoreChange} prefix="new_" showLinks={true} />
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
