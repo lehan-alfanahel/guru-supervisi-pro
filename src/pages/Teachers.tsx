@@ -45,10 +45,13 @@ export default function Teachers() {
   const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [teacherToDelete, setTeacherToDelete] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+
+  const handleSignOut = async () => { await signOut(); navigate("/auth"); };
 
   const {
     register,

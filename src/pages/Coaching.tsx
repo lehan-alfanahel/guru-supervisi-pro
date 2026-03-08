@@ -51,9 +51,12 @@ export default function Coaching() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { user } = useAuth();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleSignOut = async () => { await signOut(); navigate("/auth"); };
 
   const { register, handleSubmit: handleFormSubmit, formState: { errors }, reset, control } =
     useForm<z.infer<typeof coachingSchema>>({
