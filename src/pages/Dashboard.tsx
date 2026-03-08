@@ -547,13 +547,11 @@ export default function Dashboard() {
                 Profil Sekolah
               </CardTitle>
               <Button
-                size="sm"
+                size="icon"
                 variant="outline"
-                className="gap-1.5"
                 onClick={() => setEditProfileOpen(true)}
               >
                 <Pencil className="w-3.5 h-3.5" />
-                Edit Profil
               </Button>
             </div>
           </CardHeader>
