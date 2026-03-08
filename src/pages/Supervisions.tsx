@@ -666,15 +666,15 @@ export default function Supervisions() {
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div className="mt-3 border-t pt-3 space-y-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                      <div className="flex flex-col gap-1.5">
                         {SUPERVISION_COMPONENTS.map((c, i) => {
                           const val = Number(s[c.key]) || 0;
                           const colors = ["text-destructive", "text-yellow-600", "text-green-600"];
                           const labels = ["Tidak Ada", "Ada, tidak sesuai", "Ada dan sesuai"];
                           return (
-                            <div key={c.key} className="flex items-center justify-between text-xs">
+                            <div key={c.key} className="flex items-center justify-between text-xs py-0.5">
                               <span className="text-muted-foreground">{i + 1}. {c.label}</span>
-                              <Badge variant="outline" className={`text-xs ${colors[val]} ml-1`}>{labels[val]}</Badge>
+                              <Badge variant="outline" className={`text-xs ${colors[val]} ml-2 flex-shrink-0`}>{labels[val]}</Badge>
                             </div>
                           );
                         })}
