@@ -167,33 +167,22 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader><CardTitle>Akses Cepat</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button onClick={() => navigate("/teachers")} className="h-auto py-6 justify-start gap-3" variant="outline">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold">Data Guru</p>
-                <p className="text-sm text-muted-foreground">Kelola data guru</p>
-              </div>
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><Users className="w-6 h-6 text-primary" /></div>
+              <div className="text-left"><p className="font-semibold">Data Guru</p><p className="text-sm text-muted-foreground">Kelola data guru</p></div>
             </Button>
             <Button onClick={() => navigate("/supervisions")} className="h-auto py-6 justify-start gap-3" variant="outline">
-              <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-                <ClipboardList className="w-6 h-6 text-secondary" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold">Supervisi</p>
-                <p className="text-sm text-muted-foreground">Buat & lihat supervisi</p>
-              </div>
+              <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center"><ClipboardList className="w-6 h-6 text-secondary" /></div>
+              <div className="text-left"><p className="font-semibold">Supervisi Administrasi</p><p className="text-sm text-muted-foreground">Instrumen 12 komponen</p></div>
+            </Button>
+            <Button onClick={() => navigate("/supervision-observation")} className="h-auto py-6 justify-start gap-3" variant="outline">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center"><BookOpen className="w-6 h-6 text-primary" /></div>
+              <div className="text-left"><p className="font-semibold">Supervisi Pelaksanaan</p><p className="text-sm text-muted-foreground">Instrumen Kurikulum Merdeka</p></div>
             </Button>
             <Button onClick={() => navigate("/coaching")} className="h-auto py-6 justify-start gap-3" variant="outline">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-accent" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold">Coaching Guru</p>
-                <p className="text-sm text-muted-foreground">Catatan coaching guru</p>
-              </div>
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center"><MessageSquare className="w-6 h-6 text-accent" /></div>
+              <div className="text-left"><p className="font-semibold">Coaching Guru</p><p className="text-sm text-muted-foreground">Catatan coaching guru</p></div>
             </Button>
           </CardContent>
         </Card>
