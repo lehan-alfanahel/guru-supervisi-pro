@@ -524,7 +524,7 @@ export default function SupervisionModulAjar() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -669,7 +669,7 @@ export default function SupervisionModulAjar() {
                 <p className="text-lg font-bold text-foreground">Belum ada data observasi</p>
                 <p className="text-sm text-muted-foreground">Mulai buat instrumen supervisi telaah modul ajar</p>
               </div>
-              <Button className="mt-2 px-8 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold gap-2" onClick={() => setDialogOpen(true)}>
+              <Button className="mt-2 px-8 py-2.5 rounded bg-primary text-primary-foreground font-semibold gap-2" onClick={() => setDialogOpen(true)}>
                 <Plus className="w-4 h-4" /> Buat Observasi
               </Button>
             </CardContent>

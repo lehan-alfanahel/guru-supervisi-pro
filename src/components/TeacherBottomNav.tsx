@@ -64,7 +64,7 @@ export function TeacherBottomNav() {
           <span className="relative">
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center leading-none">
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded flex items-center justify-center leading-none">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}

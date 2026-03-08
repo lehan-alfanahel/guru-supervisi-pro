@@ -211,7 +211,7 @@ export default function TeacherDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -319,7 +319,7 @@ export default function TeacherDashboard() {
         <Card className="shadow-[var(--shadow-card)]">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <User className="w-6 h-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">

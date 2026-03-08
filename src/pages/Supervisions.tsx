@@ -438,7 +438,7 @@ export default function Supervisions() {
   if (loading && supervisions.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
@@ -776,8 +776,8 @@ export default function Supervisions() {
                       <span className="text-muted-foreground">Skor {score}/{SCORE_MAX}</span>
                       <span className="font-semibold">{pct}%</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div className={`${predikat.color} rounded-full h-2 transition-all`} style={{ width: `${pct}%` }} />
+                    <div className="w-full bg-muted rounded h-2">
+                      <div className={`${predikat.color} rounded h-2 transition-all`} style={{ width: `${pct}%` }} />
                     </div>
                   </div>
 

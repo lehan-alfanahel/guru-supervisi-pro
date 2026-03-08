@@ -81,7 +81,7 @@ function SupervisionCard({
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
               <ClipboardList className="w-4 h-4 text-primary" />
             </div>
             <div>
@@ -128,9 +128,9 @@ function SupervisionCard({
             <span>Kelengkapan Perangkat</span>
             <span>{completeness}%</span>
           </div>
-          <div className="w-full bg-muted rounded-full h-1.5">
+          <div className="w-full bg-muted rounded h-1.5">
             <div
-              className="bg-primary rounded-full h-1.5 transition-all"
+              className="bg-primary rounded h-1.5 transition-all"
               style={{ width: `${completeness}%` }}
             />
           </div>
@@ -153,7 +153,7 @@ function SupervisionCard({
                   }`}
                 >
                   <div
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                       item.val
                         ? "bg-green-600 border-green-600"
                         : "border-muted-foreground"
@@ -196,7 +196,7 @@ function CoachingCard({ c }: { c: CoachingRecord }) {
       <CardContent className="p-4 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-secondary/20 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-secondary-foreground" />
             </div>
             <div>
@@ -270,7 +270,7 @@ function ObservationCard({ obs }: { obs: ObservationRecord }) {
       <CardContent className="p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-accent/20 flex items-center justify-center">
               <Eye className="w-4 h-4 text-accent" />
             </div>
             <div>
@@ -296,8 +296,8 @@ function ObservationCard({ obs }: { obs: ObservationRecord }) {
             <span>Nilai Akhir</span>
             <span>{total}/{SCORE_MAX} = {pct}%</span>
           </div>
-          <div className="w-full bg-muted rounded-full h-1.5">
-            <div className={`${bgColor} rounded-full h-1.5 transition-all`} style={{ width: `${pct}%` }} />
+          <div className="w-full bg-muted rounded h-1.5">
+            <div className={`${bgColor} rounded h-1.5 transition-all`} style={{ width: `${pct}%` }} />
           </div>
         </div>
 
@@ -498,7 +498,7 @@ export default function TeacherHistory() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded border-4 border-primary border-t-transparent animate-spin"></div>
       </div>
     );
   }
