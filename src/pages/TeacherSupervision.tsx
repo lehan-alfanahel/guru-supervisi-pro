@@ -113,6 +113,9 @@ export default function TeacherSupervision() {
   // ATP Supervisions from principal
   const [atpSupervisions, setAtpSupervisions] = useState<any[]>([]);
   const [expandedAtpId, setExpandedAtpId] = useState<string | null>(null);
+  // Modul Ajar Supervisions from principal
+  const [modulAjarSupervisions, setModulAjarSupervisions] = useState<any[]>([]);
+  const [expandedMaId, setExpandedMaId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
