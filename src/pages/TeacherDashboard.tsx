@@ -7,11 +7,14 @@ import { TeacherBottomNav } from "@/components/TeacherBottomNav";
 import { TeacherHeader } from "@/components/TeacherHeader";
 import {
   BookOpen, ClipboardList, History, MessageSquare, User,
-  AlertCircle, Clock, Bell, ChevronRight, LogOut, Award, FileText
+  AlertCircle, Bell, ChevronRight, LogOut, BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from "recharts";
 import {
   AlertDialog,
   AlertDialogAction,
