@@ -51,12 +51,15 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
     return <Navigate to="/auth" replace />;
   }
 
-  // Check role-based access only after role is resolved
-  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
+  // Check role-based access — treat null role as no-role to prevent bypass
+  if (allowedRoles && !allowedRoles.includes(userRole ?? '__none__' as any)) {
     if (userRole === 'admin') {
       return <Navigate to="/dashboard" replace />;
-    } else {
+    } else if (userRole === 'teacher') {
       return <Navigate to="/teacher/dashboard" replace />;
+    } else {
+      // Role not yet resolved or unrecognised — redirect to auth
+      return <Navigate to="/auth" replace />;
     }
   }
 
