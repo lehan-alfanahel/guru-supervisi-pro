@@ -109,6 +109,9 @@ export default function TeacherSupervision() {
   // Supervisions from principal
   const [supervisions, setSupervisions] = useState<any[]>([]);
   const [expandedSupId, setExpandedSupId] = useState<string | null>(null);
+  // ATP Supervisions from principal
+  const [atpSupervisions, setAtpSupervisions] = useState<any[]>([]);
+  const [expandedAtpId, setExpandedAtpId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
