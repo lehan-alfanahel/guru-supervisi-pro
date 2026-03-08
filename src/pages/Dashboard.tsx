@@ -149,6 +149,28 @@ export default function Dashboard() {
     navigate("/auth");
   };
 
+  const handleSaveProfile = async () => {
+    if (!school) return;
+    setSaving(true);
+    try {
+      const updated = await updateSchool(school.id, {
+        name: editForm.name,
+        npsn: editForm.npsn,
+        address: editForm.address,
+        phone: editForm.phone,
+        principal_name: editForm.principal_name,
+        principal_nip: editForm.principal_nip,
+      });
+      setSchool(updated);
+      setEditProfileOpen(false);
+      toast({ title: "Berhasil!", description: "Profil sekolah berhasil diperbarui" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Gagal menyimpan profil", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const calculateCompleteness = (record: any) => {
     const filled = ADMIN_FIELDS.filter(f => record[f.key]).length;
     return Math.round((filled / ADMIN_FIELDS.length) * 100);
