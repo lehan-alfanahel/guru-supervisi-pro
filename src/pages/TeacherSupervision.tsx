@@ -451,13 +451,7 @@ export default function TeacherSupervision() {
             {/* Form */}
             {showForm && (
               <Card className="border-primary/30">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-primary" />
-                    Isi Instrumen Administrasi Pembelajaran
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
