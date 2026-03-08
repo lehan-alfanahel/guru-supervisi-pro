@@ -621,20 +621,22 @@ export default function SupervisionModulAjar() {
         </div>
       </header>
 
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
-        <DialogHeader>
-          <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-5">
-          <FormContent f={form} setF={setForm as any} prefix="new_" />
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
-            <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
-              {submitting ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
+      {/* Create Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+          <DialogHeader>
+            <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={onSubmit} className="space-y-5">
+            <FormContent f={form} setF={setForm as any} prefix="new_" />
+            <div className="flex gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
+              <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
+                {submitting ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
       </Dialog>
 
       {/* Edit Dialog */}
