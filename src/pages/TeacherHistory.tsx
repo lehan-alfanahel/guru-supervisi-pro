@@ -255,6 +255,94 @@ function CoachingCard({ c }: { c: CoachingRecord }) {
   );
 }
 
+// Observation Card
+function ObservationCard({ obs }: { obs: ObservationRecord }) {
+  const [expanded, setExpanded] = useState(false);
+  const SCORE_MAX = ALL_ITEM_KEYS.length * 2;
+  const total = ALL_ITEM_KEYS.reduce((s, k) => s + (Number(obs.scores[k]) || 0), 0);
+  const pct = Math.round((total / SCORE_MAX) * 100);
+  const colors = pct >= 91 ? "text-green-600" : pct >= 81 ? "text-primary" : pct >= 71 ? "text-yellow-600" : "text-destructive";
+  const label = pct >= 91 ? "Sangat Baik" : pct >= 81 ? "Baik" : pct >= 71 ? "Cukup" : "Kurang";
+  const bgColor = pct >= 91 ? "bg-green-500" : pct >= 81 ? "bg-primary" : pct >= 71 ? "bg-yellow-500" : "bg-destructive";
+
+  return (
+    <Card className="border-l-4 border-l-accent">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center">
+              <Eye className="w-4 h-4 text-accent" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">Supervisi Pelaksanaan Pembelajaran</p>
+              {obs.mata_pelajaran && <p className="text-xs text-muted-foreground">Mapel: {obs.mata_pelajaran}</p>}
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {format(new Date(obs.observation_date), "dd MMMM yyyy", { locale: idLocale })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge className={`${bgColor} text-white border-0 text-xs`}>{label}</Badge>
+            <span className={`text-xs font-semibold ${colors}`}>{pct}%</span>
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setExpanded(!expanded)}>
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Nilai Akhir</span>
+            <span>{total}/{SCORE_MAX} = {pct}%</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-1.5">
+            <div className={`${bgColor} rounded-full h-1.5 transition-all`} style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="space-y-2 pt-2 border-t text-xs">
+            {OBSERVATION_SECTIONS.map((sec) => (
+              <div key={sec.section}>
+                <p className="font-bold text-primary mb-1">{sec.section}. {sec.title}</p>
+                {sec.groups.map((grp) => (
+                  <div key={grp.num} className="mb-2">
+                    <p className="font-semibold pl-2 mb-1">{grp.num}. {grp.title}</p>
+                    {grp.items.map((item) => {
+                      const val = Number(obs.scores[item.key]) || 0;
+                      const scoreColors = ["text-destructive", "text-yellow-600", "text-green-600"];
+                      const scoreLabels = ["Tidak Ada", "Kurang Sesuai", "Sesuai"];
+                      return (
+                        <div key={item.key} className="flex items-start justify-between gap-2 pl-4 py-0.5">
+                          <span className="text-muted-foreground flex-1">{item.label}</span>
+                          <Badge variant="outline" className={`${scoreColors[val]} flex-shrink-0 text-[10px]`}>{scoreLabels[val]}</Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))}
+            {obs.notes && (
+              <div className="p-2 bg-muted/50 rounded">
+                <p className="font-medium text-muted-foreground mb-0.5">Catatan:</p>
+                <p>{obs.notes}</p>
+              </div>
+            )}
+            {obs.tindak_lanjut && (
+              <div className="p-2 bg-muted/50 rounded">
+                <p className="font-medium text-muted-foreground mb-0.5">Tindak Lanjut:</p>
+                <p>{obs.tindak_lanjut}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function TeacherHistory() {
   const { user } = useAuth();
   const navigate = useNavigate();
