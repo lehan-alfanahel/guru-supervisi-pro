@@ -137,11 +137,11 @@ export default function AdminNotifications() {
       <div className="max-w-2xl mx-auto w-full">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            <div className="w-8 h-8 rounded border-4 border-primary border-t-transparent animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground px-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+            <div className="w-16 h-16 rounded bg-muted flex items-center justify-center">
               {tab === "unread"
                 ? <CheckCheck className="w-7 h-7 text-muted-foreground/50" />
                 : <BellOff className="w-7 h-7 text-muted-foreground/50" />}
@@ -170,7 +170,7 @@ export default function AdminNotifications() {
                 onClick={() => handleClick(notif.id, notif.is_read, notif.type)}
               >
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`}
+                  className={`w-10 h-10 rounded flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`}
                 >
                   {getIcon(notif.type)}
                 </div>
@@ -181,8 +181,7 @@ export default function AdminNotifications() {
                         <p className={`text-sm leading-tight ${!notif.is_read ? "font-semibold text-foreground" : "font-medium text-foreground/80"}`}>
                           {notif.title}
                         </p>
-                        {!notif.is_read && (
-                          <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                          <span className="w-2 h-2 rounded bg-primary flex-shrink-0" />
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground mt-1 leading-relaxed">

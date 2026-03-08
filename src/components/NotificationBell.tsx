@@ -57,7 +57,7 @@ export function NotificationBell() {
           <Bell className="w-5 h-5" />
         )}
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+          <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded flex items-center justify-center leading-none">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -124,7 +124,7 @@ export function NotificationBell() {
                       onClick={() => handleNotificationClick(notif.id, notif.is_read, notif.type)}
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`} // design tokens used in helper fn
+                        className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 mt-0.5 ${getIconBg(notif.type)}`}
                       >
                         {getIcon(notif.type)}
                       </div>
@@ -134,7 +134,7 @@ export function NotificationBell() {
                             {notif.title}
                           </p>
                           {!notif.is_read && (
-                            <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+                            <span className="w-2 h-2 rounded bg-primary flex-shrink-0 mt-1.5" />
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
