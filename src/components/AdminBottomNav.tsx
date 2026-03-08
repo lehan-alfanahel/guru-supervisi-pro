@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, ClipboardList, User, LogOut, MessageSquare } from "lucide-react";
+import { Home, Users, ClipboardList, User, MessageSquare, BookOpen, Eye, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ export function AdminBottomNav() {
   const { signOut } = useAuth();
   const { toast } = useToast();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [supervisiMenuOpen, setSupervisiMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -40,9 +41,54 @@ export function AdminBottomNav() {
   };
 
   const isActive = (path: string) => location.pathname === path;
+  const isSupervisiActive = isActive("/supervisions") || isActive("/supervision-observation");
+
+  const handleSupervisiClick = () => {
+    setSupervisiMenuOpen((prev) => !prev);
+  };
+
+  const handleSupervisiNav = (path: string) => {
+    setSupervisiMenuOpen(false);
+    navigate(path);
+  };
 
   return (
     <>
+      {/* Supervisi Sub-menu Popup */}
+      {supervisiMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setSupervisiMenuOpen(false)}
+          />
+          {/* Sub-menu panel */}
+          <div className="fixed bottom-[68px] left-1/2 -translate-x-1/2 z-50 bg-popover border rounded-2xl shadow-xl overflow-hidden w-64">
+            <div className="px-4 pt-3 pb-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Supervisi</p>
+            </div>
+            <button
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-accent ${
+                isActive("/supervisions") ? "bg-primary/10 text-primary" : "text-foreground"
+              }`}
+              onClick={() => handleSupervisiNav("/supervisions")}
+            >
+              <BookOpen className="w-4 h-4 shrink-0" />
+              Supervisi Administrasi
+            </button>
+            <button
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-accent border-t ${
+                isActive("/supervision-observation") ? "bg-primary/10 text-primary" : "text-foreground"
+              }`}
+              onClick={() => handleSupervisiNav("/supervision-observation")}
+            >
+              <Eye className="w-4 h-4 shrink-0" />
+              Supervisi Pelaksanaan
+            </button>
+          </div>
+        </>
+      )}
+
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t z-50">
         <div className="flex items-center justify-around px-2 py-2">
           <Button
@@ -73,14 +119,18 @@ export function AdminBottomNav() {
 
           <Button
             variant="ghost"
-            className={`flex-col h-auto py-2 px-3 gap-1 ${
-              isActive("/supervisions")
+            className={`flex-col h-auto py-2 px-3 gap-1 relative ${
+              isSupervisiActive || supervisiMenuOpen
                 ? "bg-[#FF7A18] text-white rounded-xl"
                 : "text-muted-foreground"
             }`}
-            onClick={() => navigate("/supervisions")}
+            onClick={handleSupervisiClick}
           >
-            <ClipboardList className="w-5 h-5" />
+            {supervisiMenuOpen ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ClipboardList className="w-5 h-5" />
+            )}
             <span className="text-xs font-medium">Supervisi</span>
           </Button>
 
@@ -109,7 +159,6 @@ export function AdminBottomNav() {
             <User className="w-5 h-5" />
             <span className="text-xs font-medium">Profil</span>
           </Button>
-
         </div>
       </nav>
 
