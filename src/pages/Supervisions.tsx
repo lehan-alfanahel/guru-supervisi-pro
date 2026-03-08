@@ -77,6 +77,7 @@ export default function Supervisions() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [editForm, setEditForm] = useState<FormState>({
     teacher_id: "",
     supervision_date: new Date().toISOString().split("T")[0],
