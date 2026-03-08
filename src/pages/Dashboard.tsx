@@ -516,7 +516,10 @@ export default function Dashboard() {
         {supervisions.length > 0 && (
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader>
-              <CardTitle>Supervisi Terbaru</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <ClipboardList className="w-5 h-5 text-primary" />
+                Supervisi Terbaru
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
