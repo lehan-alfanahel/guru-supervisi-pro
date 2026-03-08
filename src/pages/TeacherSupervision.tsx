@@ -858,7 +858,7 @@ export default function TeacherSupervision() {
                           <div>
                             <div className="flex items-center gap-2">
                               <Badge variant={pct === 100 ? "default" : pct >= 60 ? "secondary" : "destructive"} className="text-xs">
-                                {pct}% Lengkap
+                                {pct}%
                               </Badge>
                               {index === 0 && <Badge variant="outline" className="text-xs">Terbaru</Badge>}
                             </div>
