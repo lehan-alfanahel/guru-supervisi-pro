@@ -164,6 +164,120 @@ export type Database = {
           },
         ]
       }
+      modul_ajar_supervisions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kelas_semester: string | null
+          m1: number
+          m10: number
+          m11: number
+          m12: number
+          m13: number
+          m14: number
+          m15: number
+          m16: number
+          m17: number
+          m18: number
+          m19: number
+          m2: number
+          m20: number
+          m21: number
+          m22: number
+          m23: number
+          m24: number
+          m3: number
+          m4: number
+          m5: number
+          m6: number
+          m7: number
+          m8: number
+          m9: number
+          mata_pelajaran: string | null
+          notes: string | null
+          school_id: string
+          supervision_date: string
+          teacher_id: string
+          tindak_lanjut: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kelas_semester?: string | null
+          m1?: number
+          m10?: number
+          m11?: number
+          m12?: number
+          m13?: number
+          m14?: number
+          m15?: number
+          m16?: number
+          m17?: number
+          m18?: number
+          m19?: number
+          m2?: number
+          m20?: number
+          m21?: number
+          m22?: number
+          m23?: number
+          m24?: number
+          m3?: number
+          m4?: number
+          m5?: number
+          m6?: number
+          m7?: number
+          m8?: number
+          m9?: number
+          mata_pelajaran?: string | null
+          notes?: string | null
+          school_id: string
+          supervision_date?: string
+          teacher_id: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kelas_semester?: string | null
+          m1?: number
+          m10?: number
+          m11?: number
+          m12?: number
+          m13?: number
+          m14?: number
+          m15?: number
+          m16?: number
+          m17?: number
+          m18?: number
+          m19?: number
+          m2?: number
+          m20?: number
+          m21?: number
+          m22?: number
+          m23?: number
+          m24?: number
+          m3?: number
+          m4?: number
+          m5?: number
+          m6?: number
+          m7?: number
+          m8?: number
+          m9?: number
+          mata_pelajaran?: string | null
+          notes?: string | null
+          school_id?: string
+          supervision_date?: string
+          teacher_id?: string
+          tindak_lanjut?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
