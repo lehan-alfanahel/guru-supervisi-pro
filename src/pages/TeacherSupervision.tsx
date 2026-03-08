@@ -317,7 +317,6 @@ export default function TeacherSupervision() {
           <br/>
           <table style="border:none;">
             <tr><td style="border:none;width:200px;">Nama Sekolah</td><td style="border:none;">: ${teacherInfo.schoolName}</td></tr>
-            <tr><td style="border:none;">Alamat Sekolah</td><td style="border:none;">: ${(teacherInfo as any).schoolAddress || "-"}</td></tr>
             <tr><td style="border:none;">Nama Guru</td><td style="border:none;">: ${teacherInfo.name}</td></tr>
             <tr><td style="border:none;">NIP Guru</td><td style="border:none;">: ${teacherInfo.nip}</td></tr>
             <tr><td style="border:none;">Mata Pelajaran</td><td style="border:none;">: ${s.mata_pelajaran || ""}</td></tr>
