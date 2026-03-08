@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Bell, BellRing, CheckCheck, ClipboardList, MessageSquare, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Bell, BellRing, CheckCheck, ClipboardList, MessageSquare, BookOpen, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNotifications } from "@/hooks/use-notifications";
@@ -7,22 +8,37 @@ import { formatDistanceToNow } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 
 export function NotificationBell() {
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
 
   const handleOpen = () => setOpen((v) => !v);
 
-  const handleNotificationClick = async (notifId: string, isRead: boolean) => {
+  const getNavigationPath = (type: string) => {
+    if (type === "coaching") return "/coaching";
+    if (type === "administration" || type === "administration_update") return "/dashboard";
+    if (type === "observation") return "/supervision-observation";
+    if (type === "atp_supervision") return "/supervision-atp";
+    if (type === "modul_ajar_supervision") return "/supervision-modul-ajar";
+    return "/supervisions";
+  };
+
+  const handleNotificationClick = async (notifId: string, isRead: boolean, type: string) => {
     if (!isRead) await markAsRead(notifId);
+    setOpen(false);
+    navigate(getNavigationPath(type));
   };
 
   const getIcon = (type: string) => {
     if (type === "coaching") return <MessageSquare className="w-4 h-4 text-primary" />;
+    if (type === "administration" || type === "administration_update")
+      return <BookOpen className="w-4 h-4 text-accent" />;
     return <ClipboardList className="w-4 h-4 text-secondary-foreground" />;
   };
 
   const getIconBg = (type: string) => {
     if (type === "coaching") return "bg-primary/10";
+    if (type === "administration" || type === "administration_update") return "bg-accent/10";
     return "bg-secondary";
   };
 
