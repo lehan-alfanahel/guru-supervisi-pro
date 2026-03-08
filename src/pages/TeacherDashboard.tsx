@@ -7,7 +7,7 @@ import { TeacherBottomNav } from "@/components/TeacherBottomNav";
 import { TeacherHeader } from "@/components/TeacherHeader";
 import {
   BookOpen, ClipboardList, History, MessageSquare, User,
-  AlertCircle, Bell, ChevronRight, LogOut, BarChart3
+  AlertCircle, Bell, ChevronRight, LogOut, BarChart3, Clock, Award, FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
