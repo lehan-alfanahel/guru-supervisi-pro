@@ -628,6 +628,9 @@ export default function Supervisions() {
                       </div>
                     </div>
                     <div className="flex gap-1 flex-shrink-0">
+                      <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => openEdit(s)}>
+                        <Pencil className="w-3 h-3" /> Edit
+                      </Button>
                       <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handlePrintSingle(s)}>
                         <Printer className="w-3 h-3" /> Cetak
                       </Button>
