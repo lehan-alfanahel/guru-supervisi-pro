@@ -53,15 +53,21 @@ export default function Auth() {
     mode: "onSubmit",
   });
 
+  // Redirect jika sudah login — jalankan SEKALI saat komponen mount
   useEffect(() => {
-    const handleAuthRedirect = async () => {
-      if (!user) return;
+    if (!user) return;
+
+    let cancelled = false;
+
+    const redirect = async () => {
       try {
         const { data: teacherAccount } = await supabase
           .from("teacher_accounts")
           .select("id")
           .eq("user_id", user.id)
           .maybeSingle();
+
+        if (cancelled) return;
 
         if (teacherAccount) {
           navigate("/teacher/dashboard", { replace: true });
@@ -74,17 +80,19 @@ export default function Auth() {
           .eq("owner_id", user.id)
           .maybeSingle();
 
-        if (schoolData) {
-          navigate("/dashboard", { replace: true });
-        } else {
-          navigate("/setup-school", { replace: true });
-        }
+        if (cancelled) return;
+
+        navigate(schoolData ? "/dashboard" : "/setup-school", { replace: true });
       } catch (error) {
         console.error("Error checking user role:", error);
       }
     };
-    handleAuthRedirect();
-  }, [user, navigate]);
+
+    redirect();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // hanya re-run saat user ID berubah, bukan setiap render
 
   useEffect(() => {
     reset();
@@ -104,34 +112,8 @@ export default function Auth() {
       } else {
         const { error } = await signIn(data.email, data.password);
         if (error) throw error;
-
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-
-        if (currentUser) {
-          const { data: teacherAccount } = await supabase
-            .from("teacher_accounts")
-            .select("id")
-            .eq("user_id", currentUser.id)
-            .maybeSingle();
-
-          if (teacherAccount) {
-            toast({ title: "Selamat datang!", description: "Login berhasil – Guru" });
-            navigate("/teacher/dashboard");
-          } else {
-            const { data: schoolData } = await supabase
-              .from("schools")
-              .select("id")
-              .eq("owner_id", currentUser.id)
-              .maybeSingle();
-
-            toast({ title: "Selamat datang!", description: "Login berhasil – Kepala Sekolah" });
-            if (schoolData) {
-              navigate("/dashboard");
-            } else {
-              navigate("/setup-school");
-            }
-          }
-        }
+        // Redirect ditangani oleh useEffect di atas setelah user state terupdate
+        toast({ title: "Selamat datang!", description: "Login berhasil" });
       }
     } catch (error: any) {
       toast({
