@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSchool, getTeachers, School, Teacher } from "@/lib/supabase";
+import { getSchool, getTeachers, updateSchool, School, Teacher } from "@/lib/supabase";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import {
   School2, Users, ClipboardList, LogOut, MessageSquare,
-  ExternalLink, CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, TrendingUp
+  ExternalLink, CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, TrendingUp,
+  Pencil, Save, Phone, MapPin, Hash, User,
 } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useToast } from "@/hooks/use-toast";
@@ -68,6 +75,9 @@ export default function Dashboard() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [expandedAdmin, setExpandedAdmin] = useState<string | null>(null);
   const [expandedCoaching, setExpandedCoaching] = useState<string | null>(null);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", npsn: "", address: "", phone: "", principal_name: "", principal_nip: "" });
+  const [saving, setSaving] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -85,6 +95,14 @@ export default function Dashboard() {
       const schoolData = await getSchool(user.id);
       if (!schoolData) { navigate("/setup-school"); return; }
       setSchool(schoolData);
+      setEditForm({
+        name: schoolData.name,
+        npsn: schoolData.npsn || "",
+        address: schoolData.address || "",
+        phone: schoolData.phone || "",
+        principal_name: schoolData.principal_name,
+        principal_nip: schoolData.principal_nip,
+      });
 
       const [teachersData, { data: supervisionsData }, { data: adminData }, { data: teachersList }, { data: coachingData }] = await Promise.all([
         getTeachers(schoolData.id),
@@ -129,6 +147,28 @@ export default function Dashboard() {
     await signOut();
     toast({ title: "Berhasil keluar", description: "Anda telah keluar dari aplikasi" });
     navigate("/auth");
+  };
+
+  const handleSaveProfile = async () => {
+    if (!school) return;
+    setSaving(true);
+    try {
+      const updated = await updateSchool(school.id, {
+        name: editForm.name,
+        npsn: editForm.npsn,
+        address: editForm.address,
+        phone: editForm.phone,
+        principal_name: editForm.principal_name,
+        principal_nip: editForm.principal_nip,
+      });
+      setSchool(updated);
+      setEditProfileOpen(false);
+      toast({ title: "Berhasil!", description: "Profil sekolah berhasil diperbarui" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Gagal menyimpan profil", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const calculateCompleteness = (record: any) => {
@@ -497,9 +537,152 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Profil Sekolah */}
+        <Card className="shadow-[var(--shadow-card)]">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <School2 className="w-5 h-5 text-primary" />
+                Profil Sekolah
+              </CardTitle>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                onClick={() => setEditProfileOpen(true)}
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Edit Profil
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                <School2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Nama Sekolah</p>
+                  <p className="font-semibold">{school?.name}</p>
+                </div>
+              </div>
+              {school?.npsn && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                  <Hash className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">NPSN</p>
+                    <p className="font-medium">{school.npsn}</p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                <User className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Kepala Sekolah</p>
+                  <p className="font-medium">{school?.principal_name}</p>
+                  <p className="text-xs text-muted-foreground">NIP: {school?.principal_nip}</p>
+                </div>
+              </div>
+              {school?.address && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Alamat</p>
+                    <p className="font-medium">{school.address}</p>
+                  </div>
+                </div>
+              )}
+              {school?.phone && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                  <Phone className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Telepon</p>
+                    <p className="font-medium">{school.phone}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </main>
 
       <AdminBottomNav />
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <School2 className="w-5 h-5 text-primary" />
+              Edit Profil Sekolah
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-name">Nama Sekolah *</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Contoh: SMP Negeri 1 Jakarta"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-npsn">NPSN (8 digit)</Label>
+              <Input
+                id="edit-npsn"
+                value={editForm.npsn}
+                onChange={(e) => setEditForm(f => ({ ...f, npsn: e.target.value }))}
+                placeholder="12345678"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-principal-name">Nama Kepala Sekolah *</Label>
+              <Input
+                id="edit-principal-name"
+                value={editForm.principal_name}
+                onChange={(e) => setEditForm(f => ({ ...f, principal_name: e.target.value }))}
+                placeholder="Nama lengkap kepala sekolah"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-principal-nip">NIP Kepala Sekolah * (18 digit)</Label>
+              <Input
+                id="edit-principal-nip"
+                value={editForm.principal_nip}
+                onChange={(e) => setEditForm(f => ({ ...f, principal_nip: e.target.value }))}
+                placeholder="123456789012345678"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-address">Alamat</Label>
+              <Textarea
+                id="edit-address"
+                value={editForm.address}
+                onChange={(e) => setEditForm(f => ({ ...f, address: e.target.value }))}
+                placeholder="Alamat lengkap sekolah"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-phone">Nomor Telepon</Label>
+              <Input
+                id="edit-phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm(f => ({ ...f, phone: e.target.value }))}
+                placeholder="021-12345678"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditProfileOpen(false)}>Batal</Button>
+            <Button onClick={handleSaveProfile} disabled={saving} className="gap-1.5">
+              <Save className="w-4 h-4" />
+              {saving ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <AlertDialogContent>
