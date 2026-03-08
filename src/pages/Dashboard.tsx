@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { getSchool, getTeachers, School, Teacher } from "@/lib/supabase";
+import { getSchool, getTeachers, updateSchool, School, Teacher } from "@/lib/supabase";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import {
   School2, Users, ClipboardList, LogOut, MessageSquare,
-  ExternalLink, CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, TrendingUp
+  ExternalLink, CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, TrendingUp,
+  Pencil, Save, Phone, MapPin, Hash, User,
 } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useToast } from "@/hooks/use-toast";
