@@ -148,48 +148,90 @@ export type Database = {
       }
       supervisions: {
         Row: {
+          absensi_siswa: number | null
+          agenda_mengajar: number | null
+          alur_tujuan_pembelajaran: number | null
           assessment_tools: boolean | null
+          buku_pegangan_guru: number | null
+          buku_teks_siswa: number | null
           created_at: string
           created_by: string
+          daftar_nilai: number | null
           id: string
+          jadwal_tatap_muka: number | null
+          kalender_pendidikan: number | null
+          kktp: number | null
           lesson_plan: boolean | null
+          mata_pelajaran: string | null
+          modul_ajar: number | null
           notes: string | null
+          program_semester: number | null
+          program_tahunan: number | null
           school_id: string
           student_attendance: boolean | null
           supervision_date: string
           syllabus: boolean | null
           teacher_id: string
           teaching_materials: boolean | null
+          tindak_lanjut: string | null
           updated_at: string
         }
         Insert: {
+          absensi_siswa?: number | null
+          agenda_mengajar?: number | null
+          alur_tujuan_pembelajaran?: number | null
           assessment_tools?: boolean | null
+          buku_pegangan_guru?: number | null
+          buku_teks_siswa?: number | null
           created_at?: string
           created_by: string
+          daftar_nilai?: number | null
           id?: string
+          jadwal_tatap_muka?: number | null
+          kalender_pendidikan?: number | null
+          kktp?: number | null
           lesson_plan?: boolean | null
+          mata_pelajaran?: string | null
+          modul_ajar?: number | null
           notes?: string | null
+          program_semester?: number | null
+          program_tahunan?: number | null
           school_id: string
           student_attendance?: boolean | null
           supervision_date?: string
           syllabus?: boolean | null
           teacher_id: string
           teaching_materials?: boolean | null
+          tindak_lanjut?: string | null
           updated_at?: string
         }
         Update: {
+          absensi_siswa?: number | null
+          agenda_mengajar?: number | null
+          alur_tujuan_pembelajaran?: number | null
           assessment_tools?: boolean | null
+          buku_pegangan_guru?: number | null
+          buku_teks_siswa?: number | null
           created_at?: string
           created_by?: string
+          daftar_nilai?: number | null
           id?: string
+          jadwal_tatap_muka?: number | null
+          kalender_pendidikan?: number | null
+          kktp?: number | null
           lesson_plan?: boolean | null
+          mata_pelajaran?: string | null
+          modul_ajar?: number | null
           notes?: string | null
+          program_semester?: number | null
+          program_tahunan?: number | null
           school_id?: string
           student_attendance?: boolean | null
           supervision_date?: string
           syllabus?: boolean | null
           teacher_id?: string
           teaching_materials?: boolean | null
+          tindak_lanjut?: string | null
           updated_at?: string
         }
         Relationships: [
