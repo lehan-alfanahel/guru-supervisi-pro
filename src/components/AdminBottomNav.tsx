@@ -21,6 +21,7 @@ export function AdminBottomNav() {
   const location = useLocation();
   const { signOut } = useAuth();
   const { toast } = useToast();
+  const { unreadCount } = useNotifications();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [supervisiMenuOpen, setSupervisiMenuOpen] = useState(false);
 
