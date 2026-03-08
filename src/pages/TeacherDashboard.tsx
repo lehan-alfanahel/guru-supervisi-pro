@@ -36,7 +36,7 @@ interface TeacherData {
 
 interface SupervisionSummary {
   total: number;
-  latest: { date: string; completeness: number } | null;
+  latest: { date: string; score: number; scoreMax: number; predikat: string } | null;
 }
 
 interface CoachingSummary {
@@ -49,6 +49,28 @@ interface AdminSummary {
   total: number;
   latestDate: string | null;
 }
+
+interface AllSupervisionResults {
+  administrasi: { date: string; pct: number; predikat: string; color: string }[];
+  atp: { date: string; pct: number; predikat: string; color: string; mapel?: string }[];
+  modulAjar: { date: string; pct: number; predikat: string; color: string; mapel?: string }[];
+  observasi: { date: string; pct: number; predikat: string; color: string; mapel?: string }[];
+}
+
+function calcPredikat(pct: number) {
+  if (pct >= 91) return { label: "Sangat Baik", color: "bg-green-500" };
+  if (pct >= 81) return { label: "Baik", color: "bg-primary" };
+  if (pct >= 71) return { label: "Cukup", color: "bg-yellow-500" };
+  return { label: "Kurang", color: "bg-destructive" };
+}
+
+const SUPERVISION_COMPONENTS_KEYS = [
+  "kalender_pendidikan","program_tahunan","program_semester","alur_tujuan_pembelajaran",
+  "modul_ajar","jadwal_tatap_muka","agenda_mengajar","daftar_nilai","kktp",
+  "absensi_siswa","buku_pegangan_guru","buku_teks_siswa",
+];
+const ATP_KEYS = ["a1","b2","b3","b4","c5","c6","c7","d8","d9","d10","d11","d12"];
+const MA_KEYS = ["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10","m11","m12","m13","m14","m15","m16","m17","m18","m19","m20","m21","m22","m23","m24"];
 
 export default function TeacherDashboard() {
   const { user, signOut } = useAuth();
