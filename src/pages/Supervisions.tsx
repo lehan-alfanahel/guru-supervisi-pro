@@ -211,6 +211,7 @@ export default function Supervisions() {
       scores: Object.fromEntries(
         SUPERVISION_COMPONENTS.map((c) => [c.key, (Number(s[c.key]) || 0) as ScoreValue])
       ),
+      remarks: (s.remarks as Record<string, string>) || {},
     });
     setEditDialogOpen(true);
   };
