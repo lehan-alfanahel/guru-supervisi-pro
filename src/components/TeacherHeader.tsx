@@ -22,7 +22,8 @@ export function TeacherHeader({ teacherName = "", schoolName = "" }: TeacherHead
 
   useEffect(() => {
     loadEmail();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadEmail = async () => {
     if (!user) return;

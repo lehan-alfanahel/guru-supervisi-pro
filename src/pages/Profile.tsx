@@ -49,12 +49,13 @@ export default function Profile() {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       navigate("/auth");
       return;
     }
     loadSchool();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadSchool = async () => {
     if (!user) return;
