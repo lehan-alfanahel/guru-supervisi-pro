@@ -36,7 +36,8 @@ export default function TeacherNotifications() {
         setTeacherInfo({ name: t.name, schoolName: school?.name || "" });
       }
     })();
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const filtered = notifications.filter((n) => {
     if (tab === "unread") return !n.is_read;

@@ -71,12 +71,13 @@ export default function Teachers() {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       navigate("/auth");
       return;
     }
     loadData();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadData = async () => {
     if (!user) return;

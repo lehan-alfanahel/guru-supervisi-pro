@@ -35,13 +35,14 @@ export default function TeacherAccount() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       navigate("/auth");
       return;
     }
 
     loadAccountData();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadAccountData = async () => {
     try {

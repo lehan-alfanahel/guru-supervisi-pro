@@ -88,9 +88,10 @@ export default function TeacherDashboard() {
   const [allResults, setAllResults] = useState<AllSupervisionResults>({ administrasi: [], atp: [], modulAjar: [], observasi: [] });
 
   useEffect(() => {
-    if (!user) { navigate("/auth"); return; }
+    if (!user?.id) { navigate("/auth"); return; }
     loadAllData();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadAllData = async () => {
     try {

@@ -357,9 +357,10 @@ export default function TeacherHistory() {
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
 
   useEffect(() => {
-    if (!user) { navigate("/auth"); return; }
+    if (!user?.id) { navigate("/auth"); return; }
     loadData();
-  }, [user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const loadData = async () => {
     try {

@@ -20,7 +20,7 @@ export function useNotifications() {
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) return;
+    if (!user?.id) return;
     const { data } = await supabase
       .from("notifications")
       .select("*")
@@ -29,10 +29,11 @@ export function useNotifications() {
       .limit(50);
     if (data) setNotifications(data as Notification[]);
     setLoading(false);
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
     fetchNotifications();
 
     // Realtime subscription
@@ -49,7 +50,6 @@ export function useNotifications() {
         (payload) => {
           const newNotif = payload.new as Notification;
           setNotifications((prev) => [newNotif, ...prev]);
-          // Show toast for incoming real-time notification
           toast({
             title: newNotif.title,
             description: newNotif.message,
@@ -77,7 +77,8 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, fetchNotifications]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const markAsRead = async (id: string) => {
     await supabase
