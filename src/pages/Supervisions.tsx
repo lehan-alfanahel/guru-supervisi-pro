@@ -90,9 +90,14 @@ export default function Supervisions() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [teacherAdminLinks, setTeacherAdminLinks] = useState<Record<string, string>>({});
   const [loadingLinks, setLoadingLinks] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   const [form, setForm] = useState<FormState>({
     teacher_id: "",
