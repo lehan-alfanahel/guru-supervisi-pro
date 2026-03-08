@@ -325,7 +325,7 @@ export default function TeacherDashboard() {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-base truncate">{teacherData.name}</p>
                 <p className="text-sm text-muted-foreground">NIP: {teacherData.nip}</p>
-                <p className="text-xs text-muted-foreground">{teacherData.rank} · {teacherData.schoolName}</p>
+                <p className="text-xs text-muted-foreground">{teacherData.rank !== "Tidak Ada" && teacherData.rank !== "IX" ? `${teacherData.rank} · ` : ""}{teacherData.schoolName}</p>
               </div>
             </div>
           </CardContent>
