@@ -50,6 +50,7 @@ export default function SetupSchool() {
 
     setLoading(true);
     try {
+      // Creating a school automatically assigns the 'admin' role via a server-side trigger
       await createSchool({
         name: data.name,
         npsn: data.npsn || "",
@@ -59,19 +60,6 @@ export default function SetupSchool() {
         principal_nip: data.principal_nip,
         owner_id: user.id,
       });
-
-      // Create admin role for the user
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: user.id,
-          role: 'admin'
-        });
-
-      if (roleError) {
-        console.error("Error creating admin role:", roleError);
-        // Continue even if role creation fails
-      }
 
       toast({
         title: "Berhasil!",
