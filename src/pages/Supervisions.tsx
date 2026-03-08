@@ -232,6 +232,7 @@ export default function Supervisions() {
         mata_pelajaran: form.mata_pelajaran,
         notes: form.notes,
         tindak_lanjut: form.tindak_lanjut,
+        remarks: form.remarks,
         created_by: user!.id,
         ...form.scores,
       };
