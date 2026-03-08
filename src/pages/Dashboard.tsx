@@ -295,7 +295,7 @@ export default function Dashboard() {
                 <BookOpen className="w-5 h-5 text-primary" />
                 Administrasi Guru
               </CardTitle>
-              <Badge variant="secondary">{adminRecords.length} data</Badge>
+              
             </div>
             <p className="text-sm text-muted-foreground">Hasil isian instrumen administrasi oleh guru (link Google Drive)</p>
           </CardHeader>
