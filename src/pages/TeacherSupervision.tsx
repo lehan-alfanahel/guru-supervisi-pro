@@ -156,7 +156,7 @@ export default function TeacherSupervision() {
         principalNip: school?.principal_nip || "",
       });
 
-      const [{ data: records }, { data: sups }, { data: atpData }] = await Promise.all([
+      const [{ data: records }, { data: sups }, { data: atpData }, { data: maData }] = await Promise.all([
         supabase.from("teaching_administration").select("*")
           .eq("teacher_account_id", teacherAccount.id)
           .order("created_at", { ascending: false }),
@@ -166,11 +166,15 @@ export default function TeacherSupervision() {
         supabase.from("atp_supervisions" as any).select("*")
           .eq("teacher_id", teacher.id)
           .order("supervision_date", { ascending: false }),
+        supabase.from("modul_ajar_supervisions" as any).select("*")
+          .eq("teacher_id", teacher.id)
+          .order("supervision_date", { ascending: false }),
       ]);
 
       setAdministrationRecords(records || []);
       setSupervisions(sups || []);
       setAtpSupervisions(atpData || []);
+      setModulAjarSupervisions(maData || []);
       if (!records || records.length === 0) setShowForm(true);
     } catch (error) {
       console.error("Error loading data:", error);
