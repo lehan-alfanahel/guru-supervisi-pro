@@ -78,6 +78,7 @@ export default function Dashboard() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", npsn: "", address: "", phone: "", principal_name: "", principal_nip: "" });
   const [saving, setSaving] = useState(false);
+  const [profileCollapsed, setProfileCollapsed] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -541,67 +542,85 @@ export default function Dashboard() {
 
         {/* Profil Sekolah */}
         <Card className="shadow-[var(--shadow-card)]">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <School2 className="w-5 h-5 text-primary" />
                 Profil Sekolah
               </CardTitle>
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => setEditProfileOpen(true)}
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </Button>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setEditProfileOpen(true)}
+                  title="Edit profil sekolah"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setProfileCollapsed(c => !c)}
+                  title={profileCollapsed ? "Tampilkan profil" : "Sembunyikan profil"}
+                >
+                  {profileCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
+            {/* Preview saat collapsed */}
+            {profileCollapsed && (
+              <p className="text-sm text-muted-foreground mt-1 truncate">{school?.name}</p>
+            )}
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                <School2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Nama Sekolah</p>
-                  <p className="font-semibold">{school?.name}</p>
+
+          {!profileCollapsed && (
+            <CardContent>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                  <School2 className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Nama Sekolah</p>
+                    <p className="font-semibold">{school?.name}</p>
+                  </div>
                 </div>
+                {school?.npsn && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <Hash className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">NPSN</p>
+                      <p className="font-medium">{school.npsn}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                  <User className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Kepala Sekolah</p>
+                    <p className="font-medium">{school?.principal_name}</p>
+                    <p className="text-xs text-muted-foreground">NIP: {school?.principal_nip}</p>
+                  </div>
+                </div>
+                {school?.address && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Alamat</p>
+                      <p className="font-medium">{school.address}</p>
+                    </div>
+                  </div>
+                )}
+                {school?.phone && (
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <Phone className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Telepon</p>
+                      <p className="font-medium">{school.phone}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              {school?.npsn && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Hash className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">NPSN</p>
-                    <p className="font-medium">{school.npsn}</p>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                <User className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-muted-foreground">Kepala Sekolah</p>
-                  <p className="font-medium">{school?.principal_name}</p>
-                  <p className="text-xs text-muted-foreground">NIP: {school?.principal_nip}</p>
-                </div>
-              </div>
-              {school?.address && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Alamat</p>
-                    <p className="font-medium">{school.address}</p>
-                  </div>
-                </div>
-              )}
-              {school?.phone && (
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Phone className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Telepon</p>
-                    <p className="font-medium">{school.phone}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
       </main>
 
