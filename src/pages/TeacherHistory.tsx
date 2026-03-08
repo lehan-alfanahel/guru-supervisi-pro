@@ -196,7 +196,7 @@ function CoachingCard({ c }: { c: CoachingRecord }) {
       <CardContent className="p-4 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-secondary/20 flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-secondary-foreground" />
             </div>
             <div>
