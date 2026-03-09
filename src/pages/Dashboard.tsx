@@ -225,8 +225,8 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                <GraduationCap className="w-6 h-6" />
+              <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center">
+                <GraduationCap className="w-7 h-7" />
               </div>
               <div>
                 <h1 className="text-lg font-bold">SUPERVISI DIGITAL GURU</h1>
