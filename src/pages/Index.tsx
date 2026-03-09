@@ -107,7 +107,7 @@ const Index = () => {
             SUPERVISI DIGITAL GURU
           </h1>
           <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90">
-            Platform modern untuk supervisi kinerja guru secara digital, efisien, dan terstruktur
+            Untuk Memenuhi Tugas Mata Kuliah : Magang Administrasi Pendidikan, Dosen Pengampu : Dr. Dra. Tri Yuni Hendrowati, M.Pd.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center px-4">
             <Button
