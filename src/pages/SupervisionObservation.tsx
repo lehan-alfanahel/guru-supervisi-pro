@@ -410,6 +410,7 @@ export default function SupervisionObservation() {
         body{font-family:Arial,sans-serif;font-size:11px;margin:20px;color:#000;}
         table{border-collapse:collapse;width:100%;}
         h2,h3{text-align:center;margin:4px 0;}
+        h2{font-size:18px;}
         .info-table td{padding:2px 6px;font-size:11px;}
         @media print{body{margin:10mm;}}
       </style>
