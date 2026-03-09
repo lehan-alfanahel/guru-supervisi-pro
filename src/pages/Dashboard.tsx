@@ -15,7 +15,7 @@ import {
 import {
   School2, Users, ClipboardList, LogOut, MessageSquare,
   ExternalLink, CheckCircle2, XCircle, ChevronDown, ChevronUp, BookOpen, TrendingUp,
-  Pencil, Save, Phone, MapPin, Hash, User,
+  Pencil, Save, Phone, MapPin, Hash, User, GraduationCap,
 } from "lucide-react";
 import { AdminBottomNav } from "@/components/AdminBottomNav";
 import { useToast } from "@/hooks/use-toast";
