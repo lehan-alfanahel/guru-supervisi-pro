@@ -374,7 +374,7 @@ export default function SupervisionATP() {
         <style>
           body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 12px; }
           h1, h2 { text-align: center; margin: 3px 0; }
-          h1 { font-size: 14px; }
+          h1 { font-size: 18px; }
           h2 { font-size: 13px; }
           table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
           td, th { padding: 5px 8px; border: 1px solid #999; }
@@ -450,7 +450,7 @@ export default function SupervisionATP() {
           </tr>
           <tr>
             <td style="text-align:center;">Guru yang di Supervisi,</td>
-            <td style="text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            <td style="text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
           </tr>
           <tr>
             <td style="text-align:center;"><br/><br/><br/><br/>

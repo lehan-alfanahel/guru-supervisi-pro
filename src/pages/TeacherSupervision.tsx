@@ -321,7 +321,7 @@ export default function TeacherSupervision() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
-            h1 { font-size: 14px; }
+            h1 { font-size: 18px; }
             h2 { font-size: 13px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
@@ -390,7 +390,7 @@ export default function TeacherSupervision() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/>
@@ -425,7 +425,7 @@ export default function TeacherSupervision() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
-            h1 { font-size: 14px; }
+            h1 { font-size: 18px; }
             h2 { font-size: 13px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
@@ -491,7 +491,7 @@ export default function TeacherSupervision() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
@@ -522,7 +522,7 @@ export default function TeacherSupervision() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
-            h1 { font-size: 14px; }
+            h1 { font-size: 18px; }
             h2 { font-size: 13px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
@@ -588,7 +588,7 @@ export default function TeacherSupervision() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Supervisi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
@@ -620,7 +620,7 @@ export default function TeacherSupervision() {
           <style>
             body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 13px; }
             h1, h2 { text-align: center; margin: 3px 0; }
-            h1 { font-size: 14px; }
+            h1 { font-size: 18px; }
             h2 { font-size: 13px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
             td, th { padding: 6px 10px; border: 1px solid #999; }
@@ -689,7 +689,7 @@ export default function TeacherSupervision() {
             </tr>
             <tr>
               <td style="border:none;text-align:center;">Guru yang di Observasi,</td>
-              <td style="border:none;text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+              <td style="border:none;text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
             </tr>
             <tr>
               <td style="border:none;text-align:center;"><br/><br/><br/><br/><u>${teacherInfo.name}</u><br/>NIP. ${teacherInfo.nip}</td>
