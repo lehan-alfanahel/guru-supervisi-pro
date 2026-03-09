@@ -450,7 +450,7 @@ export default function SupervisionATP() {
           </tr>
           <tr>
             <td style="text-align:center;">Guru yang di Supervisi,</td>
-            <td style="text-align:center;">Kepala Sekolah/ Tim Supervisi,</td>
+            <td style="text-align:center;">Kepala Sekolah / Tim Supervisi,</td>
           </tr>
           <tr>
             <td style="text-align:center;"><br/><br/><br/><br/>
