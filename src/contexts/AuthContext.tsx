@@ -63,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Set loading=true so Auth.tsx waits for role before redirecting
+          setLoading(true);
           // Defer to avoid Supabase deadlock
           setTimeout(() => {
             fetchUserRole(session.user.id);
