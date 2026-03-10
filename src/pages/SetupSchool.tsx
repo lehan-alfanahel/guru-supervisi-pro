@@ -61,6 +61,9 @@ export default function SetupSchool() {
         owner_id: user.id,
       });
 
+      // Refresh role setelah sekolah dibuat (trigger DB assign admin role)
+      await refreshUserRole();
+
       toast({
         title: "Berhasil!",
         description: "Profil sekolah berhasil disimpan",
