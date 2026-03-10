@@ -25,7 +25,7 @@ const schoolSchema = z.object({
 
 export default function SetupSchool() {
   const [loading, setLoading] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshUserRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
