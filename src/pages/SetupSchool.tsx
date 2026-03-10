@@ -25,7 +25,7 @@ const schoolSchema = z.object({
 
 export default function SetupSchool() {
   const [loading, setLoading] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshUserRole } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -60,6 +60,9 @@ export default function SetupSchool() {
         principal_nip: data.principal_nip,
         owner_id: user.id,
       });
+
+      // Refresh role setelah sekolah dibuat (trigger DB assign admin role)
+      await refreshUserRole();
 
       toast({
         title: "Berhasil!",

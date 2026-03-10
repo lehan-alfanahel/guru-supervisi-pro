@@ -60,9 +60,10 @@ export default function Auth() {
       navigate("/teacher/dashboard", { replace: true });
     } else if (userRole === "admin") {
       navigate("/dashboard", { replace: true });
+    } else {
+      // userRole null: admin baru yang belum setup sekolah
+      navigate("/setup-school", { replace: true });
     }
-    // userRole null setelah loading selesai: kemungkinan admin baru belum setup sekolah
-    // Dashboard.tsx akan otomatis redirect ke /setup-school jika belum ada sekolah
   }, [user?.id, userRole, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
