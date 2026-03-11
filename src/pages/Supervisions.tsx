@@ -476,7 +476,46 @@ export default function Supervisions() {
           <p className="text-xs text-muted-foreground">ℹ️ Guru ini belum mengisi instrumen administrasi.</p>
         </div>
       )}
-      <div className="border rounded-lg overflow-x-auto">
+      {/* Mobile: card layout */}
+      <div className="space-y-2 sm:hidden">
+        {SUPERVISION_COMPONENTS.map((c, i) => {
+          const score = scores[c.key];
+          const showRemark = score !== 2;
+          return (
+            <div key={c.key} className="border rounded-lg p-3 bg-background space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-medium flex-1">{i + 1}. {c.label}</p>
+                {showLinks && teacherAdminLinks[c.key] && (
+                  <a href={teacherAdminLinks[c.key]} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary hover:bg-primary/20 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  </a>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {([0, 1, 2] as ScoreValue[]).map((val) => {
+                  const labels = ["Tidak Ada", "Tidak Sesuai", "Sesuai"];
+                  const activeColors = ["bg-destructive text-destructive-foreground", "bg-yellow-500 text-white", "bg-green-600 text-white"];
+                  const isActive = score === val;
+                  return (
+                    <label key={val} className={`flex-1 flex items-center justify-center gap-1.5 p-2 rounded-md border cursor-pointer text-xs font-medium transition-colors ${isActive ? activeColors[val] : "bg-muted/30 text-muted-foreground border-border"}`}>
+                      <input type="radio" name={`${prefix}${c.key}`} value={val} checked={isActive} onChange={() => onChange(c.key, val)} className="sr-only" />
+                      {val} — {labels[val]}
+                    </label>
+                  );
+                })}
+              </div>
+              {showRemark && onRemarkChange && (
+                <input type="text" placeholder="Tulis keterangan..." value={remarks?.[c.key] || ""}
+                  onChange={(e) => onRemarkChange(c.key, e.target.value)}
+                  className="w-full text-xs border border-border rounded px-2 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block border rounded-lg overflow-x-auto">
         <table className="w-full text-sm min-w-[400px]">
           <thead className="bg-muted/50">
             <tr>
@@ -499,45 +538,25 @@ export default function Supervisions() {
                   <td className="p-2 border-b text-xs">{c.label}</td>
                   {([0, 1, 2] as ScoreValue[]).map((val) => (
                     <td key={val} className="p-2 text-center border-b">
-                      <input
-                        type="radio"
-                        name={`${prefix}${c.key}`}
-                        value={val}
-                        checked={scores[c.key] === val}
-                        onChange={() => onChange(c.key, val)}
-                        className="accent-primary w-4 h-4 cursor-pointer"
-                      />
+                      <input type="radio" name={`${prefix}${c.key}`} value={val} checked={scores[c.key] === val} onChange={() => onChange(c.key, val)} className="accent-primary w-4 h-4 cursor-pointer" />
                     </td>
                   ))}
                   {showLinks && (
                     <td className="p-2 text-center border-b">
                       {teacherAdminLinks[c.key] ? (
-                        <a
-                          href={teacherAdminLinks[c.key]}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                          title={`Buka: ${teacherAdminLinks[c.key]}`}
-                        >
+                        <a href={teacherAdminLinks[c.key]} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                         </a>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
-                      )}
+                      ) : <span className="text-muted-foreground text-xs">—</span>}
                     </td>
                   )}
                   <td className="p-2 border-b">
                     {showRemark && onRemarkChange ? (
-                      <input
-                        type="text"
-                        placeholder="Tulis keterangan..."
-                        value={remarks?.[c.key] || ""}
+                      <input type="text" placeholder="Tulis keterangan..." value={remarks?.[c.key] || ""}
                         onChange={(e) => onRemarkChange(c.key, e.target.value)}
-                        className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
-                      />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">{remarks?.[c.key] || "—"}</span>
-                    )}
+                        className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary" />
+                    ) : <span className="text-xs text-muted-foreground">{remarks?.[c.key] || "—"}</span>}
                   </td>
                 </tr>
               );

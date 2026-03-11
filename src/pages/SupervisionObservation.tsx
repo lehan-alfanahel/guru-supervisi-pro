@@ -139,91 +139,108 @@ const emptyForm = (): FormState => ({
   scores: defaultScores(),
 });
 
-// ─── Score Radio Row Component ────────────────────────────────────────────────
-function ScoreRow({ num, itemKey, label, score, prefix, onChange }: {
-  num: number; itemKey: string; label: string; score: ScoreVal; prefix: string;
-  onChange: (key: string, val: ScoreVal) => void;
-}) {
-  return (
-    <tr className={num % 2 === 0 ? "bg-muted/20" : "bg-background"}>
-      <td className="p-2 text-center text-xs text-muted-foreground border-b w-7">{num}</td>
-      <td className="p-2 text-xs border-b">{label}</td>
-      {([2, 1, 0] as ScoreVal[]).map((val) => (
-        <td key={val} className="p-2 text-center border-b w-10">
-          <input
-            type="radio"
-            name={`${prefix}${itemKey}`}
-            value={val}
-            checked={score === val}
-            onChange={() => onChange(itemKey, val)}
-            className="accent-primary w-4 h-4 cursor-pointer"
-          />
-        </td>
-      ))}
-    </tr>
-  );
-}
-
 // ─── Observation Form Scoring Table ──────────────────────────────────────────
 function ObservationScoreTable({ scores, prefix = "", onChange }: {
   scores: Record<string, ScoreVal>;
   prefix?: string;
   onChange: (key: string, val: ScoreVal) => void;
 }) {
-  let rowNum = 0;
+  const scoreOpts: { val: ScoreVal; label: string; activeClass: string }[] = [
+    { val: 2, label: "Sesuai", activeClass: "bg-green-600 text-white border-green-600" },
+    { val: 1, label: "Kurang", activeClass: "bg-yellow-500 text-white border-yellow-500" },
+    { val: 0, label: "Tidak Ada", activeClass: "bg-destructive text-destructive-foreground border-destructive" },
+  ];
   return (
-    <div className="border rounded-lg overflow-x-auto">
-      <table className="w-full text-sm min-w-[400px]">
-        <thead className="bg-muted/50">
-          <tr>
-            <th className="p-2 text-left border-b w-7 text-xs">No</th>
-            <th className="p-2 text-left border-b text-xs">Aspek yang Diamati</th>
-            <th className="p-2 text-center border-b w-10 text-xs">2</th>
-            <th className="p-2 text-center border-b w-10 text-xs">1</th>
-            <th className="p-2 text-center border-b w-10 text-xs">0</th>
-          </tr>
-          <tr className="bg-muted/30">
-            <th className="p-1 border-b" colSpan={2}></th>
-            <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Sesuai</th>
-            <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Kurang</th>
-            <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Tidak Ada</th>
-          </tr>
-        </thead>
-        <tbody>
-          {OBSERVATION_SECTIONS.map((sec) => (
-            <>
-              <tr key={`sec-${sec.section}`} className="bg-primary/10">
-                <td colSpan={5} className="p-2 font-bold text-xs text-primary border-b">
-                  {sec.section}. {sec.title}
-                </td>
-              </tr>
+    <div>
+      {/* Mobile: card layout */}
+      <div className="space-y-3 sm:hidden">
+        {OBSERVATION_SECTIONS.map((sec) => (
+          <div key={sec.section}>
+            <div className="px-3 py-2 bg-primary/10 rounded-t-lg">
+              <p className="text-xs font-bold text-primary">{sec.section}. {sec.title}</p>
+            </div>
+            <div className="border border-t-0 rounded-b-lg divide-y">
               {sec.groups.map((grp) => (
-                <>
-                  <tr key={`grp-${grp.num}`} className="bg-muted/40">
-                    <td colSpan={5} className="px-3 py-1.5 text-xs font-semibold text-foreground border-b">
-                      {grp.num}. {grp.title}
-                    </td>
-                  </tr>
+                <div key={grp.num} className="divide-y">
+                  <div className="px-3 py-2 bg-muted/30">
+                    <p className="text-xs font-semibold text-foreground">{grp.num}. {grp.title}</p>
+                  </div>
                   {grp.items.map((item) => {
-                    rowNum++;
+                    const score = scores[item.key] ?? 0;
                     return (
-                      <ScoreRow
-                        key={item.key}
-                        num={rowNum}
-                        itemKey={item.key}
-                        label={item.label}
-                        score={scores[item.key] ?? 0}
-                        prefix={prefix}
-                        onChange={onChange}
-                      />
+                      <div key={item.key} className="p-3 space-y-2">
+                        <p className="text-xs">{item.label}</p>
+                        <div className="flex gap-1.5">
+                          {scoreOpts.map(({ val, label, activeClass }) => (
+                            <label key={val} className={`flex-1 flex items-center justify-center py-1.5 px-1 rounded border cursor-pointer text-[11px] font-medium transition-colors ${score === val ? activeClass : "bg-muted/30 text-muted-foreground border-border"}`}>
+                              <input type="radio" name={`${prefix}${item.key}`} value={val} checked={score === val} onChange={() => onChange(item.key, val)} className="sr-only" />
+                              {val} — {label}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
                     );
                   })}
-                </>
+                </div>
               ))}
-            </>
-          ))}
-        </tbody>
-      </table>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm min-w-[400px]">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="p-2 text-left border-b w-7 text-xs">No</th>
+              <th className="p-2 text-left border-b text-xs">Aspek yang Diamati</th>
+              <th className="p-2 text-center border-b w-10 text-xs">2</th>
+              <th className="p-2 text-center border-b w-10 text-xs">1</th>
+              <th className="p-2 text-center border-b w-10 text-xs">0</th>
+            </tr>
+            <tr className="bg-muted/30">
+              <th className="p-1 border-b" colSpan={2}></th>
+              <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Sesuai</th>
+              <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Kurang</th>
+              <th className="p-1 text-center border-b text-[10px] text-muted-foreground">Tidak Ada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {OBSERVATION_SECTIONS.map((sec) => {
+              let rowNum = 0;
+              return (
+                <>
+                  <tr key={`sec-${sec.section}`} className="bg-primary/10">
+                    <td colSpan={5} className="p-2 font-bold text-xs text-primary border-b">{sec.section}. {sec.title}</td>
+                  </tr>
+                  {sec.groups.map((grp) => (
+                    <>
+                      <tr key={`grp-${grp.num}`} className="bg-muted/40">
+                        <td colSpan={5} className="px-3 py-1.5 text-xs font-semibold text-foreground border-b">{grp.num}. {grp.title}</td>
+                      </tr>
+                      {grp.items.map((item) => {
+                        rowNum++;
+                        const score = scores[item.key] ?? 0;
+                        return (
+                          <tr key={item.key} className={rowNum % 2 === 0 ? "bg-muted/20" : "bg-background"}>
+                            <td className="p-2 text-center text-xs text-muted-foreground border-b w-7">{rowNum}</td>
+                            <td className="p-2 text-xs border-b">{item.label}</td>
+                            {([2, 1, 0] as ScoreVal[]).map((val) => (
+                              <td key={val} className="p-2 text-center border-b w-10">
+                                <input type="radio" name={`${prefix}${item.key}`} value={val} checked={score === val} onChange={() => onChange(item.key, val)} className="accent-primary w-4 h-4 cursor-pointer" />
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })}
+                    </>
+                  ))}
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

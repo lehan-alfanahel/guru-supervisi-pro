@@ -179,78 +179,116 @@ function MAScoreTable({ scores, remarks = {}, prefix = "", onChange, onRemarkCha
   onRemarkChange?: (key: string, val: string) => void;
 }) {
   return (
-    <div className="border rounded-lg overflow-x-auto">
-      <table className="w-full text-sm min-w-[500px]">
-        <thead className="bg-muted/50">
-          <tr>
-            <th className="p-2 text-center border-b w-8 text-xs">No</th>
-            <th className="p-2 text-left border-b text-xs">Komponen Modul Ajar</th>
-            <th className="p-2 text-center border-b text-xs w-14">0</th>
-            <th className="p-2 text-center border-b text-xs w-14">1</th>
-            <th className="p-2 text-center border-b text-xs w-14">2</th>
-            <th className="p-2 text-left border-b text-xs">Keterangan</th>
-          </tr>
-        </thead>
-        <tbody>
-          {MODUL_AJAR_SECTIONS.map((sec) => (
-            <>
-              <tr key={`sec-${sec.section}`} className="bg-primary/10">
-                <td colSpan={6} className="p-2 font-bold text-xs text-primary border-b">
-                  {sec.section}. {sec.title}
-                  {sec.items.length > 0 && (
-                    <span className="ml-2 font-normal text-muted-foreground">
-                      [{SCORE_LABELS[sec.type][0]} / {SCORE_LABELS[sec.type][1]} / {SCORE_LABELS[sec.type][2]}]
-                    </span>
-                  )}
-                </td>
-              </tr>
-              {sec.items.map((item, idx) => {
+    <div>
+      {/* Mobile: card layout */}
+      <div className="space-y-3 sm:hidden">
+        {MODUL_AJAR_SECTIONS.map((sec) => sec.items.length > 0 && (
+          <div key={sec.section}>
+            <div className="px-3 py-2 bg-primary/10 rounded-t-lg">
+              <p className="text-xs font-bold text-primary">{sec.section}. {sec.title}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">[{SCORE_LABELS[sec.type][0]} / {SCORE_LABELS[sec.type][1]} / {SCORE_LABELS[sec.type][2]}]</p>
+            </div>
+            <div className="border border-t-0 rounded-b-lg divide-y">
+              {sec.items.map((item) => {
                 const score = scores[item.key] ?? 0;
                 const showRemark = score !== 2;
+                const labels = SCORE_LABELS[sec.type];
+                const scoreOpts: { val: ScoreVal; activeClass: string }[] = [
+                  { val: 0, activeClass: "bg-destructive text-destructive-foreground border-destructive" },
+                  { val: 1, activeClass: "bg-yellow-500 text-white border-yellow-500" },
+                  { val: 2, activeClass: "bg-green-600 text-white border-green-600" },
+                ];
                 return (
-                  <>
-                    <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                      <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
-                      <td className="p-2 text-xs border-b font-medium">{item.label}</td>
-                      {([0, 1, 2] as ScoreVal[]).map((val) => (
-                        <td key={val} className="p-2 text-center border-b">
-                          <input
-                            type="radio"
-                            name={`${prefix}${item.key}`}
-                            value={val}
-                            checked={score === val}
-                            onChange={() => onChange(item.key, val)}
-                            className="accent-primary w-4 h-4 cursor-pointer"
-                          />
-                        </td>
+                  <div key={item.key} className="p-3 space-y-2">
+                    <p className="text-xs font-medium">{item.num}. {item.label}</p>
+                    {"subItems" in item && (item as any).subItems?.length > 0 && (
+                      <ul className="ml-3 space-y-0.5">
+                        {(item as any).subItems.map((sub: string) => (
+                          <li key={sub} className="text-[10px] text-muted-foreground italic">{sub}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="flex gap-1.5">
+                      {scoreOpts.map(({ val, activeClass }) => (
+                        <label key={val} className={`flex-1 flex items-center justify-center py-1.5 px-1 rounded border cursor-pointer text-[10px] font-medium transition-colors text-center leading-tight ${score === val ? activeClass : "bg-muted/30 text-muted-foreground border-border"}`}>
+                          <input type="radio" name={`${prefix}${item.key}`} value={val} checked={score === val} onChange={() => onChange(item.key, val)} className="sr-only" />
+                          {val}<br/>{labels[val]}
+                        </label>
                       ))}
-                      <td className="p-2 border-b min-w-[120px]">
-                        {showRemark && onRemarkChange ? (
-                          <input
-                            type="text"
-                            placeholder="Tulis keterangan..."
-                            value={remarks[item.key] || ""}
-                            onChange={(e) => onRemarkChange(item.key, e.target.value)}
-                            className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary"
-                          />
-                        ) : (
-                          <span className="text-xs text-muted-foreground">{remarks[item.key] || "—"}</span>
-                        )}
-                      </td>
-                    </tr>
-                    {"subItems" in item && (item as any).subItems?.map((sub: string) => (
-                      <tr key={sub} className="bg-muted/10">
-                        <td className="border-b"></td>
-                        <td className="pl-6 pr-2 py-1 text-[11px] text-muted-foreground border-b italic" colSpan={5}>{sub}</td>
-                      </tr>
-                    ))}
-                  </>
+                    </div>
+                    {showRemark && onRemarkChange && (
+                      <input type="text" placeholder="Tulis keterangan..." value={remarks[item.key] || ""}
+                        onChange={(e) => onRemarkChange(item.key, e.target.value)}
+                        className="w-full text-xs border border-border rounded px-2 py-1.5 bg-background focus:outline-none focus:ring-1 focus:ring-primary" />
+                    )}
+                  </div>
                 );
               })}
-            </>
-          ))}
-        </tbody>
-      </table>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block border rounded-lg overflow-x-auto">
+        <table className="w-full text-sm min-w-[500px]">
+          <thead className="bg-muted/50">
+            <tr>
+              <th className="p-2 text-center border-b w-8 text-xs">No</th>
+              <th className="p-2 text-left border-b text-xs">Komponen Modul Ajar</th>
+              <th className="p-2 text-center border-b text-xs w-14">0</th>
+              <th className="p-2 text-center border-b text-xs w-14">1</th>
+              <th className="p-2 text-center border-b text-xs w-14">2</th>
+              <th className="p-2 text-left border-b text-xs">Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MODUL_AJAR_SECTIONS.map((sec) => (
+              <>
+                <tr key={`sec-${sec.section}`} className="bg-primary/10">
+                  <td colSpan={6} className="p-2 font-bold text-xs text-primary border-b">
+                    {sec.section}. {sec.title}
+                    {sec.items.length > 0 && (
+                      <span className="ml-2 font-normal text-muted-foreground">
+                        [{SCORE_LABELS[sec.type][0]} / {SCORE_LABELS[sec.type][1]} / {SCORE_LABELS[sec.type][2]}]
+                      </span>
+                    )}
+                  </td>
+                </tr>
+                {sec.items.map((item, idx) => {
+                  const score = scores[item.key] ?? 0;
+                  const showRemark = score !== 2;
+                  return (
+                    <>
+                      <tr key={item.key} className={idx % 2 === 0 ? "bg-background" : "bg-muted/20"}>
+                        <td className="p-2 text-center text-xs text-muted-foreground border-b">{item.num}</td>
+                        <td className="p-2 text-xs border-b font-medium">{item.label}</td>
+                        {([0, 1, 2] as ScoreVal[]).map((val) => (
+                          <td key={val} className="p-2 text-center border-b">
+                            <input type="radio" name={`${prefix}${item.key}`} value={val} checked={score === val} onChange={() => onChange(item.key, val)} className="accent-primary w-4 h-4 cursor-pointer" />
+                          </td>
+                        ))}
+                        <td className="p-2 border-b min-w-[120px]">
+                          {showRemark && onRemarkChange ? (
+                            <input type="text" placeholder="Tulis keterangan..." value={remarks[item.key] || ""}
+                              onChange={(e) => onRemarkChange(item.key, e.target.value)}
+                              className="w-full text-xs border border-border rounded px-2 py-1 bg-background focus:outline-none focus:ring-1 focus:ring-primary" />
+                          ) : <span className="text-xs text-muted-foreground">{remarks[item.key] || "—"}</span>}
+                        </td>
+                      </tr>
+                      {"subItems" in item && (item as any).subItems?.map((sub: string) => (
+                        <tr key={sub} className="bg-muted/10">
+                          <td className="border-b"></td>
+                          <td className="pl-6 pr-2 py-1 text-[11px] text-muted-foreground border-b italic" colSpan={5}>{sub}</td>
+                        </tr>
+                      ))}
+                    </>
+                  );
+                })}
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
