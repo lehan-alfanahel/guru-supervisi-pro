@@ -672,13 +672,14 @@ export default function Supervisions() {
                    </div>
                  </div>
 
-                <ScoreTable
-                  scores={editForm.scores}
-                  onChange={handleEditScoreChange}
-                  prefix="edit_"
-                  remarks={editForm.remarks}
-                  onRemarkChange={(key, val) => setEditForm(p => ({ ...p, remarks: { ...p.remarks, [key]: val } }))}
-                />
+                {renderScoreTable(
+                  editForm.scores,
+                  handleEditScoreChange,
+                  "edit_",
+                  false,
+                  editForm.remarks,
+                  (key, val) => setEditForm(p => ({ ...p, remarks: { ...p.remarks, [key]: val } })),
+                )}
 
                 <div className="grid grid-cols-1 gap-4">
                   <div className="space-y-1.5">
