@@ -421,7 +421,7 @@ export default function SupervisionATP() {
         <table class="noborder">
           <tr><td style="width:160px;">Nama Sekolah</td><td>: ${schoolName}</td></tr>
           <tr><td>Nama Guru</td><td>: ${row.teachers?.name || ""}</td></tr>
-          <tr><td>Kelas/ Semester</td><td>: ${row.kelas_semester || "............................."}</td></tr>
+          <tr><td>Kelas / Semester</td><td>: ${row.kelas_semester || "............................."}</td></tr>
         </table>
         <table>
           <thead>
