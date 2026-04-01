@@ -298,7 +298,7 @@ export default function TeacherAccounts() {
                   Tambah
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md sm:max-w-lg rounded-none sm:rounded-lg max-h-[95vh] flex flex-col">
+              <DialogContent className="sm:max-w-lg">
                 <DialogHeader className="flex-shrink-0">
                   <DialogTitle>Buat Akun Guru</DialogTitle>
                   <DialogDescription>
