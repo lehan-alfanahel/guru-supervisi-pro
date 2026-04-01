@@ -519,7 +519,7 @@ export default function SupervisionModulAjar() {
             </tr>
             <tr>
               <td colspan="2" style="font-weight:bold;">Nilai Akhir</td>
-              <td class="center" colspan="3" style="font-weight:bold;"><br>${pct}% <br><br> <span class="predikat-box">${predikat.label}<br></span></td>
+              <td class="center" colspan="3" style="font-weight:bold;"><br>${pct}% <br><br> <span class="predikat-box">${predikat.label}</span><br><br></td>
               <td></td>
             </tr>
           </tbody>
