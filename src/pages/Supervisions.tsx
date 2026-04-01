@@ -602,7 +602,7 @@ export default function Supervisions() {
                   <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+              <DialogContent className="sm:max-w-2xl" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
               <DialogHeader>
                 <DialogTitle>Instrumen Supervisi Akademik</DialogTitle>
               </DialogHeader>
