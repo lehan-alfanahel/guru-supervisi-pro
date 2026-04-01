@@ -505,7 +505,7 @@ export default function SupervisionATP() {
     );
   }
 
-  const FormContent = ({ f, setF, prefix }: { f: FormState; setF: (fn: (p: FormState) => FormState) => void; prefix: string }) => (
+  const renderFormContent = (f: FormState, setF: (fn: (p: FormState) => FormState) => void, prefix: string) => (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -596,7 +596,7 @@ export default function SupervisionATP() {
             <DialogTitle>Instrumen Supervisi ATP</DialogTitle>
           </DialogHeader>
           <form onSubmit={onSubmit} className="space-y-5">
-            <FormContent f={form} setF={setForm as any} prefix="new_" />
+            {renderFormContent(form, setForm as any, "new_")}
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
               <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
@@ -614,7 +614,7 @@ export default function SupervisionATP() {
             <DialogTitle>Edit Supervisi ATP</DialogTitle>
           </DialogHeader>
           <form onSubmit={onUpdate} className="space-y-5">
-            <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
+            {renderFormContent(editForm, setEditForm as any, "edit_")}
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
               <Button type="submit" className="flex-1" disabled={submitting}>
