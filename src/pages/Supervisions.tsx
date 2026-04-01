@@ -444,21 +444,14 @@ export default function Supervisions() {
     );
   }
 
-  const ScoreTable = ({
-    scores,
-    onChange,
+  const renderScoreTable = (
+    scores: Record<string, ScoreValue>,
+    onChange: (key: string, val: ScoreValue) => void,
     prefix = "",
     showLinks = false,
-    remarks,
-    onRemarkChange,
-  }: {
-    scores: Record<string, ScoreValue>;
-    onChange: (key: string, val: ScoreValue) => void;
-    prefix?: string;
-    showLinks?: boolean;
-    remarks?: Record<string, string>;
-    onRemarkChange?: (key: string, val: string) => void;
-  }) => (
+    remarks?: Record<string, string>,
+    onRemarkChange?: (key: string, val: string) => void,
+  ) => (
     <div>
       <p className="text-sm font-semibold mb-2">Komponen Administrasi Pembelajaran</p>
       <p className="text-xs text-muted-foreground mb-3">
