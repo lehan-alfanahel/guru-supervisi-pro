@@ -591,7 +591,7 @@ export default function SupervisionATP() {
 
       {/* Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
+        <DialogContent className="sm:max-w-2xl" onOpenAutoFocus={(e) => { e.preventDefault(); (document.querySelector('[type="date"]') as HTMLElement)?.focus(); }}>
           <DialogHeader>
             <DialogTitle>Instrumen Supervisi ATP</DialogTitle>
           </DialogHeader>
