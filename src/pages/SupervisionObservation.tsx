@@ -597,7 +597,7 @@ export default function SupervisionObservation() {
                 <Plus className="w-4 h-4" /> <span className="hidden sm:inline">Buat Observasi</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-3xl">
               <DialogHeader>
                 <DialogTitle>Instrumen Supervisi Akademik (Kurikulum Merdeka)</DialogTitle>
               </DialogHeader>
