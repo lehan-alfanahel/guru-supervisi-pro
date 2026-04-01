@@ -620,7 +620,7 @@ export default function SupervisionObservation() {
             <DialogTitle>Edit Instrumen Supervisi</DialogTitle>
           </DialogHeader>
           <form onSubmit={onUpdate} className="space-y-5">
-            <FormContent f={editForm} setF={setEditForm} prefix="edit_" />
+            {renderFormContent(editForm, setEditForm, "edit_")}
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
               <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? "Menyimpan..." : "Simpan Perubahan"}</Button>

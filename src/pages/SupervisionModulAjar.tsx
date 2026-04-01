@@ -684,7 +684,7 @@ export default function SupervisionModulAjar() {
             <DialogTitle>Edit Supervisi Modul Ajar</DialogTitle>
           </DialogHeader>
           <form onSubmit={onUpdate} className="space-y-5">
-            <FormContent f={editForm} setF={setEditForm as any} prefix="edit_" />
+            {renderFormContent(editForm, setEditForm as any, "edit_")}
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setEditDialogOpen(false)}>Batal</Button>
               <Button type="submit" className="flex-1" disabled={submitting}>
