@@ -354,7 +354,7 @@ export default function Teachers() {
                     Tambah
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md sm:max-w-lg rounded-none max-h-screen overflow-hidden flex flex-col">
+                <DialogContent className="sm:max-w-lg">
                   <DialogHeader className="flex-shrink-0">
                     <DialogTitle>{editingTeacher ? "Edit Guru" : "Tambah Guru"}</DialogTitle>
                     <DialogDescription>

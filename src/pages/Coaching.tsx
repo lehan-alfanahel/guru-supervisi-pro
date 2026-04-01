@@ -258,7 +258,7 @@ export default function Coaching() {
                   <Plus className="w-4 h-4" /> Buat
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Sesi Coaching Baru</DialogTitle>
                 </DialogHeader>
