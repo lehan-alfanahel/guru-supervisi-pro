@@ -666,7 +666,7 @@ export default function SupervisionModulAjar() {
             <DialogTitle>Instrumen Supervisi Telaah Modul Ajar</DialogTitle>
           </DialogHeader>
           <form onSubmit={onSubmit} className="space-y-5">
-            <FormContent f={form} setF={setForm as any} prefix="new_" />
+            {renderFormContent(form, setForm as any, "new_")}
             <div className="flex gap-2">
               <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
               <Button type="submit" className="flex-1" disabled={submitting || !form.teacher_id}>
