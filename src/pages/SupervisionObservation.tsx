@@ -598,7 +598,7 @@ export default function SupervisionObservation() {
                 <DialogTitle>Instrumen Supervisi Akademik (Kurikulum Merdeka)</DialogTitle>
               </DialogHeader>
               <form onSubmit={onSubmit} className="space-y-5">
-                <FormContent f={form} setF={setForm} prefix="new_" />
+                {renderFormContent(form, setForm, "new_")}
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Batal</Button>
                   <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? "Menyimpan..." : "Simpan"}</Button>
