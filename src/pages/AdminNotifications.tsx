@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Bell, BellOff, CheckCheck, ClipboardList, MessageSquare,
   BookOpen, Trash2, ArrowLeft,
