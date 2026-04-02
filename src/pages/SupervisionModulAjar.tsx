@@ -644,7 +644,7 @@ export default function SupervisionModulAjar() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-bold">Supervisi Telaah Modul Ajar</h1>
+              <h1 className="text-base sm:text-lg font-bold">Supervisi Modul Ajar</h1>
               <p className="text-xs sm:text-sm opacity-90">{list.length} data</p>
             </div>
           </div>
