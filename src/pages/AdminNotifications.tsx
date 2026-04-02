@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Bell, BellOff, CheckCheck, ClipboardList, MessageSquare,
-  BookOpen, Trash2, ArrowLeft,
+  BookOpen, Trash2, ArrowLeft, LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,12 +14,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow, format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function AdminNotifications() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const { toast } = useToast();
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [tab, setTab] = useState<"all" | "unread" | "read">("all");
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const filtered = notifications.filter((n) => {
     if (tab === "unread") return !n.is_read;
@@ -103,6 +111,9 @@ export default function AdminNotifications() {
               Tandai semua
             </Button>
           )}
+          <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
@@ -220,6 +231,19 @@ export default function AdminNotifications() {
       </div>
 
       <AdminBottomNav />
+
+      <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Konfirmasi Logout</AlertDialogTitle>
+            <AlertDialogDescription>Apakah Anda yakin ingin keluar dari aplikasi?</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { setLogoutDialogOpen(false); signOut(); }} className="bg-destructive hover:bg-destructive/90">Logout</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
