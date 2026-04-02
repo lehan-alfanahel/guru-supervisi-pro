@@ -19,8 +19,6 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { id as localeId } from "date-fns/locale";
-import { useToast } from "@/hooks/use-toast";
 
 export default function AdminNotifications() {
   const navigate = useNavigate();
@@ -29,9 +27,6 @@ export default function AdminNotifications() {
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [tab, setTab] = useState<"all" | "unread" | "read">("all");
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const { toast } = useToast();
-  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const [tab, setTab] = useState<"all" | "unread" | "read">("all");
 
   const filtered = notifications.filter((n) => {
     if (tab === "unread") return !n.is_read;
