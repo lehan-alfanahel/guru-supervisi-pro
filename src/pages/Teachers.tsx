@@ -367,6 +367,9 @@ export default function Teachers() {
                 </DialogContent>
               </Dialog>
             )}
+            <Button variant="ghost" size="icon" className="hover:bg-white/10" onClick={() => setLogoutDialogOpen(true)}>
+              <LogOut className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </header>
