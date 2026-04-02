@@ -246,12 +246,7 @@ export default function Coaching() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            {sessions.length > 0 && (
-              <Button size="sm" variant="ghost" className="hover:bg-white/10 gap-1.5" onClick={handlePrintAll}>
-                <Printer className="w-4 h-4" />
-                <span className="hidden sm:inline">Cetak Semua</span>
-              </Button>
-            )}
+            
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
