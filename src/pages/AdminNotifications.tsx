@@ -24,6 +24,11 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function AdminNotifications() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+  const { toast } = useToast();
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const [tab, setTab] = useState<"all" | "unread" | "read">("all");
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { toast } = useToast();
   const { notifications, loading, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [tab, setTab] = useState<"all" | "unread" | "read">("all");
