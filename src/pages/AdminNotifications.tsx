@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Bell, BellOff, CheckCheck, ClipboardList, MessageSquare,
-  BookOpen, Trash2, ArrowLeft,
+  BookOpen, Trash2, ArrowLeft, LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
