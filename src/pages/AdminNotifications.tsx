@@ -120,7 +120,6 @@ export default function AdminNotifications() {
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
-        </div>
       </header>
 
       {/* Tabs */}
