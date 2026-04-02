@@ -314,7 +314,7 @@ export default function Teachers() {
             </div>
           </div>
           
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center">
             <Button 
               size="sm" 
               variant="secondary" 
