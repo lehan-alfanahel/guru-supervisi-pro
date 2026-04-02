@@ -255,7 +255,7 @@ export default function Coaching() {
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 gap-1.5">
-                  <Plus className="w-4 h-4" /> Buat Coaching
+                  <Plus className="w-4 h-4" /> Tambah
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
