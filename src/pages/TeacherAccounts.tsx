@@ -41,7 +41,8 @@ export default function TeacherAccounts() {
   const [accountToDelete, setAccountToDelete] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<any>(null);
-  const { user } = useAuth();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
