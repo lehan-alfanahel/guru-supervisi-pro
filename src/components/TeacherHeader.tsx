@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { School, LogOut } from "lucide-react";
+import { GraduationCap, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -64,8 +64,8 @@ export function TeacherHeader({ teacherName = "", schoolName = "" }: TeacherHead
         <div className="px-4 py-3 flex items-center justify-between gap-3">
           {/* Left side */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-              <School className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-7 h-7" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-sm md:text-base font-bold leading-tight">SUPERVISI DIGITAL GURU</h1>
