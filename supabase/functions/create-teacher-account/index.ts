@@ -164,6 +164,18 @@ serve(async (req) => {
           }
         );
       }
+
+      // Ensure teacher role exists for existing user
+      const { error: roleError } = await supabaseAdmin
+        .from('user_roles')
+        .upsert(
+          { user_id: userId, role: 'teacher' },
+          { onConflict: 'user_id,role' }
+        );
+
+      if (roleError) {
+        console.error("Error assigning teacher role to existing user:", roleError);
+      }
     } else {
       // Generate a secure random password if not provided
       const finalPassword = password || crypto.randomUUID().replace(/-/g, '').substring(0, 16);
