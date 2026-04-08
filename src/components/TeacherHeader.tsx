@@ -75,8 +75,8 @@ export function TeacherHeader({ teacherName = "", schoolName = "" }: TeacherHead
 
           {/* Right side */}
           <div className="flex items-center gap-1">
-            <div className="text-right hidden sm:block mr-1">
-              <p className="text-xs font-medium leading-tight">{teacherName}</p>
+            <div className="text-right hidden sm:block mr-1 cursor-pointer" onClick={() => navigate("/teacher/profile")}>
+              <p className="text-xs font-medium leading-tight hover:underline">{teacherName}</p>
               <p className="text-xs opacity-80 truncate max-w-[150px]">{email}</p>
             </div>
             <NotificationBell />
