@@ -234,8 +234,8 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium">{school?.principal_name}</p>
+              <div className="text-right hidden sm:block cursor-pointer" onClick={() => navigate("/profile")}>
+                <p className="text-sm font-medium hover:underline">{school?.principal_name}</p>
                 <p className="text-xs opacity-75">{userEmail}</p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setLogoutDialogOpen(true)} className="hover:bg-white/10">
