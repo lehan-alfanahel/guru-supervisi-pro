@@ -345,7 +345,7 @@ export default function Supervisions() {
           <table>
             <thead>
               <tr>
-                <th rowspan="2" style="width:5%;">No</th>
+                <th rowspan="2" style="width:5%;font-size:10px;">No</th>
                 <th rowspan="2">Komponen Administrasi Pembelajaran</th>
                 <th colspan="3">Kondisi</th>
                 <th rowspan="2" style="width:20%;">Keterangan</th>
