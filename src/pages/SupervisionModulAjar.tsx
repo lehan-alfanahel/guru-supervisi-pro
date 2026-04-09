@@ -449,7 +449,7 @@ export default function SupervisionModulAjar() {
           ? (item as any).subItems.map((s: string) => `<div style="color:#666;font-size:10px;margin-left:8px;margin-top:2px;">${s}</div>`).join("")
           : "";
         bodyRows += `<tr>
-          <td style="text-align:center;padding:5px 8px;">${item.num}</td>
+          <td style="text-align:center;padding:5px 8px;font-size:9px;">${item.num}</td>
           <td style="padding:5px 8px;font-size:11px;">${item.label}${subItemsHtml}</td>
           <td style="text-align:center;">${v === 0 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 1 ? "✓" : ""}</td>

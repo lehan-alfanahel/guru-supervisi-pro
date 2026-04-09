@@ -469,8 +469,8 @@ export default function SupervisionATP() {
         </table>
         <br/>
         <table class="noborder">
-          <tr><td>Catatan</td><td>: ${row.notes || "........................................................................................."}</td></tr>
-          <tr><td>Tindak Lanjut</td><td>: ${row.tindak_lanjut || "........................................................................................."}</td></tr>
+          <tr><td style="width:100px;">Catatan</td><td>: ${row.notes || "........................................................................................."}</td></tr>
+          <tr><td style="width:100px;">Tindak Lanjut</td><td>: ${row.tindak_lanjut || "........................................................................................."}</td></tr>
         </table>
         <br/><br/>
         <table class="noborder" style="width:100%;">
