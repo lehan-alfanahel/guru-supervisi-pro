@@ -386,7 +386,7 @@ export default function SupervisionATP() {
         const v = scores[item.key] ?? 0;
         const ket = remarks[item.key] || "";
         bodyRows += `<tr>
-          <td style="text-align:center;padding:5px 8px;">${item.num}</td>
+          <td style="text-align:center;padding:5px 8px;font-size:9px;">${item.num}</td>
           <td style="padding:5px 8px;font-size:11px;">${item.label}</td>
           <td style="text-align:center;">${v === 2 ? "✓" : ""}</td>
           <td style="text-align:center;">${v === 1 ? "✓" : ""}</td>
