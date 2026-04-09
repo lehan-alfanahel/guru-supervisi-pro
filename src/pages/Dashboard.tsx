@@ -335,7 +335,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
                <CardTitle className="flex items-center gap-2 text-base">
                  <BookOpen className="w-5 h-5 text-primary" />
-                 Administrasi Guru
+                 ADMINISTRASI GURU
                </CardTitle>
               
             </div>
@@ -435,7 +435,7 @@ export default function Dashboard() {
           <CardHeader>
              <CardTitle className="flex items-center gap-2 text-base">
                <MessageSquare className="w-5 h-5 text-secondary" />
-               Coaching Terbaru
+               COACHING TERBARU
              </CardTitle>
             <p className="text-sm text-muted-foreground">Rekap sesi coaching guru yang telah dilakukan</p>
           </CardHeader>
@@ -518,7 +518,7 @@ export default function Dashboard() {
             <CardHeader>
                <CardTitle className="flex items-center gap-2 text-base">
                  <ClipboardList className="w-5 h-5 text-primary" />
-                 Supervisi Terbaru
+                 SUPERVISI TERBARU
                </CardTitle>
             </CardHeader>
             <CardContent>
@@ -549,7 +549,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
                <CardTitle className="flex items-center gap-2 text-base">
                  <School2 className="w-5 h-5 text-primary" />
-                 Profil Sekolah
+                 PROFIL SEKOLAH
                </CardTitle>
               <div className="flex items-center gap-1.5">
                 <Button
