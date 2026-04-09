@@ -287,10 +287,10 @@ export default function Dashboard() {
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Grafik Nilai Supervisi
-              </CardTitle>
+               <CardTitle className="flex items-center gap-2 text-base">
+                 <TrendingUp className="w-5 h-5 text-primary" />
+                 Grafik Nilai Supervisi
+               </CardTitle>
             </div>
             <p className="text-sm text-muted-foreground">Persentase nilai supervisi administrasi per guru (6 sesi terakhir)</p>
           </CardHeader>
@@ -333,10 +333,10 @@ export default function Dashboard() {
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                Administrasi Guru
-              </CardTitle>
+               <CardTitle className="flex items-center gap-2 text-base">
+                 <BookOpen className="w-5 h-5 text-primary" />
+                 Administrasi Guru
+               </CardTitle>
               
             </div>
             <p className="text-sm text-muted-foreground">Hasil isian instrumen administrasi oleh guru (link Google Drive)</p>
@@ -433,10 +433,10 @@ export default function Dashboard() {
         {/* Coaching Terbaru */}
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-secondary" />
-              Coaching Terbaru
-            </CardTitle>
+             <CardTitle className="flex items-center gap-2 text-base">
+               <MessageSquare className="w-5 h-5 text-secondary" />
+               Coaching Terbaru
+             </CardTitle>
             <p className="text-sm text-muted-foreground">Rekap sesi coaching guru yang telah dilakukan</p>
           </CardHeader>
           <CardContent>
@@ -516,10 +516,10 @@ export default function Dashboard() {
         {supervisions.length > 0 && (
           <Card className="shadow-[var(--shadow-card)]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ClipboardList className="w-5 h-5 text-primary" />
-                Supervisi Terbaru
-              </CardTitle>
+               <CardTitle className="flex items-center gap-2 text-base">
+                 <ClipboardList className="w-5 h-5 text-primary" />
+                 Supervisi Terbaru
+               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -547,10 +547,10 @@ export default function Dashboard() {
         <Card className="shadow-[var(--shadow-card)]">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <School2 className="w-5 h-5 text-primary" />
-                Profil Sekolah
-              </CardTitle>
+               <CardTitle className="flex items-center gap-2 text-base">
+                 <School2 className="w-5 h-5 text-primary" />
+                 Profil Sekolah
+               </CardTitle>
               <div className="flex items-center gap-1.5">
                 <Button
                   size="icon"

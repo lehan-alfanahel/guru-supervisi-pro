@@ -433,7 +433,7 @@ export default function SupervisionObservation() {
       </style>
       </head><body>
         <h2>Instrumen Supervisi Akademik (Kurikulum Merdeka)</h2>
-        <h3>Supervisi Pelaksanaan Pembelajaran</h3>
+        <h3 style="font-size:15px;">Supervisi Pelaksanaan Pembelajaran</h3>
         <br/>
         <table class="info-table" style="border:none;margin-bottom:10px;">
           <tr><td style="width:140px;">Nama Sekolah</td><td>: ${schoolName}</td></tr>
@@ -447,7 +447,7 @@ export default function SupervisionObservation() {
         <table style="border-collapse:collapse;width:100%;">
           <thead>
             <tr style="background:#d5e8d4;">
-              <th style="border:1px solid #ddd;padding:5px;width:30px;font-size:10px;">No</th>
+              <th style="border:1px solid #ddd;padding:5px;width:30px;font-size:9px;">No</th>
               <th style="border:1px solid #ddd;padding:5px;font-size:10px;">Aspek yang diamati: Pelaksanaan Pembelajaran</th>
               <th style="border:1px solid #ddd;padding:5px;width:50px;font-size:10px;">Sudah Lengkap/ Sesuai (2)</th>
               <th style="border:1px solid #ddd;padding:5px;width:50px;font-size:10px;">Kurang Lengkap/ Sesuai (1)</th>

@@ -57,7 +57,7 @@ export const ATP_SECTIONS = [
       { key: "d8", num: 8, label: "Menggambarkan urutan pengembangan kompetensi yang harus dikuasai peserta didik." },
       { key: "d9", num: 9, label: "Alur tujuan pembelajaran dalam satu fase menggambarkan cakupan dan tahapan pembelajaran yang linear dari awal hingga akhir fase." },
       { key: "d10", num: 10, label: "Alur tujuan pembelajaran pada keseluruhan fase menggambarkan cakupan dan tahapan pembelajaran yang menggambarkan tahapan perkembangan kompetensi antarfase dan jenjang." },
-      { key: "d11", num: 11, label: "Identifikasi elemen dan atau sub elemen Profil Pelajar Pancasila yang sesuai dengan tujuan pembelajaran yang dirumuskan." },
+      { key: "d11", num: 11, label: "Identifikasi elemen dan atau sub elemen Dimensi Profil Lulusan yang sesuai dengan tujuan pembelajaran yang dirumuskan." },
       { key: "d12", num: 12, label: "Alur Tujuan Pembelajaran." },
     ],
   },
@@ -405,7 +405,7 @@ export default function SupervisionATP() {
           body { font-family: Arial, sans-serif; margin: 30px; color: #333; font-size: 12px; }
           h1, h2 { text-align: center; margin: 3px 0; }
           h1 { font-size: 18px; }
-          h2 { font-size: 13px; }
+          h2 { font-size: 15px; }
           table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
           td, th { padding: 5px 8px; border: 1px solid #999; }
           th { background: #f0f0f0; text-align: center; font-size: 11px; }
@@ -426,7 +426,7 @@ export default function SupervisionATP() {
         <table>
           <thead>
             <tr>
-              <th rowspan="3" style="width:5%;">No</th>
+              <th rowspan="3" style="width:5%;font-size:10px;">No</th>
               <th rowspan="3">Komponen/ Indikator</th>
               <th colspan="3">Penilaian</th>
               <th rowspan="3" style="width:18%;">Keterangan</th>

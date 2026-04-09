@@ -32,10 +32,10 @@ export const MODUL_AJAR_SECTIONS = [
     ],
   },
   {
-    section: "B", title: "Kompetensi Awal dan Profil Pelajar Pancasila", type: "lengkap" as const,
+    section: "B", title: "Kompetensi Awal dan Dimensi Profil Lulusan", type: "lengkap" as const,
     items: [
       { key: "m2", num: 2, label: "Kompetensi Awal" },
-      { key: "m3", num: 3, label: "Profil Pelajar Pancasila" },
+      { key: "m3", num: 3, label: "Dimensi Profil Lulusan" },
     ],
   },
   {
@@ -492,7 +492,7 @@ export default function SupervisionModulAjar() {
         <table>
           <thead>
             <tr>
-              <th rowspan="2" style="width:4%;">No</th>
+              <th rowspan="2" style="width:4%;font-size:10px;">No</th>
               <th rowspan="2">Komponen Modul Ajar</th>
               <th colspan="3">Hasil Telaah &amp; Skor</th>
               <th rowspan="2" style="width:18%;">Keterangan</th>
