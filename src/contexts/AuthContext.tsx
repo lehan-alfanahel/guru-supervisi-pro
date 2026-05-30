@@ -24,17 +24,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchUserRole = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
+      // Prefer teacher role when the user is linked to a teacher_account.
+      // This prevents users who happen to have both roles from being
+      // misclassified (and avoids .maybeSingle() failing on duplicate rows).
+      const { data: teacherAccount, error: taError } = await supabase
+        .from('teacher_accounts')
+        .select('id')
         .eq('user_id', userId)
         .maybeSingle();
-      
+
+      if (taError) {
+        console.error('Error checking teacher account:', taError);
+      }
+
+      if (teacherAccount) {
+        setUserRole('teacher');
+        return;
+      }
+
+      // Fetch all roles (tolerate duplicates) and pick the most privileged one
+      const { data: roles, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId);
+
       if (error) {
         console.error('Error fetching user role:', error);
         setUserRole(null);
+        return;
+      }
+
+      const roleList = (roles ?? []).map((r) => r.role);
+      if (roleList.includes('admin')) {
+        setUserRole('admin');
+      } else if (roleList.includes('teacher')) {
+        setUserRole('teacher');
       } else {
-        setUserRole(data?.role ?? null);
+        setUserRole(null);
       }
     } catch (error) {
       console.error('Error fetching user role:', error);
