@@ -138,7 +138,7 @@ export default function Auth() {
                 : "text-white/80 hover:text-white hover:bg-white/10"
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
+            <User className="w-4 h-4" />
             Kepala Sekolah
           </button>
         </div>
