@@ -149,7 +149,7 @@ export default function Auth() {
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 ${userType === "teacher" ? "bg-primary/10" : "bg-orange-100"}`}>
               {userType === "teacher"
                 ? <GraduationCap className="w-7 h-7 text-primary" />
-                : <ShieldCheck className="w-5 h-5 text-orange-500" />}
+                : <User className="w-5 h-5 text-orange-500" />}
             </div>
             <CardTitle className="text-xl">
               {userType === "teacher" ? "Login Guru" : "Login Kepala Sekolah"}
