@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, ShieldCheck, User } from "lucide-react";
+import { GraduationCap, Eye, EyeOff, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -38,6 +38,8 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<UserType>("teacher");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { signUp, signIn, user, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -136,7 +138,7 @@ export default function Auth() {
                 : "text-white/80 hover:text-white hover:bg-white/10"
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
+            <User className="w-4 h-4" />
             Kepala Sekolah
           </button>
         </div>
@@ -147,7 +149,7 @@ export default function Auth() {
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-1 ${userType === "teacher" ? "bg-primary/10" : "bg-orange-100"}`}>
               {userType === "teacher"
                 ? <GraduationCap className="w-7 h-7 text-primary" />
-                : <ShieldCheck className="w-5 h-5 text-orange-500" />}
+                : <User className="w-5 h-5 text-orange-500" />}
             </div>
             <CardTitle className="text-xl">
               {userType === "teacher" ? "Login Guru" : "Login Kepala Sekolah"}
@@ -176,12 +178,23 @@ export default function Auth() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Masukkan password"
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Masukkan password"
+                    className="pr-10"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-destructive">{String(errors.password.message)}</p>
                 )}
@@ -189,12 +202,23 @@ export default function Auth() {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Masukkan password lagi"
-                    {...register("confirmPassword")}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Masukkan password lagi"
+                      className="pr-10"
+                      {...register("confirmPassword")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {errors.confirmPassword && (
                     <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>
                   )}
