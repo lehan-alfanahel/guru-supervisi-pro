@@ -202,12 +202,23 @@ export default function Auth() {
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="Masukkan password lagi"
-                    {...register("confirmPassword")}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Masukkan password lagi"
+                      className="pr-10"
+                      {...register("confirmPassword")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {errors.confirmPassword && (
                     <p className="text-sm text-destructive">{String(errors.confirmPassword.message)}</p>
                   )}
